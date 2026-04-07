@@ -1,0 +1,53 @@
+[
+    {
+        "tarea_id": "task-8be1e17737ea",
+        "usuario_id": "usr-9l7r4",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a León González Vázquez",
+        "metadata": {
+            "folio": "TAS-2026-0001"
+        },
+        "id": "evt-e69610115cdb",
+        "fecha_hora": "2026-03-09T14:55:55-06:00"
+    },
+    {
+        "tarea_id": "task-8be1e17737ea",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "comentario_agregado",
+        "descripcion": "Comentario del responsable actualizado",
+        "metadata": [],
+        "id": "evt-dfc087bd49eb",
+        "fecha_hora": "2026-03-09T14:56:47-06:00"
+    },
+    {
+        "tarea_id": "task-8be1e17737ea",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Mira, quedo listaaaa",
+        "metadata": [],
+        "id": "evt-ce2271d1bcf9",
+        "fecha_hora": "2026-03-09T14:57:18-06:00"
+    },
+    {
+        "tarea_id": "task-5e2118efa6c2",
+        "usuario_id": "usr-9l7r4",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Ricardo Sanchez Contreras",
+        "metadata": {
+            "folio": "TAS-2026-0002"
+        },
+        "id": "evt-7e36a9a5cb87",
+        "fecha_hora": "2026-04-06T21:54:32-05:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-9nkj6",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Zayanith Martinez Lopez",
+        "metadata": {
+            "folio": "TAS-2026-0003"
+        },
+        "id": "evt-e2f8201e6223",
+        "fecha_hora": "2026-04-06T21:57:05-05:00"
+    }
+]

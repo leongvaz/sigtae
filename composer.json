@@ -1,0 +1,10 @@
+{
+    "name": "sigtae/laboratorio",
+    "description": "Sistema de Gestión de Tareas - Laboratorio de Metrología",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {}
+}

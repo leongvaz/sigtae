@@ -1,0 +1,16 @@
+[
+  {
+    "id": "of-ami",
+    "nombre": "Oficina AMI",
+    "departamento_id": "dept-lab-metro",
+    "created_at": "2026-01-01T00:00:00-06:00",
+    "updated_at": "2026-01-01T00:00:00-06:00"
+  },
+  {
+    "id": "of-lab",
+    "nombre": "Oficina de Laboratorio",
+    "departamento_id": "dept-lab-metro",
+    "created_at": "2026-01-01T00:00:00-06:00",
+    "updated_at": "2026-01-01T00:00:00-06:00"
+  }
+]

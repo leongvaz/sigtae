@@ -1,0 +1,5 @@
+{
+  "prioridades": ["alta", "media", "baja"],
+  "categorias_tarea": ["revision", "entrega_documental", "inspeccion", "seguimiento", "validacion", "atencion_correctiva"],
+  "dictamen": ["satisfactoria", "satisfactoria_fuera_tiempo", "requiere_correccion", "no_presentada"]
+}
