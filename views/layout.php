@@ -360,7 +360,7 @@ function sigtaeNavIsActive(array $item, string $currentScript): bool {
         </nav>
         <div class="sb-foot">
             <div>SIGTAE · v1.0</div>
-            <div>Laboratorio de Metrología</div>
+            <div>Laboratorio de Medición</div>
         </div>
     </aside>
 

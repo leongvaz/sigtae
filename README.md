@@ -1,6 +1,6 @@
-# SIGTAE — Sistema de Gestión de Tareas (Laboratorio de Metrología)
+# SIGTAE — Sistema de Gestión de Tareas (Laboratorio de Medición)
 
-**SIGTAE** es un sistema interno para la **asignación, seguimiento, presentación de evidencias y evaluación de tareas** dentro de una estructura jerárquica (Departamento de Laboratorio de Metrología, con oficinas de Metrología, Preparación de Medidores y AMI).
+**SIGTAE** es un sistema interno para la **asignación, seguimiento, presentación de evidencias y evaluación de tareas** dentro de una estructura jerárquica del **Laboratorio de Medición**, organizado por **oficinas** (por ejemplo: **Metrología**, **Preparación de Medidores** y **AMI**).
 
 El objetivo es ordenar la operación diaria de un departamento con varias oficinas: que cada jefe pueda asignar tareas a sus colaboradores, dar seguimiento al cumplimiento, recibir evidencias (archivos), evaluar el resultado y medir desempeño con indicadores claros.
 
@@ -43,7 +43,7 @@ Definidos en `app/config/constants.php`:
 
 | Nivel | Rol | Ejemplos de cargo |
 | --- | --- | --- |
-| 1 | Jefe de departamento | Jefe Dept. Laboratorio de Metrología |
+| 1 | Jefe de departamento | Jefe Dept. Laboratorio de Medición |
 | 2 | Jefe de oficina | Jefe Metrología, Jefe Preparación de Medidores |
 | 3 | Supervisor / Colaborador | Supervisores de área |
 
@@ -83,7 +83,7 @@ Archivos en `storage/json/`:
 | --- | --- |
 | `users.json` | Usuarios: RPE, nombre, cargo, nivel_jerarquico, oficina_id, departamento_id, puede_asignar, alcance_asignacion, es_super_admin, activo. |
 | `offices.json` | Oficinas del departamento. |
-| `departments.json` | Departamentos (piloto: Laboratorio de Metrología). |
+| `departments.json` | Departamentos (piloto: Laboratorio de Medición). |
 | `tasks.json` | Tareas con folio (`TAS-AAAA-NNNN`), responsable, asignador, modalidad, fechas, estado calculado, prioridad, evidencias[], dictamen, evaluación, historial de cancelación/reasignación, etc. |
 | `history.json` | Eventos (tarea_creada, evidencia_subida, evaluacion_registrada, tarea_cancelada, tarea_reasignada, delegacion_aplicada, etc.). |
 | `delegations.json` | Delegaciones temporales (ausencias). |
@@ -125,7 +125,7 @@ Calculados en `TaskStateService::computeState` — nunca se guardan "a mano":
 
 ## 7. Pantallas principales
 
-Todas las páginas viven en `public/` y usan el *layout* común `views/layout.php` (navbar superior, breadcrumbs, contenedor fluido).
+Todas las páginas viven en `public/` y usan el *layout* común `views/layout.php` (sidebar izquierdo, topbar con breadcrumbs, contenedor fluido).
 
 | Página | Ruta | Descripción |
 | --- | --- | --- |

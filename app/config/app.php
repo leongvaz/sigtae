@@ -1,7 +1,7 @@
 <?php
 /**
  * Configuración general de la aplicación
- * SIGTAE — Sistema de Gestión de Tareas (Laboratorio de Metrología)
+ * SIGTAE — Sistema de Gestión de Tareas (Laboratorio de Medición)
  */
 return [
     'name' => 'SIGTAE',

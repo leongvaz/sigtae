@@ -153,7 +153,7 @@ usort($integrantesDashboard, fn($a, $b) => ($b['porcentaje'] <=> $a['porcentaje'
 
 $successSeed = ($_GET['msg'] ?? '') === 'seed_ok' ? 'Tareas de ejemplo cargadas.' : '';
 $pageTitle = 'Dashboard — SIGTAE';
-$pageSubtitle = 'Laboratorio de Metrología';
+$pageSubtitle = 'Laboratorio de Medición';
 $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Dashboard']];
 $currentUser = $user;
 ob_start();
