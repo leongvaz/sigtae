@@ -49,5 +49,97 @@
         },
         "id": "evt-e2f8201e6223",
         "fecha_hora": "2026-04-06T21:57:05-05:00"
+    },
+    {
+        "tarea_id": "task-261660102c18",
+        "usuario_id": "usr-9l7r4",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a León González Vázquez",
+        "metadata": {
+            "folio": "TAS-2026-0004"
+        },
+        "id": "evt-ec12d7cc62db",
+        "fecha_hora": "2026-04-10T18:09:35-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-9nkj6",
+        "tipo_evento": "evaluacion_registrada",
+        "descripcion": "Evaluación: satisfactoria. Cumple",
+        "metadata": [],
+        "id": "evt-3a370d759f1e",
+        "fecha_hora": "2026-04-10T19:25:12-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-9fced16d5797",
+        "fecha_hora": "2026-04-10T19:27:11-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "comentario_agregado",
+        "descripcion": "Comentario del responsable actualizado",
+        "metadata": [],
+        "id": "evt-dae81ba41124",
+        "fecha_hora": "2026-04-10T19:27:49-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v2 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-10924c77df82",
+        "fecha_hora": "2026-04-14T19:01:29-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v3 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-561751c86ad0",
+        "fecha_hora": "2026-04-14T19:01:38-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v4 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-350006f22411",
+        "fecha_hora": "2026-04-14T19:01:44-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v5 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-ae4c60456ca7",
+        "fecha_hora": "2026-04-14T19:12:33-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "comentario_agregado",
+        "descripcion": "Comentario del responsable actualizado",
+        "metadata": [],
+        "id": "evt-5ae4768460fe",
+        "fecha_hora": "2026-04-14T19:13:50-06:00"
+    },
+    {
+        "tarea_id": "task-34270ff3ba46",
+        "usuario_id": "usr-g47b3",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v6 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-1144c9c8fb55",
+        "fecha_hora": "2026-04-16T07:25:49-06:00"
     }
 ]

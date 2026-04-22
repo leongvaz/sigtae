@@ -26,7 +26,11 @@ class PerformanceService
         $tasks = $this->taskRepo->findByResponsable($responsableId);
         $withState = [];
         foreach ($tasks as $t) {
-            $withState[] = $this->stateService->computeState($t);
+            $st = $this->stateService->computeState($t);
+            if (!empty($st['cancelada'])) {
+                continue;
+            }
+            $withState[] = $st;
         }
         $total = count($withState);
         $atendidasTiempo = 0;
@@ -35,9 +39,16 @@ class PerformanceService
         $activas = 0;
         $sum = 0;
         foreach ($withState as $t) {
+            if (!empty($t['pendiente_mejora']) && ($t['evaluacion'] ?? null) === null) {
+                $activas++;
+                continue;
+            }
             $estado = $t['estado'] ?? '';
             if (in_array($estado, ['atendida', 'vencida', 'incumplimiento'], true)) {
                 $p = $this->stateService->porcentajeCumplimiento($t);
+                if (array_key_exists('evaluacion', $t) && $t['evaluacion'] !== null && $t['evaluacion'] !== '') {
+                    $p = (float) $t['evaluacion'];
+                }
                 $sum += $p;
                 if ($estado === 'atendida') {
                     $atendidasTiempo++;

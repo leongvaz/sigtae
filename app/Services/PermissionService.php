@@ -73,10 +73,29 @@ class PermissionService
             return $result;
         }
 
+        // Caso especial: supervisor con permiso explícito puede asignar a pares de su misma oficina.
+        if ($nivelResponsable === $nivelAsignador && !empty($asignador['puede_asignar_pares'])) {
+            $sameDept = ($asignador['departamento_id'] ?? '') !== '' && ($asignador['departamento_id'] ?? '') === ($responsable['departamento_id'] ?? '');
+            $sameOffice = ($asignador['oficina_id'] ?? '') !== '' && ($asignador['oficina_id'] ?? '') === ($responsable['oficina_id'] ?? '');
+            if ($sameDept && $sameOffice && $this->canAssign($asignador)) {
+                $result['allowed'] = true;
+                return $result;
+            }
+        }
+
         if ($nivelResponsable === $nivelAsignador) {
             $delegation = $this->delegationRepo->findActiveForUser($idAsignador);
             if (!$delegation || empty($delegation['alcance_permiso'])) {
                 $result['reason'] = 'No puede asignar a pares del mismo nivel sin delegación temporal.';
+                return $result;
+            }
+        }
+
+        // Caso especial: usuarios marcados como asignables por cualquier jefe de oficina (nivel 2).
+        if (!empty($responsable['asignable_por_jefes_oficina']) && $nivelAsignador === 2) {
+            $sameDept = ($asignador['departamento_id'] ?? '') !== '' && ($asignador['departamento_id'] ?? '') === ($responsable['departamento_id'] ?? '');
+            if ($sameDept && $this->canAssign($asignador)) {
+                $result['allowed'] = true;
                 return $result;
             }
         }
@@ -190,11 +209,77 @@ class PermissionService
             if (($candidate['id'] ?? '') === ($user['id'] ?? '')) {
                 continue;
             }
+            if (!($candidate['activo'] ?? true)) {
+                continue;
+            }
             $check = $this->canAssignTo($user, $candidate);
             if ($check['allowed']) {
                 $assignable[] = $candidate;
             }
         }
         return $assignable;
+    }
+
+    /**
+     * Cancelar tarea: sólo usuarios que asignan tareas (puede_asignar = true)
+     * o super admin. Además, el actor debe ser:
+     *   - super admin (cualquier tarea), o
+     *   - el asignador original de la tarea, o
+     *   - jefe de oficina (nivel 2) con puede_asignar, dentro de la misma oficina.
+     */
+    public function canCancelTask(?array $actor, ?array $task): bool
+    {
+        if (!$actor || !$task || !empty($task['cancelada'])) {
+            return false;
+        }
+        if (!empty($actor['es_super_admin'])) {
+            return true;
+        }
+        // A partir de aquí, el actor debe poder asignar tareas.
+        if (empty($actor['puede_asignar'])) {
+            return false;
+        }
+        if (($task['asignador_id'] ?? '') === ($actor['id'] ?? '')) {
+            return true;
+        }
+        $n = (int) ($actor['nivel_jerarquico'] ?? 999);
+        if ($n === 2
+            && ($actor['oficina_id'] ?? '') !== ''
+            && ($actor['oficina_id'] ?? '') === ($task['oficina_id'] ?? '')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Reasignar: debe poder asignar al nuevo responsable y (asignador original, jefe de oficina o super admin).
+     */
+    public function canReassignTask(?array $actor, ?array $task, ?array $nuevoResponsable): bool
+    {
+        if (!$actor || !$task || !$nuevoResponsable || !empty($task['cancelada'])) {
+            return false;
+        }
+        $chk = $this->canAssignTo($actor, $nuevoResponsable);
+        if (!$chk['allowed']) {
+            return false;
+        }
+        if (!empty($actor['es_super_admin'])) {
+            return true;
+        }
+        if (($task['asignador_id'] ?? '') === ($actor['id'] ?? '')) {
+            return true;
+        }
+        $n = (int) ($actor['nivel_jerarquico'] ?? 999);
+        if ($n === 2 && !empty($actor['puede_asignar'])
+            && ($actor['oficina_id'] ?? '') !== ''
+            && ($actor['oficina_id'] ?? '') === ($task['oficina_id'] ?? '')) {
+            return true;
+        }
+        // Supervisores con puede_asignar + pares (misma oficina): reasignar dentro de su oficina
+        if (!empty($actor['puede_asignar']) && ($actor['oficina_id'] ?? '') === ($task['oficina_id'] ?? '')
+            && ($actor['oficina_id'] ?? '') === ($nuevoResponsable['oficina_id'] ?? '')) {
+            return $this->canAssign($actor);
+        }
+        return false;
     }
 }

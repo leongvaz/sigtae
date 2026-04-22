@@ -1,0 +1,435 @@
+[
+    {
+        "user": "9K32R",
+        "nombre": "Gustavo Javier Palacios Leon",
+        "zona": "Tacuba",
+        "admin": 0,
+        "proceso":"distribucion",
+        "estado":"1"
+    },
+    {
+        "user": "9L8EH",
+        "nombre": "Gonzalo Moreno Camara",
+        "zona": "Aeropuerto",
+        "admin": 0,
+        "proceso":"distribucion",
+        "estado":"1"
+    },
+    {
+        "user": "G44BK",
+        "nombre": "Alejandro Meza",
+        "zona":"Zocalo",
+        "admin": 0,
+        "proceso":"distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L3JJ",
+        "nombre": "ALBERTO SOLIS GODINEZ",
+        "zona": "Zocalo",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L824",
+        "nombre": "EDGAR AGUILAR DOMINGUEZ",
+        "zona": "Zocalo",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G45BH",
+        "nombre": "Juan Miguel Mariaca Bolaños",
+        "zona": "Aeropuerto",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L8ED",
+        "nombre": "MIGUEL ANGEL HERNANDEZ CASTELLANOS",
+        "zona": "Zocalo",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9HLPE",
+        "nombre": "Hector Said Sosa Yepez",
+        "zona": "Benito Juarez",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKKV",
+        "nombre": "ALEJANDRO VAZQUEZ ESTEFES",
+        "zona": "Zocalo",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L827",
+        "nombre": "OTHON CERVANTES GUERRERO",
+        "zona": "Zocalo",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G48B4",
+        "nombre": "JUAN ANTONIO REYES HERNANDEZ",
+        "zona": "Zocalo",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L7R4",
+        "nombre": "ERICK MANUEL DIAZ ARREDONDO",
+        "zona": "Benito Juarez",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKL0",
+        "nombre": "Jessica Yadira Guerrero Lopez",
+        "zona": "Aeropuerto",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G39BA",
+        "nombre": "CRISTOPHER MARTINEZ CALDERON",
+        "zona": "Aeropuerto",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "0"
+    },
+    {
+        "user": "G44BW",
+        "nombre": "Juan Carlos Ventura Dorantes",
+        "zona": "Zocalo",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9MM23",
+        "nombre": "Marco Antonio Briones Concha",
+        "zona": "Polanco",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G46BG",
+        "nombre": "LEON GONZALEZ VAZQUEZ",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G53BF",
+        "nombre": "Jose Luis Maldonado Villatoro",
+        "zona": "Nezahualcoyotl",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G50BY",
+        "nombre": "CARLOS BOFILL ROMAN",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G51BG",
+        "nombre": "ANGEL GODINEZ TOBIAS",
+        "zona": "Chapingo",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G47B1",
+        "nombre": "JENI ALINE DE LA ROSA RAMIREZ",
+        "zona": "Chapingo",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G45B3",
+        "nombre": "MARLENE YAZMIN AGUILAR ROMAN",
+        "zona": "Polanco",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G46B6",
+        "nombre": "ASHLEY YASHINKA TRUJILLO LETECHIPIA",
+        "zona": "Polanco",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G46BR",
+        "nombre": "ALAN EMANUEL ZUÑIGA AVILA",
+        "zona": "Zocalo",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L86E",
+        "nombre": "JESUS CUAUHTEMOC CASTRO GAONA",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L86J",
+        "nombre": "DANIEL HUERTA ONTIVEROS",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9K321",
+        "nombre": "ROBERTO CANALIZO ROSALES",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9K322",
+        "nombre": "RENE DE JESUS LOPEZ MOGUEL",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9N0J6",
+        "nombre": "FRANCISCO JAVIER MARTINEZ DE LA CRUZ",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKG5",
+        "nombre": "JUAN MANUEL GOMEZ OLMEDO",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKKT",
+        "nombre": "RAUNEL CALIXTO VARGAS",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKL4",
+        "nombre": "LUIS ANTONIO AMARO ALVAREZ",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKJE",
+        "nombre": "MARGARITO SOLARES RAMOS",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9NKW6",
+        "nombre": "ROBERTO CARLOS TORRES CHABLET",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G33BA",
+        "nombre": "FRANCISCO JAVIER BERRERA LOPEZ",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "G39BJ",
+        "nombre": "OLVALDO ABURTO RUIZ",
+        "zona": "Tacuba",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9L3YD",
+        "nombre": "HECTOR MANUEL IBARRA AGUIRRE",
+        "zona": "Zocalo",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "GA5VF",
+        "nombre": "Angelica García Hernández",
+        "zona": "Zocalo",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9K30W",
+        "nombre": "RENE MARTIN CRESPO PRADO",
+        "zona": "Benito Juarez",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "GAN2Y",
+        "nombre": "MONZERRATH JAVIER AYALA",
+        "zona": "Polanco",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9L30C",
+        "nombre": "JAVIER DIRCEU DOMINGUEZ PATRACA",
+        "zona": "Tacuba",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9N0H7",
+        "nombre": "RAUL FERNANDO PINEDO SIFUENTES",
+        "zona": "Aeropuerto",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9NJ18",
+        "nombre": "ERICK ARMANDO SANCHEZ HERNANDEZ",
+        "zona": "Nezahualcoyotl",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },{
+        "user": "9L7PD",
+        "nombre": "Jose Angel Barrios Contreras",
+        "zona": "Nezahualcoyotl",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+    {
+        "user": "9MM20",
+        "nombre": "JUAN PABLO QUIROGA SANCHEZ",
+        "zona": "Chapingo",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9N87N",
+        "nombre": "JOSE ALFREDO JUAREZ GONZALEZ",
+        "zona": "Division",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "GANVY",
+        "nombre": "LUIS ENRIQUE CARREÑO MENDEZ",
+        "zona": "Polanco",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9L3G4",
+        "nombre": "OSCAR ANAYA SANCHEZ",
+        "zona": "Aeropuerto",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9L86K",
+        "nombre": "ANDY ORTEGA SOLIS",
+        "zona": "Chapingo",
+        "admin": "0",
+        "proceso": "suministro",
+        "estado": "1"
+    },
+    {
+        "user": "9L7R0",
+        "nombre": "Ivan Josue Santiago Gudiño",
+        "zona": "Nezahualcoyotl",
+        "admin": "0",
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+  {
+        "user": "9B8J4",
+        "nombre": "Pedro Pavel",
+        "zona": "Division",
+        "admin": 0,
+        "proceso": "distribucion",
+        "estado": "1"
+    },
+ {
+        "user": "9L7RA",
+        "nombre": "JAVIER SALAZAR JUAREZ",
+        "zona": "Polanco",
+        "admin": 0,
+        "proceso":"distribucion",
+        "estado":"1"
+    },
+
+   {
+        "user": "G46BT",
+        "nombre": "Gregorio Antonio Garrea Morales",
+        "zona":"Zocalo",
+        "admin": 0,
+        "proceso":"distribucion",
+        "estado": "1"
+    },
+  {
+        "user": "G44BR",
+        "nombre": "Gabriel Esparza",
+        "zona":"Aeropuerto",
+        "admin": 0,
+        "proceso":"distribucion",
+        "estado": "1"
+    }
+
+]

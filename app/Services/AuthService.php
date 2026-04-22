@@ -8,11 +8,15 @@ class AuthService
     private UserRepositoryInterface $userRepo;
     private string $sessionKey = 'sigtae_user_id';
     private string $basePath = '';
+    private ?AdDirectoryValidationService $adValidator;
+    private bool $authLocalPasswordFallback;
 
     public function __construct(UserRepositoryInterface $userRepo, array $options = [])
     {
         $this->userRepo = $userRepo;
         $this->basePath = rtrim($options['base_path'] ?? '', '/');
+        $this->adValidator = $options['ad_validator'] ?? null;
+        $this->authLocalPasswordFallback = (bool)($options['auth_local_password_fallback'] ?? false);
     }
 
     public function startSession(): void
@@ -25,6 +29,35 @@ class AuthService
 
     public function login(string $rpe, string $password): array
     {
+        $rpe = trim($rpe);
+
+        $ad = $this->adValidator;
+        if ($ad && $ad->isEnabled()) {
+            $vr = $ad->validate($rpe, $password);
+            if ($vr['outcome'] === 'ok') {
+                $user = $this->userRepo->findByRpe($rpe);
+                if (!$user || !($user['activo'] ?? true)) {
+                    return ['ok' => false, 'message' => 'El usuario no tiene permitido el acceso al sistema.'];
+                }
+                return $this->establishSession($user);
+            }
+            if ($vr['outcome'] === 'invalid') {
+                return ['ok' => false, 'message' => 'Credenciales incorrectas.'];
+            }
+            if ($this->authLocalPasswordFallback) {
+                return $this->loginWithLocalPassword($rpe, $password);
+            }
+            return [
+                'ok' => false,
+                'message' => 'No fue posible conectar con el directorio activo. Intente más tarde.',
+            ];
+        }
+
+        return $this->loginWithLocalPassword($rpe, $password);
+    }
+
+    private function loginWithLocalPassword(string $rpe, string $password): array
+    {
         $user = $this->userRepo->findByRpe($rpe);
         if (!$user || !($user['activo'] ?? true)) {
             return ['ok' => false, 'message' => 'Credenciales incorrectas.'];
@@ -32,6 +65,11 @@ class AuthService
         if (!password_verify($password, $user['password_hash'] ?? '')) {
             return ['ok' => false, 'message' => 'Credenciales incorrectas.'];
         }
+        return $this->establishSession($user);
+    }
+
+    private function establishSession(array $user): array
+    {
         $this->startSession();
         $_SESSION[$this->sessionKey] = $user['id'];
         return ['ok' => true, 'user' => $this->sanitizeUser($user)];

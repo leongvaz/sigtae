@@ -2,7 +2,7 @@
 $base = dirname(__DIR__);
 $container = require $base . '/app/bootstrap.php';
 $basePath = $container['base_path'] ?? '';
-$auth = new \App\Services\AuthService($container['repositories']['user'], ['base_path' => $basePath]);
+$auth = sigtae_auth_service($container, $basePath);
 $user = $auth->requireAuth();
 
 $permissionService = $container['PermissionService'];
@@ -16,7 +16,10 @@ $assignable = $permissionService->getAssignableUsers($user);
 $offices = $officeRepo->findAll();
 $constants = $container['constants'];
 $prioridades = ['alta', 'media', 'baja'];
-$categorias = $constants['categorias_tarea'] ?? ['revision', 'entrega_documental', 'inspeccion', 'seguimiento', 'validacion', 'atencion_correctiva'];
+$categorias = $constants['categorias_tarea'] ?? ['operativa', 'administrativo', 'aplicativo'];
+$modalidades = $constants['modalidades_asignacion'] ?? ['diaria', 'programada'];
+$tzMx = new \DateTimeZone('America/Mexico_City');
+$hoyMx = (new \DateTimeImmutable('now', $tzMx))->format('Y-m-d');
 
 $error = '';
 $success = '';
@@ -26,10 +29,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = trim($_POST['titulo'] ?? '');
     $descripcion = trim($_POST['descripcion'] ?? '');
     $prioridad = $_POST['prioridad'] ?? 'media';
-    $categoria = $_POST['categoria'] ?? 'seguimiento';
+    $categoria = $_POST['categoria'] ?? 'operativa';
+    $modalidad = $_POST['modalidad_asignacion'] ?? 'diaria';
+    if (!in_array($modalidad, $modalidades, true)) {
+        $modalidad = 'diaria';
+    }
     $fechaLimite = trim($_POST['fecha_limite'] ?? '');
+    if ($modalidad === 'diaria') {
+        $fechaLimite = $hoyMx;
+    }
     if ($titulo === '' || $responsableId === '' || $fechaLimite === '') {
         $error = 'Complete título, responsable y fecha límite.';
+    } elseif ($modalidad === 'programada' && $fechaLimite < $hoyMx) {
+        $error = 'Para tareas programadas la fecha límite no puede ser anterior a hoy.';
     } else {
         $responsable = $userRepo->find($responsableId);
         $check = $permissionService->canAssignTo($user, $responsable);
@@ -51,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'fecha_asignacion' => (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('Y-m-d'),
                 'fecha_limite' => $fechaLimite,
                 'fecha_entrega' => null,
+                'modalidad_asignacion' => $modalidad,
                 'estado' => 'asignada',
                 'comentarios_responsable' => '',
                 'comentarios_evaluador' => '',

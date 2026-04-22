@@ -22,6 +22,12 @@ $configPath = __DIR__ . '/config/app.php';
 $config = is_file($configPath) ? require $configPath : [];
 $constants = require __DIR__ . '/config/constants.php';
 
+// Helpers de UI reutilizables (partials) cargados globalmente
+$uiPartials = dirname(__DIR__) . '/views/partials/ui.php';
+if (is_file($uiPartials)) {
+    require_once $uiPartials;
+}
+
 $storagePath = $config['storage_path'] ?? __DIR__ . '/../storage/json';
 
 use App\Core\JsonStorage;
@@ -48,11 +54,33 @@ $permissionService = new \App\Services\PermissionService($repositories['user'], 
 $performanceService = new \App\Services\PerformanceService($repositories['task'], $stateService);
 $historyService = new \App\Services\HistoryService($repositories['history']);
 
+$adValidator = new \App\Services\AdDirectoryValidationService($config);
+$authLocalPasswordFallback = (bool)($config['auth_local_password_fallback'] ?? false);
+
+if (!function_exists('sigtae_auth_service')) {
+    /**
+     * @param array<string, mixed> $container
+     */
+    function sigtae_auth_service(array $container, string $basePath): \App\Services\AuthService
+    {
+        return new \App\Services\AuthService($container['repositories']['user'], [
+            'base_path' => $basePath,
+            'ad_validator' => $container['ad_validator'],
+            'auth_local_password_fallback' => $container['auth_local_password_fallback'],
+        ]);
+    }
+}
+
 // Ruta base para subdirectorio (ej. /sigtae/public). Vacío si la app está en la raíz.
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 $basePath = $scriptName !== '' ? rtrim(dirname($scriptName), '/\\') : '';
 if ($basePath === '.' || $basePath === '\\') {
     $basePath = '';
+}
+$basePath = str_replace('\\', '/', $basePath);
+// Tras rewrite desde la raíz del proyecto, SCRIPT_NAME sigue apuntando a public/; quitarlo de la URL visible.
+if ($basePath !== '' && substr($basePath, -7) === '/public') {
+    $basePath = substr($basePath, 0, -7);
 }
 
 return [
@@ -60,6 +88,8 @@ return [
     'constants' => $constants,
     'base_path' => $basePath,
     'repositories' => $repositories,
+    'ad_validator' => $adValidator,
+    'auth_local_password_fallback' => $authLocalPasswordFallback,
     'TaskStateService' => $stateService,
     'PermissionService' => $permissionService,
     'PerformanceService' => $performanceService,

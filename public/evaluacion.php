@@ -2,7 +2,7 @@
 $base = dirname(__DIR__);
 $container = require $base . '/app/bootstrap.php';
 $basePath = $container['base_path'] ?? '';
-$auth = new \App\Services\AuthService($container['repositories']['user'], ['base_path' => $basePath]);
+$auth = sigtae_auth_service($container, $basePath);
 $user = $auth->requireAuth();
 
 $taskRepo = $container['repositories']['task'];
@@ -14,6 +14,9 @@ $tasks = $taskRepo->findAll();
 $pendientesEvaluar = [];
 foreach ($tasks as $t) {
     $t = $stateService->computeState($t);
+    if (!empty($t['cancelada'])) {
+        continue;
+    }
     if (count($t['evidencias'] ?? []) > 0 && ($t['evaluacion'] ?? null) === null && ($t['estado'] ?? '') !== 'incumplimiento') {
         $resp = $userRepo->find($t['responsable_id'] ?? '');
         if ($permissionService->canEvaluate($user, $t, $resp)) {

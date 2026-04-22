@@ -13,35 +13,27 @@ $eventosPorFecha = [];
 foreach ($eventos as $e) {
     $eventosPorFecha[$e['fecha']][] = $e;
 }
-function estadoColor($e) {
-    $m = ['atendida'=>'success','vencida'=>'warning','incumplimiento'=>'danger','en_proceso'=>'info','asignada'=>'primary'];
-    return $m[$e] ?? 'secondary';
-}
 $totalCeldas = (int)ceil(($primerDia + $diasEnMes) / 7) * 7;
+$hoy = date('Y-m-d');
+
+$navNav = '
+<div class="d-flex align-items-center gap-2">
+    <a href="?mes=' . $mesAnterior . '&anio=' . $anioAnterior . '" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chevron-left"></i></a>
+    <span class="fw-bold px-2" style="color: var(--sigtae-navy); min-width: 160px; text-align: center;">' . $nombresMes[$mes] . ' ' . $anio . '</span>
+    <a href="?mes=' . $mesSiguiente . '&anio=' . $anioSiguiente . '" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chevron-right"></i></a>
+    <a href="?mes=' . date('n') . '&anio=' . date('Y') . '" class="btn btn-primary btn-sm ms-2">Hoy</a>
+</div>';
+sigtae_page_header('Calendario', 'Tareas por fecha límite', $navNav);
 ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="h3 fw-bold">Calendario</h1>
-        <p class="text-muted mb-0">Tareas por fecha límite</p>
-    </div>
-    <nav>
-        <a href="?mes=<?= $mesAnterior ?>&anio=<?= $anioAnterior ?>" class="btn btn-outline-secondary btn-sm">← Anterior</a>
-        <span class="mx-3 fw-bold"><?= $nombresMes[$mes] ?> <?= $anio ?></span>
-        <a href="?mes=<?= $mesSiguiente ?>&anio=<?= $anioSiguiente ?>" class="btn btn-outline-secondary btn-sm">Siguiente →</a>
-    </nav>
-</div>
+
 <div class="card">
     <div class="card-body p-0">
         <table class="table table-bordered mb-0 calendario-mes">
             <thead class="table-light">
                 <tr>
-                    <th class="text-center" style="width:14%">Domingo</th>
-                    <th class="text-center" style="width:14%">Lunes</th>
-                    <th class="text-center" style="width:14%">Martes</th>
-                    <th class="text-center" style="width:14%">Miércoles</th>
-                    <th class="text-center" style="width:14%">Jueves</th>
-                    <th class="text-center" style="width:14%">Viernes</th>
-                    <th class="text-center" style="width:14%">Sábado</th>
+                    <?php foreach (['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'] as $d): ?>
+                        <th class="text-center small" style="width:14.28%"><?= $d ?></th>
+                    <?php endforeach; ?>
                 </tr>
             </thead>
             <tbody>
@@ -51,13 +43,19 @@ $totalCeldas = (int)ceil(($primerDia + $diasEnMes) / 7) * 7;
                     $dia = $celda - $primerDia + 1;
                     $fecha = ($dia >= 1 && $dia <= $diasEnMes) ? sprintf('%04d-%02d-%02d', $anio, $mes, $dia) : null;
                     $eventosDia = $fecha ? ($eventosPorFecha[$fecha] ?? []) : [];
+                    $esHoy = ($fecha === $hoy);
                     ?>
-                    <td class="align-top p-2" style="min-height:100px; vertical-align:top">
+                    <td class="align-top p-2" style="height:110px; vertical-align:top; <?= $esHoy ? 'background: var(--sigtae-cyan-soft);' : '' ?>">
                         <?php if ($dia >= 1 && $dia <= $diasEnMes): ?>
-                            <div class="small fw-semibold text-muted"><?= $dia ?></div>
+                            <div class="small fw-semibold <?= $esHoy ? 'text-primary' : 'text-muted' ?>"><?= $dia ?></div>
                             <?php foreach ($eventosDia as $ev): ?>
-                                <a href="<?= htmlspecialchars($basePath ?? '') ?>/tarea.php?id=<?= urlencode($ev['id']) ?>" class="d-block small badge bg-<?= estadoColor($ev['estado']) ?> text-decoration-none mb-1" title="<?= htmlspecialchars($ev['titulo']) ?>">
-                                    <?= htmlspecialchars($ev['folio']) ?></a>
+                                <a href="<?= htmlspecialchars($basePath ?? '') ?>/tarea.php?id=<?= urlencode($ev['id']) ?>"
+                                   class="d-block small text-decoration-none mb-1 p-1 rounded"
+                                   style="font-size: .7rem; background: #f1f5f9; color: var(--sigtae-navy); border-left: 3px solid var(--sigtae-cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                   data-bs-toggle="tooltip" title="<?= htmlspecialchars($ev['titulo']) ?>">
+                                    <?= sigtae_status_badge((string)($ev['estado'] ?? '')) ?>
+                                    <?= htmlspecialchars($ev['folio']) ?>
+                                </a>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </td>

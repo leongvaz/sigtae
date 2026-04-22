@@ -79,6 +79,100 @@
         "fecha_asignacion": "2026-04-06",
         "fecha_limite": "2026-04-10",
         "fecha_entrega": null,
+        "estado": "atendida",
+        "comentarios_responsable": "Se envia lo solicitado",
+        "comentarios_evaluador": "Cumple",
+        "evaluacion": 100,
+        "dictamen": "satisfactoria",
+        "porcentaje_cumplimiento": 0,
+        "evidencias": [
+            {
+                "id": "ev-69d9a36f92d38",
+                "nombre_archivo": "Evidencia",
+                "ruta": "",
+                "tipo_archivo": "texto",
+                "tamaño": 0,
+                "version": 1,
+                "fecha_subida": "2026-04-10T19:27:11-06:00",
+                "usuario_subida": "usr-g47b3",
+                "comentario": ""
+            },
+            {
+                "id": "ev-69dee36918f64",
+                "nombre_archivo": "Evidencia",
+                "ruta": "",
+                "tipo_archivo": "texto",
+                "tamaño": 0,
+                "version": 2,
+                "fecha_subida": "2026-04-14T19:01:29-06:00",
+                "usuario_subida": "usr-g47b3",
+                "comentario": ""
+            },
+            {
+                "id": "ev-69dee372f1cdd",
+                "nombre_archivo": "Evidencia",
+                "ruta": "",
+                "tipo_archivo": "texto",
+                "tamaño": 0,
+                "version": 3,
+                "fecha_subida": "2026-04-14T19:01:38-06:00",
+                "usuario_subida": "usr-g47b3",
+                "comentario": ""
+            },
+            {
+                "id": "ev-69dee37898013",
+                "nombre_archivo": "Evidencia",
+                "ruta": "",
+                "tipo_archivo": "texto",
+                "tamaño": 0,
+                "version": 4,
+                "fecha_subida": "2026-04-14T19:01:44-06:00",
+                "usuario_subida": "usr-g47b3",
+                "comentario": ""
+            },
+            {
+                "id": "ev-69dee60181b54",
+                "nombre_archivo": "Evidencia",
+                "ruta": "",
+                "tipo_archivo": "texto",
+                "tamaño": 0,
+                "version": 5,
+                "fecha_subida": "2026-04-14T19:12:33-06:00",
+                "usuario_subida": "usr-g47b3",
+                "comentario": ""
+            },
+            {
+                "id": "ev-69e0e35d51c23",
+                "nombre_archivo": "Evidencia",
+                "ruta": "",
+                "tipo_archivo": "texto",
+                "tamaño": 0,
+                "version": 6,
+                "fecha_subida": "2026-04-16T07:25:49-06:00",
+                "usuario_subida": "usr-g47b3",
+                "comentario": ""
+            }
+        ],
+        "historial": [],
+        "dias_restantes": -6,
+        "id": "task-34270ff3ba46",
+        "created_at": "2026-04-06T21:57:05-05:00",
+        "updated_at": "2026-04-16T07:25:49-06:00"
+    },
+    {
+        "folio": "TAS-2026-0004",
+        "titulo": "Terminación de aplicativo SIGCOM",
+        "descripcion": "Agregar el modulo para crear y eliminar usuarios, roles y grupos.\r\nclasificar el desempeño por grupo u oficina\r\nintegrar visualmente el avance de cada integrante.\r\nagregar categoria : Operativa, administrativa y aplicativo",
+        "prioridad": "alta",
+        "categoria": "seguimiento",
+        "asignador_id": "usr-9l7r4",
+        "responsable_id": "usr-g46bg",
+        "nivel_responsable": 3,
+        "oficina_id": "of-ami",
+        "departamento_id": "dept-lab-metro",
+        "fecha_asignacion": "2026-04-10",
+        "fecha_limite": "2026-04-14",
+        "fecha_entrega": null,
         "estado": "en_proceso",
         "comentarios_responsable": "",
         "comentarios_evaluador": "",
@@ -88,8 +182,8 @@
         "evidencias": [],
         "historial": [],
         "dias_restantes": 4,
-        "id": "task-34270ff3ba46",
-        "created_at": "2026-04-06T21:57:05-05:00",
-        "updated_at": "2026-04-06T21:57:05-05:00"
+        "id": "task-261660102c18",
+        "created_at": "2026-04-10T18:09:35-06:00",
+        "updated_at": "2026-04-10T18:09:35-06:00"
     }
 ]

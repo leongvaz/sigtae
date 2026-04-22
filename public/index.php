@@ -9,8 +9,7 @@ $base = dirname(__DIR__);
 $container = require $base . '/app/bootstrap.php';
 $basePath = $container['base_path'] ?? '';
 
-$userRepo = $container['repositories']['user'];
-$auth = new \App\Services\AuthService($userRepo, ['base_path' => $basePath]);
+$auth = sigtae_auth_service($container, $basePath);
 $user = $auth->currentUser();
 
 if (!$user) {

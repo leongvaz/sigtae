@@ -10,21 +10,33 @@ return [
         'supervisor'        => 3,
     ],
 
-    // Estados de tarea (se calculan automáticamente según reglas)
+    // Estados de tarea (se calculan automáticamente según reglas; cancelada es manual)
     'estados_tarea' => [
         'asignada',      // Recién creada
         'en_proceso',    // Dentro del plazo, sin evidencia
         'incumplimiento',// Venció y no hay evidencia
         'vencida',       // Evidencia después del vencimiento
         'atendida',      // Evidencia dentro del tiempo
+        'cancelada',     // Baja lógica con motivo
     ],
 
-    // Dictamen de evaluación
+    // IDs de oficinas (catálogo en storage/json/offices.json)
+    'oficina_metrologia_id' => 'of-metro',
+    'oficina_preparacion_medidores_id' => 'of-lab',
+
+    // Modalidad al asignar (diaria = límite hoy; programada = fecha límite elegida)
+    'modalidades_asignacion' => [
+        'diaria',
+        'programada',
+    ],
+
+    // Dictamen de evaluación (valores históricos como requiere_correccion pueden existir en JSON antiguos)
     'dictamen' => [
         'satisfactoria',
         'satisfactoria_fuera_tiempo',
-        'requiere_correccion',
+        'insatisfactoria',
         'no_presentada',
+        'requiere_correccion', // legado
     ],
 
     // Prioridades y peso para desempeño ponderado (opcional)
@@ -36,12 +48,18 @@ return [
 
     // Tipos de tarea (catálogo)
     'categorias_tarea' => [
+        // legado
         'revision',
         'entrega_documental',
         'inspeccion',
         'seguimiento',
         'validacion',
         'atencion_correctiva',
+
+        // actuales (UI)
+        'operativa',
+        'administrativo',
+        'aplicativo',
     ],
 
     // Tipos de evento para historial
@@ -55,6 +73,9 @@ return [
         'evidencia_eliminada',
         'comentario_agregado',
         'evaluacion_registrada',
+        'evaluacion_insatisfactoria',
         'delegacion_aplicada',
+        'tarea_cancelada',
+        'tarea_reasignada',
     ],
 ];

@@ -23,6 +23,12 @@ class TaskStateService
      */
     public function computeState(array $task): array
     {
+        if (!empty($task['cancelada'])) {
+            $task['estado'] = 'cancelada';
+            $task['dias_restantes'] = null;
+            return $task;
+        }
+
         $fechaLimite = $task['fecha_limite'] ?? null;
         $evidencias = $task['evidencias'] ?? [];
         $hasEvidence = count($evidencias) > 0;
@@ -32,7 +38,7 @@ class TaskStateService
         if ($fechaLimite) {
             $vencido = $this->today > $fechaLimite;
             if ($hasEvidence) {
-                $primeraEvidencia = $this->fechaPrimeraEvidencia($evidencias);
+                $primeraEvidencia = $this->primeraFechaEvidencia($evidencias);
                 if ($primeraEvidencia && $primeraEvidencia <= $fechaLimite) {
                     $estado = 'atendida';
                 } else {
@@ -64,6 +70,9 @@ class TaskStateService
      */
     public function porcentajeCumplimiento(array $task): float
     {
+        if (!empty($task['cancelada'])) {
+            return 0.0;
+        }
         $estado = $task['estado'] ?? '';
         $fechaLimite = $task['fecha_limite'] ?? null;
         $evidencias = $task['evidencias'] ?? [];
@@ -71,7 +80,7 @@ class TaskStateService
         if (count($evidencias) === 0) {
             return 0.0;
         }
-        $primeraEvidencia = $this->fechaPrimeraEvidencia($evidencias);
+        $primeraEvidencia = $this->primeraFechaEvidencia($evidencias);
         if (!$primeraEvidencia || !$fechaLimite) {
             return 100.0;
         }
@@ -92,7 +101,10 @@ class TaskStateService
         return (int) $diff->format('%r%a');
     }
 
-    private function fechaPrimeraEvidencia(array $evidencias): ?string
+    /**
+     * Fecha (Y-m-d) de la primera evidencia registrada, o null.
+     */
+    public function primeraFechaEvidencia(array $evidencias): ?string
     {
         $fechas = [];
         foreach ($evidencias as $e) {

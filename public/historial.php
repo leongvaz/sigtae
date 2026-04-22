@@ -2,7 +2,7 @@
 $base = dirname(__DIR__);
 $container = require $base . '/app/bootstrap.php';
 $basePath = $container['base_path'] ?? '';
-$auth = new \App\Services\AuthService($container['repositories']['user'], ['base_path' => $basePath]);
+$auth = sigtae_auth_service($container, $basePath);
 $user = $auth->requireAuth();
 
 $historyService = $container['HistoryService'];
