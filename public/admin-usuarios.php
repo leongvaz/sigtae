@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create') {
         $rpe = strtoupper(trim($_POST['rpe'] ?? ''));
         $nombre = trim($_POST['nombre'] ?? '');
+        $email = strtolower(trim((string)($_POST['email'] ?? '')));
         $passwordPlain = $showLocalPasswordFields ? (string)($_POST['password'] ?? '') : '';
         if ($rpe === '' || $nombre === '') {
             $error = 'Indique RPE y nombre.';
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new = [
                     'rpe' => $rpe,
                     'nombre' => $nombre,
-                    'email' => '',
+                    'email' => $email,
                     'password_hash' => password_hash(
                         $passwordPlain !== '' ? $passwordPlain : ($adLoginEnabled ? bin2hex(random_bytes(24)) : 'Sigtae2026!'),
                         PASSWORD_DEFAULT
@@ -74,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new = [
                     'rpe' => $rpe,
                     'nombre' => $nombre,
-                    'email' => '',
+                    'email' => $email,
                     'password_hash' => password_hash(
                         $passwordPlain !== '' ? $passwordPlain : ($adLoginEnabled ? bin2hex(random_bytes(24)) : 'Sigtae2026!'),
                         PASSWORD_DEFAULT
@@ -109,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'No puede editar a este usuario.';
         } else {
             $target['nombre'] = trim($_POST['nombre'] ?? $target['nombre']);
-            $target['email'] = '';
+            $target['email'] = strtolower(trim((string)($_POST['email'] ?? ($target['email'] ?? ''))));
             $target['cargo'] = trim($_POST['cargo'] ?? $target['cargo']);
             if ($isSuper) {
                 $target['nivel_jerarquico'] = (int)($_POST['nivel_jerarquico'] ?? $target['nivel_jerarquico']);

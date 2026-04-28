@@ -19,9 +19,6 @@ $showLocalPasswordFields = $showLocalPasswordFields ?? true;
 $adLoginEnabled = $adLoginEnabled ?? false;
 ?>
 <?php sigtae_page_header('Usuarios', $isSuper ? 'Administración completa (super admin)' : 'Solo supervisores de su oficina'); ?>
-<?php if (!empty($adLoginEnabled)): ?>
-    <div class="alert alert-info py-2 small mb-3"><i class="bi bi-info-circle me-1"></i>El inicio de sesión en SIGTAE usa <strong>Directorio Activo</strong> (RPE y contraseña de red). La contraseña no se define en este formulario.</div>
-<?php endif; ?>
 <?php if ($error): ?><div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i><?= htmlspecialchars($error) ?></div><?php endif; ?>
 <?php if ($success): ?><div class="alert alert-success"><i class="bi bi-check-circle me-1"></i><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
@@ -33,11 +30,21 @@ $adLoginEnabled = $adLoginEnabled ?? false;
             <input type="hidden" name="action" value="create">
             <div class="col-md-3">
                 <label class="form-label">RPE *</label>
-                <input type="text" name="rpe" class="form-control" required maxlength="8" pattern="[A-Za-z0-9]{1,8}">
+                <div class="input-group">
+                    <input type="text" name="rpe" class="form-control" required maxlength="8" pattern="[A-Za-z0-9]{1,8}" id="rpeInputCreate" style="text-transform: uppercase;">
+                    <button class="btn btn-outline-secondary" type="button" id="btnLookupRpeCreate" onclick="return window.sigtaeLookupRpeCreate ? window.sigtaeLookupRpeCreate() : false;">
+                        <span class="d-inline">Buscar RPE</span>
+                    </button>
+                </div>
+                <div class="form-text" id="rpeLookupMsgCreate"></div>
             </div>
             <div class="col-md-5">
                 <label class="form-label">Nombre *</label>
-                <input type="text" name="nombre" class="form-control" required>
+                <input type="text" name="nombre" class="form-control" required id="nombreInputCreate">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Correo</label>
+                <input type="email" name="email" class="form-control" placeholder="correo@cfe.mx" id="emailInputCreate">
             </div>
             <?php if (!empty($showLocalPasswordFields)): ?>
             <div class="col-md-4">
@@ -57,7 +64,7 @@ $adLoginEnabled = $adLoginEnabled ?? false;
             </div>
             <div class="col-md-3">
                 <label class="form-label">Cargo</label>
-                <input type="text" name="cargo" class="form-control" placeholder="Cargo">
+                <input type="text" name="cargo" class="form-control" placeholder="Cargo" id="cargoInputCreate">
             </div>
             <div class="col-md-3">
                 <label class="form-label">Departamento</label>
@@ -96,7 +103,12 @@ $adLoginEnabled = $adLoginEnabled ?? false;
                 <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="activo" id="cact" checked><label class="form-check-label" for="cact">Activo</label></div>
             </div>
             <div class="col-12">
-                <label class="form-label small">Alcance asignación</label>
+                <label class="form-label small">
+                    Alcance asignación
+                    <i class="bi bi-question-circle ms-1 text-muted"
+                       data-bs-toggle="tooltip"
+                       data-bs-title="Define a qué niveles jerárquicos puede asignar tareas este usuario (p. ej. nivel_2 = jefes de oficina, nivel_3 = supervisores)."></i>
+                </label>
                 <div>
                     <label class="me-2"><input type="checkbox" name="alcance[]" value="nivel_2"> nivel_2</label>
                     <label><input type="checkbox" name="alcance[]" value="nivel_3" checked> nivel_3</label>
@@ -130,11 +142,19 @@ $adLoginEnabled = $adLoginEnabled ?? false;
             <input type="hidden" name="id" value="<?= htmlspecialchars($editUser['id'] ?? '') ?>">
             <div class="col-md-4">
                 <label class="form-label">RPE</label>
-                <input type="text" class="form-control" value="<?= htmlspecialchars($editUser['rpe'] ?? '') ?>" disabled>
+                <div class="input-group">
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($editUser['rpe'] ?? '') ?>" disabled id="rpeInputEdit">
+                    <button class="btn btn-outline-secondary" type="button" id="btnLookupRpeEdit" onclick="return window.sigtaeLookupRpeEdit ? window.sigtaeLookupRpeEdit() : false;">Actualizar desde RPE</button>
+                </div>
+                <div class="form-text" id="rpeLookupMsgEdit"></div>
             </div>
             <div class="col-md-8">
                 <label class="form-label">Nombre</label>
-                <input type="text" name="nombre" class="form-control" required value="<?= htmlspecialchars($editUser['nombre'] ?? '') ?>">
+                <input type="text" name="nombre" class="form-control" required value="<?= htmlspecialchars($editUser['nombre'] ?? '') ?>" id="nombreInputEdit">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Correo</label>
+                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($editUser['email'] ?? '') ?>" placeholder="correo@cfe.mx" id="emailInputEdit">
             </div>
             <?php if (!empty($showLocalPasswordFields)): ?>
             <div class="col-md-6">
@@ -144,7 +164,7 @@ $adLoginEnabled = $adLoginEnabled ?? false;
             <?php endif; ?>
             <div class="col-md-6">
                 <label class="form-label">Cargo</label>
-                <input type="text" name="cargo" class="form-control" value="<?= htmlspecialchars($editUser['cargo'] ?? '') ?>">
+                <input type="text" name="cargo" class="form-control" value="<?= htmlspecialchars($editUser['cargo'] ?? '') ?>" id="cargoInputEdit">
             </div>
             <?php if ($isSuper): ?>
             <div class="col-md-2">
@@ -194,7 +214,12 @@ $adLoginEnabled = $adLoginEnabled ?? false;
                 <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="es_super_admin" id="es" <?= !empty($editUser['es_super_admin']) ? 'checked' : '' ?>><label class="form-check-label" for="es">Super admin</label></div>
             </div>
             <div class="col-12">
-                <label class="form-label small">Alcance</label>
+                <label class="form-label small">
+                    Alcance asignación
+                    <i class="bi bi-question-circle ms-1 text-muted"
+                       data-bs-toggle="tooltip"
+                       data-bs-title="Define a qué niveles jerárquicos puede asignar tareas este usuario (p. ej. nivel_2 = jefes de oficina, nivel_3 = supervisores)."></i>
+                </label>
                 <?php $alc = $editUser['alcance_asignacion'] ?? []; ?>
                 <div>
                     <label class="me-2"><input type="checkbox" name="alcance[]" value="nivel_2" <?= in_array('nivel_2', $alc, true) ? 'checked' : '' ?>> nivel_2</label>
@@ -218,7 +243,115 @@ $adLoginEnabled = $adLoginEnabled ?? false;
         </form>
     </div>
 </div>
+
 <?php endif; ?>
+
+<script>
+(function() {
+    function setMsg(el, text, kind) {
+        if (!el) return;
+        el.textContent = text || '';
+        el.className = 'form-text ' + (kind === 'ok' ? 'text-success' : (kind === 'warn' ? 'text-warning' : (kind === 'err' ? 'text-danger' : 'text-muted')));
+    }
+    function log() {
+        try { console.debug.apply(console, ['[usuarios-rpe]'].concat(Array.from(arguments))); } catch (_) {}
+    }
+    async function fetchJsonSafe(url) {
+        const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+        const text = await res.text();
+        let data = null;
+        try { data = JSON.parse(text); } catch (_) {}
+        if (!res.ok || !data || data.ok === false) {
+            const msg = (data && data.message) ? data.message : (text ? String(text).slice(0, 180) : ('HTTP ' + res.status));
+            throw new Error(msg);
+        }
+        return data;
+    }
+    async function lookupRpe(rpe, targets, msgEl, btnEl) {
+        const base = window.SIGTAE_BASE_PATH || '';
+        const q = String(rpe || '').trim().toUpperCase();
+        if (!q) { setMsg(msgEl, 'Indica un RPE para buscar.', 'warn'); return; }
+        if (btnEl) { btnEl.disabled = true; btnEl.classList.add('disabled'); }
+        setMsg(msgEl, 'Buscando…', '');
+        log('lookup start', { q });
+        try {
+            const url = base + '/api/usuarios.php?action=lookup_rpe&rpe=' + encodeURIComponent(q);
+            const data = await fetchJsonSafe(url);
+            const item = (data && data.item) ? data.item : null;
+            if (!item) throw new Error('Sin datos.');
+            if (targets.nombre && item.nombre) targets.nombre.value = item.nombre;
+            if (targets.email && item.email) targets.email.value = item.email;
+            if (targets.cargo && item.cargo) targets.cargo.value = item.cargo;
+            setMsg(msgEl, 'Datos cargados desde el servicio.', 'ok');
+            log('lookup ok', item);
+            if (window.sigtaeInitTooltips) window.sigtaeInitTooltips();
+        } catch (e) {
+            log('lookup err', e);
+            setMsg(msgEl, 'No se pudo cargar: ' + (e && e.message ? e.message : 'error'), 'err');
+        } finally {
+            if (btnEl) { btnEl.disabled = false; btnEl.classList.remove('disabled'); }
+        }
+    }
+
+    function bind() {
+        // Event delegation: robusto con PJAX/re-render
+        if (document.__sigtaeUsersRpeDelegated) return;
+        document.__sigtaeUsersRpeDelegated = true;
+        log('bind delegated');
+        document.addEventListener('click', function(e) {
+            const t = e.target;
+            const btn = t && t.closest ? t.closest('#btnLookupRpeCreate, #btnLookupRpeEdit') : null;
+            if (!btn) return;
+            e.preventDefault();
+            if (btn.id === 'btnLookupRpeCreate') {
+                const rpeC = document.getElementById('rpeInputCreate');
+                setMsg(document.getElementById('rpeLookupMsgCreate'), 'Clic detectado…', '');
+                lookupRpe(rpeC ? rpeC.value : '', {
+                    nombre: document.getElementById('nombreInputCreate'),
+                    email: document.getElementById('emailInputCreate'),
+                    cargo: document.getElementById('cargoInputCreate'),
+                }, document.getElementById('rpeLookupMsgCreate'), btn);
+            } else {
+                const rpeE = document.getElementById('rpeInputEdit');
+                setMsg(document.getElementById('rpeLookupMsgEdit'), 'Clic detectado…', '');
+                lookupRpe(rpeE ? rpeE.value : '', {
+                    nombre: document.getElementById('nombreInputEdit'),
+                    email: document.getElementById('emailInputEdit'),
+                    cargo: document.getElementById('cargoInputEdit'),
+                }, document.getElementById('rpeLookupMsgEdit'), btn);
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+    window.addEventListener('sigtae:pageLoaded', bind);
+
+    // Fallback directo por onclick (para depurar cuando el binding no corre)
+    window.sigtaeLookupRpeCreate = function() {
+        log('onclick create');
+        setMsg(document.getElementById('rpeLookupMsgCreate'), 'Clic detectado…', '');
+        const btn = document.getElementById('btnLookupRpeCreate');
+        const rpe = document.getElementById('rpeInputCreate');
+        return lookupRpe(rpe ? rpe.value : '', {
+            nombre: document.getElementById('nombreInputCreate'),
+            email: document.getElementById('emailInputCreate'),
+            cargo: document.getElementById('cargoInputCreate'),
+        }, document.getElementById('rpeLookupMsgCreate'), btn), false;
+    };
+    window.sigtaeLookupRpeEdit = function() {
+        log('onclick edit');
+        setMsg(document.getElementById('rpeLookupMsgEdit'), 'Clic detectado…', '');
+        const btn = document.getElementById('btnLookupRpeEdit');
+        const rpe = document.getElementById('rpeInputEdit');
+        return lookupRpe(rpe ? rpe.value : '', {
+            nombre: document.getElementById('nombreInputEdit'),
+            email: document.getElementById('emailInputEdit'),
+            cargo: document.getElementById('cargoInputEdit'),
+        }, document.getElementById('rpeLookupMsgEdit'), btn), false;
+    };
+})();
+</script>
 
 <div class="card">
     <div class="card-body p-0">

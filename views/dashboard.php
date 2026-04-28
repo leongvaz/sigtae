@@ -31,11 +31,11 @@ sigtae_page_header('Dashboard', 'Resumen operativo y cumplimiento del departamen
 <div class="row g-3 mb-4">
     <?php
     $kpis = [
-        ['label' => 'Tareas activas', 'value' => count($activas),     'icon' => 'bi-list-task',       'color' => '#1d4ed8'],
-        ['label' => 'En proceso',     'value' => count($enProceso),   'icon' => 'bi-arrow-repeat',    'color' => '#c17d0a'],
-        ['label' => 'Vencidas',       'value' => count($vencidas),    'icon' => 'bi-exclamation-triangle', 'color' => '#a16207'],
-        ['label' => 'Incumplidas',    'value' => count($incumplidas), 'icon' => 'bi-x-octagon',       'color' => '#b91c1c'],
-        ['label' => 'Atendidas',      'value' => count($atendidas),   'icon' => 'bi-check2-circle',   'color' => '#047857'],
+        ['label' => 'Tareas activas', 'value' => count($activas),     'icon' => 'bi-list-task',       'color' => '#1d4ed8', 'onClick' => "sigtaeDashboardOpenEstados(['asignada','en_proceso'], 'Tareas — Activas')"],
+        ['label' => 'En proceso',     'value' => count($enProceso),   'icon' => 'bi-arrow-repeat',    'color' => '#c17d0a', 'onClick' => "sigtaeDashboardOpenEstado('en_proceso')"],
+        ['label' => 'Vencidas',       'value' => count($vencidas),    'icon' => 'bi-exclamation-triangle', 'color' => '#a16207', 'onClick' => "sigtaeDashboardOpenEstado('vencida')"],
+        ['label' => 'Incumplidas',    'value' => count($incumplidas), 'icon' => 'bi-x-octagon',       'color' => '#b91c1c', 'onClick' => "sigtaeDashboardOpenEstado('incumplimiento')"],
+        ['label' => 'Atendidas',      'value' => count($atendidas),   'icon' => 'bi-check2-circle',   'color' => '#047857', 'onClick' => "sigtaeDashboardOpenEstado('atendida')"],
         ['label' => 'Desempeño área', 'value' => $promedioArea . '%', 'icon' => 'bi-speedometer2',    'color' => '#1a4d6d'],
     ];
     foreach ($kpis as $k):
@@ -153,37 +153,52 @@ sigtae_page_header('Dashboard', 'Resumen operativo y cumplimiento del departamen
                         <?php if (empty($proximasVencer)): ?>
                             <?php sigtae_empty_state('No hay tareas próximas a vencer.', 'bi-calendar-check'); ?>
                         <?php else: ?>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($proximasVencer as $t): ?>
-                                    <?php
-                                    $resp = $userRepo ? $userRepo->find($t['responsable_id'] ?? '') : null;
-                                    $nombreResp = $resp ? $resp['nombre'] : ($t['responsable_id'] ?? '');
-                                    ?>
-                                    <li class="list-group-item d-flex justify-content-between align-items-start py-2">
-                                        <div class="pe-2" style="min-width: 0">
-                                            <a class="fw-semibold" href="<?= htmlspecialchars($basePath ?? '') ?>/tarea.php?id=<?= urlencode($t['id'] ?? '') ?>"><?= htmlspecialchars($t['folio'] ?? '') ?></a>
-                                            <div class="small text-muted text-truncate"><?= htmlspecialchars(mb_substr($t['titulo'] ?? '', 0, 50)) ?></div>
-                                            <div class="small text-muted"><?= htmlspecialchars($nombreResp) ?></div>
-                                        </div>
-                                        <span class="badge bg-warning text-dark"><?= htmlspecialchars($t['fecha_limite'] ?? '') ?></span>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
+                            <?php
+                            $batch = 6;
+                            $proximasInit = array_slice($proximasVencer, 0, $batch);
+                            $proximasRest = array_slice($proximasVencer, $batch);
+                            ?>
+                            <div class="sigtae-feed" id="feed-proximas" style="max-height: 430px; overflow: auto;">
+                                <ul class="list-group list-group-flush" id="feed-proximas-list">
+                                    <?php foreach ($proximasInit as $t): ?>
+                                        <?php $nombreResp = $t['responsable_nombre'] ?? ($t['responsable_id'] ?? ''); ?>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start py-2">
+                                            <div class="pe-2" style="min-width: 0">
+                                                <a class="fw-semibold" href="<?= htmlspecialchars($basePath ?? '') ?>/tarea.php?id=<?= urlencode($t['id'] ?? '') ?>"><?= htmlspecialchars($t['folio'] ?? '') ?></a>
+                                                <div class="small text-muted text-truncate"><?= htmlspecialchars(mb_substr($t['titulo'] ?? '', 0, 50)) ?></div>
+                                                <div class="small text-muted"><?= htmlspecialchars($nombreResp) ?></div>
+                                            </div>
+                                            <span class="badge bg-warning text-dark"><?= htmlspecialchars($t['fecha_limite'] ?? '') ?></span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <div class="py-2 px-3 small text-muted border-top d-none" id="feed-proximas-loading">Cargando…</div>
+                            </div>
+                            <script type="application/json" id="feed-proximas-data"><?= json_encode(array_values($proximasRest), JSON_UNESCAPED_UNICODE) ?></script>
                         <?php endif; ?>
                     </div>
                     <div class="tab-pane fade" id="pane-evidencias">
                         <?php if (empty($ultimasEvidencias)): ?>
                             <?php sigtae_empty_state('Sin evidencias recientes.', 'bi-paperclip'); ?>
                         <?php else: ?>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($ultimasEvidencias as $ev): ?>
-                                    <li class="list-group-item py-2">
-                                        <div class="small fw-semibold"><?= htmlspecialchars($ev['tarea_folio']) ?></div>
-                                        <div class="small text-muted text-truncate"><?= htmlspecialchars(mb_substr($ev['titulo'], 0, 45)) ?></div>
-                                        <div class="text-muted" style="font-size: 0.72rem"><?= htmlspecialchars($ev['fecha']) ?></div>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
+                            <?php
+                            $batch = 6;
+                            $evInit = array_slice($ultimasEvidencias, 0, $batch);
+                            $evRest = array_slice($ultimasEvidencias, $batch);
+                            ?>
+                            <div class="sigtae-feed" id="feed-evidencias" style="max-height: 430px; overflow: auto;">
+                                <ul class="list-group list-group-flush" id="feed-evidencias-list">
+                                    <?php foreach ($evInit as $ev): ?>
+                                        <li class="list-group-item py-2">
+                                            <div class="small fw-semibold"><?= htmlspecialchars($ev['tarea_folio']) ?></div>
+                                            <div class="small text-muted text-truncate"><?= htmlspecialchars(mb_substr($ev['titulo'], 0, 45)) ?></div>
+                                            <div class="text-muted" style="font-size: 0.72rem"><?= htmlspecialchars($ev['fecha']) ?></div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <div class="py-2 px-3 small text-muted border-top d-none" id="feed-evidencias-loading">Cargando…</div>
+                            </div>
+                            <script type="application/json" id="feed-evidencias-data"><?= json_encode(array_values($evRest), JSON_UNESCAPED_UNICODE) ?></script>
                         <?php endif; ?>
                     </div>
                     <div class="tab-pane fade" id="pane-top">
@@ -232,11 +247,92 @@ $rankingLabels = array_slice(array_map(function($p) use ($userRepo) {
     return $u ? mb_substr($u['nombre'], 0, 24) : $p['responsable_id'];
 }, $perfArea), 0, 10);
 $rankingData = array_slice(array_column($perfArea, 'porcentaje_desempeno'), 0, 10);
+$rankingIds = array_slice(array_column($perfArea, 'responsable_id'), 0, 10);
 $despOfLabels = array_column($desempenoPorOficina, 'nombre');
 $despOfData = array_map('floatval', array_column($desempenoPorOficina, 'promedio'));
+$despOfIds = array_column($desempenoPorOficina, 'id');
 ?>
 <script>
 (function() {
+    function initFeed(opts) {
+        const root = document.getElementById(opts.rootId);
+        const list = document.getElementById(opts.listId);
+        const dataEl = document.getElementById(opts.dataId);
+        const loadingEl = document.getElementById(opts.loadingId);
+        if (!root || !list || !dataEl) return;
+        if (root.__sigtaeFeedInit) return;
+        root.__sigtaeFeedInit = true;
+
+        let queue = [];
+        try { queue = JSON.parse(dataEl.textContent || '[]') || []; } catch (_) { queue = []; }
+        let loading = false;
+        const BATCH = opts.batch || 6;
+
+        function appendBatch() {
+            if (loading) return;
+            if (!queue.length) return;
+            loading = true;
+            if (loadingEl) loadingEl.classList.remove('d-none');
+            const chunk = queue.splice(0, BATCH);
+            for (const item of chunk) {
+                const li = document.createElement('li');
+                li.className = opts.liClass;
+                li.innerHTML = opts.render(item);
+                list.appendChild(li);
+            }
+            if (loadingEl) loadingEl.classList.add('d-none');
+            loading = false;
+        }
+
+        root.addEventListener('scroll', function() {
+            const nearBottom = (root.scrollTop + root.clientHeight) >= (root.scrollHeight - 40);
+            if (nearBottom) appendBatch();
+        });
+    }
+
+    function initDashboardFeeds() {
+        initFeed({
+            rootId: 'feed-proximas',
+            listId: 'feed-proximas-list',
+            dataId: 'feed-proximas-data',
+            loadingId: 'feed-proximas-loading',
+            liClass: 'list-group-item d-flex justify-content-between align-items-start py-2',
+            batch: 6,
+            render: function(t) {
+                const base = (window.SIGTAE_BASE_PATH || '');
+                const href = base + '/tarea.php?id=' + encodeURIComponent(t.id || '');
+                const folio = (t.folio || '');
+                const titulo = (t.titulo || '');
+                const resp = (t.responsable_nombre || t.responsable_id || '');
+                const fecha = (t.fecha_limite || '');
+                return ''
+                    + '<div class="pe-2" style="min-width: 0">'
+                    +   '<a class="fw-semibold" href="' + href + '">' + String(folio).replace(/</g,'&lt;') + '</a>'
+                    +   '<div class="small text-muted text-truncate">' + String(titulo).slice(0, 50).replace(/</g,'&lt;') + '</div>'
+                    +   '<div class="small text-muted">' + String(resp).replace(/</g,'&lt;') + '</div>'
+                    + '</div>'
+                    + '<span class="badge bg-warning text-dark">' + String(fecha).replace(/</g,'&lt;') + '</span>';
+            }
+        });
+        initFeed({
+            rootId: 'feed-evidencias',
+            listId: 'feed-evidencias-list',
+            dataId: 'feed-evidencias-data',
+            loadingId: 'feed-evidencias-loading',
+            liClass: 'list-group-item py-2',
+            batch: 6,
+            render: function(ev) {
+                const folio = (ev.tarea_folio || '');
+                const titulo = (ev.titulo || '');
+                const fecha = (ev.fecha || '');
+                return ''
+                    + '<div class="small fw-semibold">' + String(folio).replace(/</g,'&lt;') + '</div>'
+                    + '<div class="small text-muted text-truncate">' + String(titulo).slice(0, 45).replace(/</g,'&lt;') + '</div>'
+                    + '<div class="text-muted" style="font-size: 0.72rem">' + String(fecha).replace(/</g,'&lt;') + '</div>';
+            }
+        });
+    }
+
     function buildCharts() {
         const common = {
             responsive: true,
@@ -255,7 +351,25 @@ $despOfData = array_map('floatval', array_column($desempenoPorOficina, 'promedio
                     labels: <?= json_encode(array_values($estadoLabels)) ?>,
                     datasets: [{ data: <?= json_encode($estadoData) ?>, backgroundColor: <?= json_encode($estadoColors) ?>, borderWidth: 2, borderColor: '#fff' }]
                 },
-                options: { ...common, cutout: '58%', plugins: { ...common.plugins, legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
+                options: {
+                    ...common,
+                    cutout: '58%',
+                    plugins: { ...common.plugins, legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } },
+                    onClick: (evt, active, chart) => {
+                        if (!active || !active.length) return;
+                        const idx = active[0].index;
+                        const label = chart.data.labels[idx] || '';
+                        const map = {
+                            'Asignada': 'asignada',
+                            'En proceso': 'en_proceso',
+                            'Incumplimiento': 'incumplimiento',
+                            'Vencida': 'vencida',
+                            'Atendida': 'atendida',
+                        };
+                        const estado = map[label] || '';
+                        if (estado) window.sigtaeDashboardOpenEstado(estado);
+                    }
+                }
             });
         }
         const prioridadCtx = document.getElementById('chartPrioridad');
@@ -266,48 +380,98 @@ $despOfData = array_map('floatval', array_column($desempenoPorOficina, 'promedio
                     labels: <?= json_encode(array_values($prioridadLabels)) ?>,
                     datasets: [{ label: 'Tareas', data: <?= json_encode($prioridadData) ?>, backgroundColor: ['#ef4444','#f59e0b','#94a3b8'], borderRadius: 6 }]
                 },
-                options: { ...common, plugins: { ...common.plugins, legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+                options: {
+                    ...common,
+                    plugins: { ...common.plugins, legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    onClick: (evt, active, chart) => {
+                        if (!active || !active.length) return;
+                        const idx = active[0].index;
+                        const label = chart.data.labels[idx] || '';
+                        const map = { 'Alta': 'alta', 'Media': 'media', 'Baja': 'baja' };
+                        const p = map[label] || '';
+                        if (p) window.sigtaeDashboardOpenPrioridad(p);
+                    }
+                }
             });
         }
         const oficinaCtx = document.getElementById('chartOficina');
         if (oficinaCtx && <?= json_encode($oficinaLabels) ?>.length) {
+            const oficinaIds = <?= json_encode(array_column($porOficina, 'id')) ?>;
             new Chart(oficinaCtx, {
                 type: 'bar',
                 data: {
                     labels: <?= json_encode($oficinaLabels) ?>,
                     datasets: [{ label: '% Cumplimiento', data: <?= json_encode($oficinaData) ?>, backgroundColor: 'rgba(74,159,184,0.8)', borderRadius: 6 }]
                 },
-                options: { ...common, indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true, ticks: { callback: v => v + '%' } } } }
+                options: {
+                    ...common,
+                    indexAxis: 'y',
+                    scales: { x: { max: 100, beginAtZero: true, ticks: { callback: v => v + '%' } } },
+                    onClick: (evt, active, chart) => {
+                        if (!active || !active.length) return;
+                        const idx = active[0].index;
+                        const oficinaNombre = chart.data.labels[idx] || '';
+                        const oficinaId = (oficinaIds && oficinaIds[idx]) ? oficinaIds[idx] : '';
+                        if (oficinaId) window.sigtaeDashboardOpenOficina(oficinaId, oficinaNombre);
+                    }
+                }
             });
         }
         const rankingCtx = document.getElementById('chartRanking');
         if (rankingCtx && <?= json_encode($rankingLabels) ?>.length) {
+            const rankingIds = <?= json_encode($rankingIds) ?>;
             new Chart(rankingCtx, {
                 type: 'bar',
                 data: {
                     labels: <?= json_encode($rankingLabels) ?>,
                     datasets: [{ label: '% Desempeño', data: <?= json_encode($rankingData) ?>, backgroundColor: 'rgba(13,125,92,0.75)', borderRadius: 6 }]
                 },
-                options: { ...common, indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true, ticks: { callback: v => v + '%' } } } }
+                options: {
+                    ...common,
+                    indexAxis: 'y',
+                    scales: { x: { max: 100, beginAtZero: true, ticks: { callback: v => v + '%' } } },
+                    onClick: (evt, active, chart) => {
+                        if (!active || !active.length) return;
+                        const idx = active[0].index;
+                        const rid = (rankingIds && rankingIds[idx]) ? rankingIds[idx] : '';
+                        const nombre = chart.data.labels[idx] || '';
+                        if (rid) window.sigtaeDashboardOpenResponsable(rid, nombre);
+                    }
+                }
             });
         }
         const despOfCtx = document.getElementById('chartDesempOficina');
         if (despOfCtx && <?= json_encode($despOfLabels) ?>.length) {
+            const despOfIds = <?= json_encode($despOfIds) ?>;
             new Chart(despOfCtx, {
                 type: 'bar',
                 data: {
                     labels: <?= json_encode($despOfLabels) ?>,
                     datasets: [{ label: '% Promedio', data: <?= json_encode($despOfData) ?>, backgroundColor: 'rgba(26,77,109,0.7)', borderRadius: 6 }]
                 },
-                options: { ...common, indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true, ticks: { callback: v => v + '%' } } } }
+                options: {
+                    ...common,
+                    indexAxis: 'y',
+                    scales: { x: { max: 100, beginAtZero: true, ticks: { callback: v => v + '%' } } },
+                    onClick: (evt, active, chart) => {
+                        if (!active || !active.length) return;
+                        const idx = active[0].index;
+                        const oid = (despOfIds && despOfIds[idx]) ? despOfIds[idx] : '';
+                        const nombre = chart.data.labels[idx] || '';
+                        if (oid && oid !== 'sin-oficina') window.sigtaeDashboardOpenOficina(oid, nombre);
+                    }
+                }
             });
         }
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', buildCharts);
+        document.addEventListener('DOMContentLoaded', function() { initDashboardFeeds(); buildCharts(); });
     } else {
+        initDashboardFeeds();
         buildCharts();
     }
+    window.addEventListener('sigtae:pageLoaded', function() { initDashboardFeeds(); });
 })();
 </script>

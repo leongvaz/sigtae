@@ -141,5 +141,103 @@
         "metadata": [],
         "id": "evt-1144c9c8fb55",
         "fecha_hora": "2026-04-16T07:25:49-06:00"
+    },
+    {
+        "tarea_id": "task-64883eb6b40a",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Francisco Lang Francisco",
+        "metadata": {
+            "folio": "TAS-2026-0005"
+        },
+        "id": "evt-d25bd0a8b972",
+        "fecha_hora": "2026-04-20T20:59:39-06:00"
+    },
+    {
+        "tarea_id": "task-6e358a7bd54c",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Francisco Lang Francisco",
+        "metadata": {
+            "folio": "TAS-2026-0006"
+        },
+        "id": "evt-373251ee0d0e",
+        "fecha_hora": "2026-04-20T21:04:36-06:00"
+    },
+    {
+        "tarea_id": "task-6dacb9206f5d",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Alba Nidya Soto Dominguez",
+        "metadata": {
+            "folio": "TAS-2026-0007"
+        },
+        "id": "evt-66baecbde96d",
+        "fecha_hora": "2026-04-20T21:07:53-06:00"
+    },
+    {
+        "tarea_id": "task-6dacb9206f5d",
+        "usuario_id": "usr-g46b8",
+        "tipo_evento": "comentario_agregado",
+        "descripcion": "Comentario del responsable actualizado",
+        "metadata": [],
+        "id": "evt-26fcc370af1a",
+        "fecha_hora": "2026-04-21T14:39:32-06:00"
+    },
+    {
+        "tarea_id": "task-6dacb9206f5d",
+        "usuario_id": "usr-g46b8",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Columna agregada",
+        "metadata": [],
+        "id": "evt-bf4e7ac49e82",
+        "fecha_hora": "2026-04-21T14:40:22-06:00"
+    },
+    {
+        "tarea_id": "task-6e358a7bd54c",
+        "usuario_id": "usr-9nkj6",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-f94f09c3efc1",
+        "fecha_hora": "2026-04-22T09:38:20-06:00"
+    },
+    {
+        "tarea_id": "task-6e358a7bd54c",
+        "usuario_id": "usr-9nkj6",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v2 agregada: Presentación",
+        "metadata": [],
+        "id": "evt-106dc4bbb18e",
+        "fecha_hora": "2026-04-22T09:40:15-06:00"
+    },
+    {
+        "tarea_id": "task-ef2dcd1e7113",
+        "usuario_id": "usr-9l7r4",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Obed Rodriguez Islas",
+        "metadata": {
+            "folio": "TAS-2026-0008"
+        },
+        "id": "evt-86cfa92dd195",
+        "fecha_hora": "2026-04-22T15:09:38-06:00"
+    },
+    {
+        "tarea_id": "task-64883eb6b40a",
+        "usuario_id": "usr-9nkj6",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Captura de pantalla",
+        "metadata": [],
+        "id": "evt-a89c621bed7c",
+        "fecha_hora": "2026-04-23T13:24:08-06:00"
+    },
+    {
+        "tarea_id": "task-261660102c18",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Se presentan cambios",
+        "metadata": [],
+        "id": "evt-2812a7d9800f",
+        "fecha_hora": "2026-04-27T09:08:18-06:00"
     }
 ]

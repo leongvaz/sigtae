@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "note": "Semilla del módulo de Metrología (Fase 1). Se puede recargar de forma idempotente desde /seed-metrologia.php",
+  "defaults": {
+    "anio": 2026,
+    "oficina_id": "of-metro",
+    "departamento_id": "dept-lab-metro"
+  }
+}

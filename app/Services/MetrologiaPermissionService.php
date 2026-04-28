@@ -1,0 +1,56 @@
+<?php
+namespace App\Services;
+
+/**
+ * Permisos del módulo Metrología (Fase 1).
+ *
+ * Reglas simples y extensibles:
+ * - Super admin: todo.
+ * - Jefe de oficina Metrología (of-metro) o usuario con puede_asignar en of-metro: asigna/gestiona.
+ * - Técnicos (nivel 3) en of-metro: capturan calibración e informe diario.
+ * - Signatarios: se modelan explícitamente en metrologia_catalogos.json (rpe) y pueden autorizar.
+ */
+class MetrologiaPermissionService
+{
+    private array $catalogos;
+
+    public function __construct(array $catalogos)
+    {
+        $this->catalogos = $catalogos;
+    }
+
+    public function canAccess(?array $user): bool
+    {
+        if (!$user) return false;
+        if (!empty($user['es_super_admin'])) return true;
+        return ($user['oficina_id'] ?? '') === 'of-metro';
+    }
+
+    public function canManage(?array $user): bool
+    {
+        if (!$user) return false;
+        if (!empty($user['es_super_admin'])) return true;
+        return ($user['oficina_id'] ?? '') === 'of-metro' && !empty($user['puede_asignar']);
+    }
+
+    public function canCaptureCalibration(?array $user): bool
+    {
+        if (!$user) return false;
+        if (!empty($user['es_super_admin'])) return true;
+        return ($user['oficina_id'] ?? '') === 'of-metro' && ((int)($user['nivel_jerarquico'] ?? 999) >= 3);
+    }
+
+    public function canAuthorize(?array $user): bool
+    {
+        if (!$user) return false;
+        if (!empty($user['es_super_admin'])) return true;
+        $rpe = (string)($user['rpe'] ?? '');
+        foreach (($this->catalogos['signatarios'] ?? []) as $s) {
+            if (!empty($s['activo']) && ($s['rpe'] ?? '') === $rpe) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+

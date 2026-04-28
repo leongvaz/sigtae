@@ -55,7 +55,17 @@ foreach ($offices as $of) {
 }
 
 usort($withState, fn($a, $b) => strcmp($a['fecha_limite'] ?? '9999', $b['fecha_limite'] ?? '9999'));
-$proximasVencer = array_slice(array_filter($withState, fn($t) => in_array($t['estado'] ?? '', ['asignada', 'en_proceso'], true)), 0, 5);
+$proximasVencer = array_slice(array_filter($withState, fn($t) => in_array($t['estado'] ?? '', ['asignada', 'en_proceso'], true)), 0, 30);
+
+$userNameById = [];
+foreach ($userRepo->findAll() as $u) {
+    $userNameById[$u['id']] = $u['nombre'] ?? ($u['id'] ?? '');
+}
+foreach ($proximasVencer as &$t) {
+    $rid = $t['responsable_id'] ?? '';
+    $t['responsable_nombre'] = $rid !== '' ? ($userNameById[$rid] ?? $rid) : '';
+}
+unset($t);
 
 $ultimasEvidencias = [];
 foreach (array_slice($withState, 0, 20) as $t) {
@@ -69,7 +79,7 @@ foreach (array_slice($withState, 0, 20) as $t) {
     }
 }
 usort($ultimasEvidencias, fn($a, $b) => strcmp($b['fecha'], $a['fecha']));
-$ultimasEvidencias = array_slice($ultimasEvidencias, 0, 5);
+$ultimasEvidencias = array_slice($ultimasEvidencias, 0, 60);
 
 $ofById = [];
 foreach ($offices as $o) {
@@ -98,6 +108,7 @@ foreach ($offices as $of) {
         }
     }
     $desempenoPorOficina[] = [
+        'id' => $oid,
         'nombre' => $of['nombre'],
         'promedio' => $n > 0 ? round($sum / $n, 1) : 0.0,
         'con_datos' => $n,
@@ -124,6 +135,7 @@ foreach ($uidsSinOf as $uid) {
 }
 if ($nSo > 0) {
     $desempenoPorOficina[] = [
+        'id' => 'sin-oficina',
         'nombre' => 'Sin oficina (división)',
         'promedio' => round($sumSo / $nSo, 1),
         'con_datos' => $nSo,

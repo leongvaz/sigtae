@@ -37,6 +37,11 @@ use App\Repositories\HistoryRepositoryJson;
 use App\Repositories\DelegationRepositoryJson;
 use App\Repositories\OfficeRepositoryJson;
 use App\Repositories\DepartmentRepositoryJson;
+use App\Repositories\MetrologiaSolicitudRepositoryJson;
+use App\Repositories\MetrologiaExpedienteRepositoryJson;
+use App\Services\MetrologiaHistoryService;
+use App\Services\MetrologiaPermissionService;
+use App\Services\MetrologiaFolioService;
 
 $json = fn($file) => new JsonStorage($storagePath, $file);
 
@@ -47,6 +52,9 @@ $repositories = [
     'delegation' => new DelegationRepositoryJson($json('delegations.json')),
     'office' => new OfficeRepositoryJson($json('offices.json')),
     'department' => new DepartmentRepositoryJson($json('departments.json')),
+    // Módulo Metrología (Fase 1)
+    'met_solicitud' => new MetrologiaSolicitudRepositoryJson($json('metrologia_solicitudes.json')),
+    'met_expediente' => new MetrologiaExpedienteRepositoryJson($json('metrologia_expedientes.json')),
 ];
 
 $stateService = new \App\Services\TaskStateService();
@@ -56,6 +64,18 @@ $historyService = new \App\Services\HistoryService($repositories['history']);
 
 $adValidator = new \App\Services\AdDirectoryValidationService($config);
 $authLocalPasswordFallback = (bool)($config['auth_local_password_fallback'] ?? false);
+
+// ===== Metrología: catálogos + servicios base =====
+$metCatalogos = $json('metrologia_catalogos.json')->read([
+    'zonas' => [],
+    'areas' => [],
+    'oficinas' => [],
+    'signatarios' => [],
+    'actividades_informe_diario' => [],
+]);
+$metPermissionService = new MetrologiaPermissionService($metCatalogos);
+$metHistoryService = new MetrologiaHistoryService($json('metrologia_historial.json'));
+$metFolioService = new MetrologiaFolioService($repositories['met_solicitud'], $repositories['met_expediente']);
 
 if (!function_exists('sigtae_auth_service')) {
     /**
@@ -78,9 +98,14 @@ if ($basePath === '.' || $basePath === '\\') {
     $basePath = '';
 }
 $basePath = str_replace('\\', '/', $basePath);
-// Tras rewrite desde la raíz del proyecto, SCRIPT_NAME sigue apuntando a public/; quitarlo de la URL visible.
-if ($basePath !== '' && substr($basePath, -7) === '/public') {
-    $basePath = substr($basePath, 0, -7);
+// Tras rewrite desde la raíz del proyecto, SCRIPT_NAME incluye /public/...; quitarlo de la URL visible.
+// Ejemplos:
+// - /Laboratorio/sigtae/public              -> /Laboratorio/sigtae
+// - /Laboratorio/sigtae/public/api          -> /Laboratorio/sigtae
+// - /Laboratorio/sigtae/public/metrologia/sig/api -> /Laboratorio/sigtae
+$posPublic = $basePath !== '' ? strpos($basePath, '/public') : false;
+if ($posPublic !== false) {
+    $basePath = substr($basePath, 0, $posPublic);
 }
 
 return [
@@ -94,4 +119,9 @@ return [
     'PermissionService' => $permissionService,
     'PerformanceService' => $performanceService,
     'HistoryService' => $historyService,
+    // Metrología (Fase 1)
+    'metrologia_catalogos' => $metCatalogos,
+    'MetrologiaPermissionService' => $metPermissionService,
+    'MetrologiaHistoryService' => $metHistoryService,
+    'MetrologiaFolioService' => $metFolioService,
 ];

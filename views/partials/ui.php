@@ -40,8 +40,11 @@ if (!function_exists('sigtae_kpi_card')) {
         $color = $kpi['color'] ?? 'var(--sigtae-cyan)';
         $label = (string)($kpi['label'] ?? '');
         $value = (string)($kpi['value'] ?? '0');
+        $onClick = (string)($kpi['onClick'] ?? '');
         ?>
-        <div class="card kpi-card h-100" style="border-left-color: <?= htmlspecialchars($color) ?>;">
+        <div class="card kpi-card h-100 <?= $onClick !== '' ? 'sigtae-clickable' : '' ?>"
+             style="border-left-color: <?= htmlspecialchars($color) ?>;"
+             <?= $onClick !== '' ? 'role="button" tabindex="0" data-sigtae-onclick="' . htmlspecialchars($onClick, ENT_QUOTES) . '"' : '' ?>>
             <div class="card-body py-3 d-flex align-items-center justify-content-between">
                 <div>
                     <div class="kpi-label"><?= htmlspecialchars($label) ?></div>
