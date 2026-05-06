@@ -72,8 +72,13 @@ if ($downloadName === '') {
     $downloadName = (string)($ev['nombre_archivo'] ?? 'evidencia');
 }
 $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-if ($ext !== '' && !str_ends_with(strtolower($downloadName), '.' . $ext)) {
-    $downloadName .= '.' . $ext;
+$dnLower = strtolower($downloadName);
+if ($ext !== '') {
+    $suffix = '.' . $ext;
+    $endsWith = substr($dnLower, -strlen($suffix)) === $suffix;
+    if (!$endsWith) {
+        $downloadName .= $suffix;
+    }
 }
 
 header('X-Content-Type-Options: nosniff');
@@ -81,7 +86,7 @@ header('Content-Type: ' . $mime);
 header('Content-Length: ' . filesize($path));
 
 // Inline para imágenes/video/pdf; attachment para el resto.
-$inline = str_starts_with($mime, 'image/') || str_starts_with($mime, 'video/') || $mime === 'application/pdf';
+$inline = (substr($mime, 0, 6) === 'image/') || (substr($mime, 0, 6) === 'video/') || $mime === 'application/pdf';
 $disposition = $inline ? 'inline' : 'attachment';
 header('Content-Disposition: ' . $disposition . '; filename="' . str_replace('"', '', $downloadName) . '"');
 

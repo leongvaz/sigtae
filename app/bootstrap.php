@@ -39,11 +39,21 @@ use App\Repositories\OfficeRepositoryJson;
 use App\Repositories\DepartmentRepositoryJson;
 use App\Repositories\MetrologiaSolicitudRepositoryJson;
 use App\Repositories\MetrologiaExpedienteRepositoryJson;
+use App\Repositories\MetrologiaRecepcionRepositoryJson;
+use App\Repositories\MetrologiaBitacoraEquipoRepositoryJson;
+use App\Repositories\ProgramaTrabajoRepositoryJson;
+use App\Repositories\ProgramaActividadRepositoryJson;
+use App\Repositories\ProgramaAvanceRepositoryJson;
+use App\Repositories\ProgramaEvidenciaRepositoryJson;
 use App\Services\MetrologiaHistoryService;
 use App\Services\MetrologiaPermissionService;
 use App\Services\MetrologiaFolioService;
+use App\Services\MetrologiaRecepcionFolioService;
+use App\Services\ProgramaCalendarioService;
 
-$json = fn($file) => new JsonStorage($storagePath, $file);
+$json = function ($file) use ($storagePath) {
+    return new JsonStorage($storagePath, $file);
+};
 
 $repositories = [
     'user' => new UserRepositoryJson($json('users.json')),
@@ -55,9 +65,18 @@ $repositories = [
     // Módulo Metrología (Fase 1)
     'met_solicitud' => new MetrologiaSolicitudRepositoryJson($json('metrologia_solicitudes.json')),
     'met_expediente' => new MetrologiaExpedienteRepositoryJson($json('metrologia_expedientes.json')),
+    // Módulo Metrología (Recepción de equipos)
+    'met_recepcion' => new MetrologiaRecepcionRepositoryJson($json('metrologia_recepciones.json')),
+    'met_bitacora_equipos' => new MetrologiaBitacoraEquipoRepositoryJson($json('metrologia_bitacora_equipos.json')),
+    // Administrativo: programas de trabajo (Gantt)
+    'programa_trabajo' => new ProgramaTrabajoRepositoryJson($json('programas_trabajo.json')),
+    'programa_actividad' => new ProgramaActividadRepositoryJson($json('programas_actividades.json')),
+    'programa_avance' => new ProgramaAvanceRepositoryJson($json('programas_avances.json')),
+    'programa_evidencia' => new ProgramaEvidenciaRepositoryJson($json('programas_evidencias.json')),
 ];
 
-$stateService = new \App\Services\TaskStateService();
+$graciaPct = (float)($constants['gracia_presentacion_porcentaje'] ?? 0.10);
+$stateService = new \App\Services\TaskStateService(null, $graciaPct);
 $permissionService = new \App\Services\PermissionService($repositories['user'], $repositories['delegation']);
 $performanceService = new \App\Services\PerformanceService($repositories['task'], $stateService);
 $historyService = new \App\Services\HistoryService($repositories['history']);
@@ -76,6 +95,8 @@ $metCatalogos = $json('metrologia_catalogos.json')->read([
 $metPermissionService = new MetrologiaPermissionService($metCatalogos);
 $metHistoryService = new MetrologiaHistoryService($json('metrologia_historial.json'));
 $metFolioService = new MetrologiaFolioService($repositories['met_solicitud'], $repositories['met_expediente']);
+$metRecepcionFolioService = new MetrologiaRecepcionFolioService($repositories['met_recepcion'], $repositories['met_bitacora_equipos']);
+$programaCalendarioService = new ProgramaCalendarioService($json('calendario_laboral.json'));
 
 if (!function_exists('sigtae_auth_service')) {
     /**
@@ -124,4 +145,6 @@ return [
     'MetrologiaPermissionService' => $metPermissionService,
     'MetrologiaHistoryService' => $metHistoryService,
     'MetrologiaFolioService' => $metFolioService,
+    'MetrologiaRecepcionFolioService' => $metRecepcionFolioService,
+    'ProgramaCalendarioService' => $programaCalendarioService,
 ];

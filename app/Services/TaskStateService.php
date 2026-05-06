@@ -12,10 +12,12 @@ namespace App\Services;
 class TaskStateService
 {
     private string $today;
+    private float $graciaPorcentaje;
 
-    public function __construct(?string $today = null)
+    public function __construct(?string $today = null, float $graciaPorcentaje = 0.10)
     {
         $this->today = $today ?? (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('Y-m-d');
+        $this->graciaPorcentaje = max(0.0, $graciaPorcentaje);
     }
 
     /**
@@ -30,16 +32,17 @@ class TaskStateService
         }
 
         $fechaLimite = $task['fecha_limite'] ?? null;
+        $fechaLimiteEfectiva = $this->fechaLimiteEfectiva($task);
         $evidencias = $task['evidencias'] ?? [];
         $hasEvidence = count($evidencias) > 0;
-        $diasRestantes = $this->diasRestantes($fechaLimite);
+        $diasRestantes = $this->diasRestantes($fechaLimiteEfectiva);
 
         $estado = 'asignada';
-        if ($fechaLimite) {
-            $vencido = $this->today > $fechaLimite;
+        if ($fechaLimiteEfectiva) {
+            $vencido = $this->today > $fechaLimiteEfectiva;
             if ($hasEvidence) {
                 $primeraEvidencia = $this->primeraFechaEvidencia($evidencias);
-                if ($primeraEvidencia && $primeraEvidencia <= $fechaLimite) {
+                if ($fechaLimite && $primeraEvidencia && $primeraEvidencia <= $fechaLimite) {
                     $estado = 'atendida';
                 } else {
                     $estado = 'vencida';
@@ -61,6 +64,7 @@ class TaskStateService
 
         $task['estado'] = $estado;
         $task['dias_restantes'] = $diasRestantes;
+        $task['fecha_limite_efectiva'] = $fechaLimiteEfectiva;
         return $task;
     }
 
@@ -74,17 +78,82 @@ class TaskStateService
             return 0.0;
         }
         $estado = $task['estado'] ?? '';
-        $fechaLimite = $task['fecha_limite'] ?? null;
+        $fechaLimite = (string)($task['fecha_limite'] ?? '');
         $evidencias = $task['evidencias'] ?? [];
 
         if (count($evidencias) === 0) {
             return 0.0;
         }
         $primeraEvidencia = $this->primeraFechaEvidencia($evidencias);
-        if (!$primeraEvidencia || !$fechaLimite) {
+        if (!$primeraEvidencia || $fechaLimite === '') {
             return 100.0;
         }
         return $primeraEvidencia <= $fechaLimite ? 100.0 : 50.0;
+    }
+
+    /**
+     * Determina la fecha límite efectiva (límite + gracia porcentual).
+     */
+    public function fechaLimiteEfectiva(array $task): ?string
+    {
+        // Si fue rechazada, la re-presentación tiene su propia fecha límite.
+        $dict = strtolower((string)($task['dictamen'] ?? ''));
+        $rechLim = (string)($task['rechazo_fecha_limite'] ?? '');
+        if ($dict === 'rechazada' && $rechLim !== '') {
+            return $rechLim;
+        }
+
+        $fechaLimite = (string)($task['fecha_limite'] ?? '');
+        if ($fechaLimite === '') return null;
+
+        $limite = \DateTimeImmutable::createFromFormat('Y-m-d', $fechaLimite);
+        if (!$limite) return null;
+
+        $diasGracia = $this->diasGracia($task);
+        if ($diasGracia <= 0) return $fechaLimite;
+
+        return $limite->modify('+' . $diasGracia . ' day')->format('Y-m-d');
+    }
+
+    /**
+     * Si la ventana de presentación (incluyendo gracia) cerró.
+     */
+    public function isSubmissionWindowClosed(array $task): bool
+    {
+        $fechaLimiteEfectiva = $this->fechaLimiteEfectiva($task);
+        if (!$fechaLimiteEfectiva) return false;
+        return $this->today > $fechaLimiteEfectiva;
+    }
+
+    /**
+     * Días de gracia calculados (10% del plazo original, mínimo 1).
+     * Se usa para el límite efectivo y también para re-presentación por rechazo.
+     */
+    public function diasGraciaForTask(array $task): int
+    {
+        if ($this->graciaPorcentaje <= 0) return 0;
+
+        $fechaLimite = (string)($task['fecha_limite'] ?? '');
+        if ($fechaLimite === '') return 0;
+
+        $inicioStr = (string)($task['fecha_inicio'] ?? '');
+        if ($inicioStr === '') {
+            $inicioStr = substr((string)($task['created_at'] ?? ''), 0, 10);
+        }
+        if ($inicioStr === '') return 0;
+
+        $inicio = \DateTimeImmutable::createFromFormat('Y-m-d', $inicioStr);
+        $limite = \DateTimeImmutable::createFromFormat('Y-m-d', $fechaLimite);
+        if (!$inicio || !$limite) return 0;
+
+        $diff = (int)$inicio->diff($limite)->format('%r%a');
+        if ($diff < 1) return 1;
+        return max(1, (int)ceil($diff * $this->graciaPorcentaje));
+    }
+
+    private function diasGracia(array $task): int
+    {
+        return $this->diasGraciaForTask($task);
     }
 
     public function diasRestantes(?string $fechaLimite): ?int

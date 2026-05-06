@@ -32,9 +32,8 @@ return [
 
     // Dictamen de evaluación (valores históricos como requiere_correccion pueden existir en JSON antiguos)
     'dictamen' => [
-        'satisfactoria',
-        'satisfactoria_fuera_tiempo',
-        'insatisfactoria',
+        'aprobada',
+        'rechazada',
         'no_presentada',
         'requiere_correccion', // legado
     ],
@@ -78,4 +77,8 @@ return [
         'tarea_cancelada',
         'tarea_reasignada',
     ],
+
+    // Regla de gracia posterior a fecha límite para presentación de evidencias.
+    // Ejemplo: 0.10 => 10% de los días originalmente otorgados.
+    'gracia_presentacion_porcentaje' => 0.10,
 ];

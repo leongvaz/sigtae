@@ -17,11 +17,25 @@ foreach ($allTasks as $t) {
     $withState[] = $stateService->computeState($t);
 }
 
-$activas = array_filter($withState, fn($t) => in_array($t['estado'] ?? '', ['asignada', 'en_proceso'], true));
-$enProceso = array_filter($withState, fn($t) => ($t['estado'] ?? '') === 'en_proceso');
-$vencidas = array_filter($withState, fn($t) => ($t['estado'] ?? '') === 'vencida');
-$incumplidas = array_filter($withState, fn($t) => ($t['estado'] ?? '') === 'incumplimiento');
-$atendidas = array_filter($withState, fn($t) => ($t['estado'] ?? '') === 'atendida');
+$activas = array_filter($withState, function ($t) {
+    return in_array($t['estado'] ?? '', ['asignada', 'en_proceso'], true);
+});
+$enProceso = array_filter($withState, function ($t) { return ($t['estado'] ?? '') === 'en_proceso'; });
+$vencidas = array_filter($withState, function ($t) { return ($t['estado'] ?? '') === 'vencida'; });
+$incumplidas = array_filter($withState, function ($t) { return ($t['estado'] ?? '') === 'incumplimiento'; });
+$atendidas = array_filter($withState, function ($t) { return ($t['estado'] ?? '') === 'atendida'; });
+$pendientesEvaluacion = array_filter($withState, function($t) {
+    if (!empty($t['cancelada'])) return false;
+    if (($t['estado'] ?? '') === 'incumplimiento') return false;
+    $evCount = count((array)($t['evidencias'] ?? []));
+    if ($evCount === 0) return false;
+    $eval = $t['evaluacion'] ?? null;
+    $dict = strtolower((string)($t['dictamen'] ?? ''));
+    $evalVer = (int)($t['evaluacion_version'] ?? 0);
+    $hayNuevoIntento = ($dict === 'rechazada' && $evCount > $evalVer);
+    if ($eval !== null && (string)$eval !== '' && !$hayNuevoIntento) return false;
+    return true;
+});
 
 $perfArea = $performanceService->getRanking();
 $promedioArea = count($perfArea) > 0
@@ -43,8 +57,8 @@ $offices = $officeRepo->findAll();
 $porOficina = [];
 foreach ($offices as $of) {
     $tid = $of['id'];
-    $tasksOf = array_filter($withState, fn($t) => ($t['oficina_id'] ?? '') === $tid);
-    $atendidasOf = array_filter($tasksOf, fn($t) => ($t['estado'] ?? '') === 'atendida');
+    $tasksOf = array_filter($withState, function ($t) use ($tid) { return ($t['oficina_id'] ?? '') === $tid; });
+    $atendidasOf = array_filter($tasksOf, function ($t) { return ($t['estado'] ?? '') === 'atendida'; });
     $totalOf = count($tasksOf);
     $porOficina[] = [
         'nombre' => $of['nombre'],
@@ -54,8 +68,12 @@ foreach ($offices as $of) {
     ];
 }
 
-usort($withState, fn($a, $b) => strcmp($a['fecha_limite'] ?? '9999', $b['fecha_limite'] ?? '9999'));
-$proximasVencer = array_slice(array_filter($withState, fn($t) => in_array($t['estado'] ?? '', ['asignada', 'en_proceso'], true)), 0, 30);
+usort($withState, function ($a, $b) {
+    return strcmp($a['fecha_limite'] ?? '9999', $b['fecha_limite'] ?? '9999');
+});
+$proximasVencer = array_slice(array_filter($withState, function ($t) {
+    return in_array($t['estado'] ?? '', ['asignada', 'en_proceso'], true);
+}), 0, 30);
 
 $userNameById = [];
 foreach ($userRepo->findAll() as $u) {
@@ -78,7 +96,9 @@ foreach (array_slice($withState, 0, 20) as $t) {
         ];
     }
 }
-usort($ultimasEvidencias, fn($a, $b) => strcmp($b['fecha'], $a['fecha']));
+usort($ultimasEvidencias, function ($a, $b) {
+    return strcmp($b['fecha'], $a['fecha']);
+});
 $ultimasEvidencias = array_slice($ultimasEvidencias, 0, 60);
 
 $ofById = [];
@@ -158,10 +178,12 @@ foreach ($userRepo->findAll() as $u) {
         'oficina' => $oid !== '' ? ($ofById[$oid]['nombre'] ?? $oid) : '—',
         'porcentaje' => $perf['porcentaje_desempeno'] ?? 0,
         'total' => $perf['total_tareas'] ?? 0,
-        'evaluadas' => ($perf['total_tareas'] ?? 0) - ($perf['tareas_activas'] ?? 0),
+        'evaluadas' => $perf['tareas_evaluadas'] ?? 0,
     ];
 }
-usort($integrantesDashboard, fn($a, $b) => ($b['porcentaje'] <=> $a['porcentaje']));
+usort($integrantesDashboard, function ($a, $b) {
+    return ($b['porcentaje'] <=> $a['porcentaje']);
+});
 
 $successSeed = ($_GET['msg'] ?? '') === 'seed_ok' ? 'Tareas de ejemplo cargadas.' : '';
 $pageTitle = 'Dashboard — SIGTAE';

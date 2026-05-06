@@ -30,7 +30,13 @@ class MetrologiaPermissionService
     {
         if (!$user) return false;
         if (!empty($user['es_super_admin'])) return true;
-        return ($user['oficina_id'] ?? '') === 'of-metro' && !empty($user['puede_asignar']);
+        // Gestión del módulo (Calibración): usuarios del laboratorio de Metrología.
+        // - Jefaturas / usuarios con puede_asignar en Metrología: gestionan.
+        // - Técnicos/supervisores (nivel 3) en Metrología: pueden registrar/editar en Calibración.
+        if (($user['oficina_id'] ?? '') !== 'of-metro') return false;
+        if (!empty($user['puede_asignar'])) return true;
+        $nivel = (int)($user['nivel_jerarquico'] ?? 999);
+        return $nivel >= 3;
     }
 
     public function canCaptureCalibration(?array $user): bool

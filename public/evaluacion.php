@@ -17,14 +17,22 @@ foreach ($tasks as $t) {
     if (!empty($t['cancelada'])) {
         continue;
     }
-    if (count($t['evidencias'] ?? []) > 0 && ($t['evaluacion'] ?? null) === null && ($t['estado'] ?? '') !== 'incumplimiento') {
+    $evCount = count($t['evidencias'] ?? []);
+    $eval = $t['evaluacion'] ?? null;
+    $dict = strtolower((string)($t['dictamen'] ?? ''));
+    $evalVer = (int)($t['evaluacion_version'] ?? 0);
+    $hayNuevoIntento = ($dict === 'rechazada' && $evCount > $evalVer);
+    $pendiente = ($evCount > 0) && (($eval === null) || $hayNuevoIntento) && ($t['estado'] ?? '') !== 'incumplimiento';
+    if ($pendiente) {
         $resp = $userRepo->find($t['responsable_id'] ?? '');
         if ($permissionService->canEvaluate($user, $t, $resp)) {
             $pendientesEvaluar[] = $t;
         }
     }
 }
-usort($pendientesEvaluar, fn($a, $b) => strcmp($a['fecha_limite'] ?? '', $b['fecha_limite'] ?? ''));
+usort($pendientesEvaluar, function ($a, $b) {
+    return strcmp($a['fecha_limite'] ?? '', $b['fecha_limite'] ?? '');
+});
 
 $pageTitle = 'Evaluación — SIGTAE';
 $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Evaluación']];

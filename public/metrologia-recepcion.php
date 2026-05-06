@@ -1,0 +1,268 @@
+<?php
+$base = dirname(__DIR__);
+$container = require $base . '/app/bootstrap.php';
+$basePath = $container['base_path'] ?? '';
+$auth = sigtae_auth_service($container, $basePath);
+$user = $auth->requireAuth();
+
+$metPerm = $container['MetrologiaPermissionService'];
+if (!$metPerm->canAccess($user)) {
+    http_response_code(403);
+    $pageTitle = 'Acceso denegado — Metrología';
+    $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Metrología'], ['label' => 'Recepción']];
+    $currentUser = $user;
+    ob_start();
+    ?>
+    <div class="alert alert-danger"><i class="bi bi-shield-lock me-1"></i>No tiene permisos para acceder al módulo de Metrología.</div>
+    <?php
+    $content = ob_get_clean();
+    include $base . '/views/layout.php';
+    exit;
+}
+
+$canManage = $metPerm->canManage($user);
+
+$recepRepo = $container['repositories']['met_recepcion'];
+$bitRepo = $container['repositories']['met_bitacora_equipos'];
+$folioSvc = $container['MetrologiaRecepcionFolioService'];
+$metHistory = $container['MetrologiaHistoryService'];
+$zonasEntrega = [
+    'Zocalo',
+    'Benito Juarez',
+    'Polanco',
+    'Tacuba',
+    'Aeropuerto',
+    'Nezahuacoyotl',
+    'Chapingo',
+];
+
+$error = '';
+$success = '';
+$warning = '';
+
+// Crear recepción
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!$canManage) {
+        http_response_code(403);
+        $pageTitle = 'No autorizado — Metrología';
+        $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Metrología'], ['label' => 'Recepción']];
+        $currentUser = $user;
+        ob_start(); ?>
+        <div class="alert alert-danger"><i class="bi bi-shield-lock me-1"></i>No tiene permisos para registrar recepciones.</div>
+        <?php $content = ob_get_clean(); include $base . '/views/layout.php'; exit;
+    }
+
+    $action = (string)($_POST['action'] ?? '');
+    if ($action === 'guardar_recepcion') {
+        $motivo = trim((string)($_POST['motivo_recepcion'] ?? ''));
+
+        $entregaRpe = strtoupper(trim((string)($_POST['entrega_rpe'] ?? '')));
+        $entregaNombre = trim((string)($_POST['entrega_nombre'] ?? ''));
+        $entregaZona = trim((string)($_POST['entrega_zona'] ?? ''));
+        $entregaArea = trim((string)($_POST['entrega_area'] ?? ''));
+
+        $equiposMarca = (array)($_POST['equipo_marca'] ?? []);
+        $equiposModelo = (array)($_POST['equipo_modelo'] ?? []);
+        $equiposSerie = (array)($_POST['equipo_serie'] ?? []);
+        $equiposDesc = (array)($_POST['equipo_descripcion'] ?? []);
+        $equiposObs = (array)($_POST['equipo_observaciones'] ?? []);
+        $equiposIns = (array)($_POST['equipo_inspeccion'] ?? []);
+
+        $confirmDupSeries = !empty($_POST['confirmar_series_duplicadas']);
+
+        // Validaciones base
+        if ($motivo === '') {
+            $error = 'El motivo es obligatorio.';
+        } elseif ($entregaRpe === '' || $entregaNombre === '' || $entregaZona === '' || $entregaArea === '') {
+            $error = 'Complete los datos de ENTREGA: RPE, nombre, zona y área.';
+        } elseif (!preg_match('/^[A-Z0-9]{1,8}$/', $entregaRpe)) {
+            $error = 'RPE de entrega inválido.';
+        } elseif (!in_array($entregaZona, $zonasEntrega, true)) {
+            $error = 'Zona de entrega inválida.';
+        } else {
+            // Construir equipos (y validar requeridos)
+            $equipos = [];
+            $nRows = max(count($equiposMarca), count($equiposModelo), count($equiposSerie), count($equiposDesc));
+            for ($i = 0; $i < $nRows; $i++) {
+                $marca = trim((string)($equiposMarca[$i] ?? ''));
+                $modelo = trim((string)($equiposModelo[$i] ?? ''));
+                $serie = trim((string)($equiposSerie[$i] ?? ''));
+                $desc = trim((string)($equiposDesc[$i] ?? ''));
+                $obs = trim((string)($equiposObs[$i] ?? ''));
+                $insp = (string)($equiposIns[$i] ?? 'conforme');
+                if ($marca === '' && $modelo === '' && $serie === '' && $desc === '' && $obs === '') {
+                    continue; // fila vacía
+                }
+                $insp = in_array($insp, ['conforme', 'no_conforme'], true) ? $insp : 'conforme';
+                $equipos[] = [
+                    'marca' => $marca,
+                    'modelo' => $modelo,
+                    'serie' => $serie,
+                    'descripcion' => $desc,
+                    'observaciones' => $obs,
+                    'inspeccion_final' => $insp,
+                ];
+            }
+
+            if (empty($equipos)) {
+                $error = 'Debe capturar al menos un equipo.';
+            } else {
+                foreach ($equipos as $idx => $e) {
+                    if ($e['marca'] === '' || $e['modelo'] === '' || $e['serie'] === '' || $e['descripcion'] === '') {
+                        $error = 'En equipos: marca, modelo, serie y descripción son obligatorios (fila ' . ($idx + 1) . ').';
+                        break;
+                    }
+                }
+            }
+
+            // Warning series duplicadas (bitácora)
+            $dupSeries = [];
+            if ($error === '') {
+                foreach ($equipos as $e) {
+                    $serie = (string)$e['serie'];
+                    if ($serie === '') continue;
+                    $hits = $bitRepo->findBySerie($serie);
+                    if (!empty($hits)) {
+                        $dupSeries[$serie] = ($dupSeries[$serie] ?? 0) + count($hits);
+                    }
+                }
+                if (!empty($dupSeries) && !$confirmDupSeries) {
+                    $warning = 'Se detectaron series ya existentes en bitácora: ' . implode(', ', array_map(fn($s) => $s . ' (' . $dupSeries[$s] . ')', array_keys($dupSeries))) . '. Marque la confirmación para continuar.';
+                }
+            }
+
+            if ($error === '' && $warning === '') {
+                $year = (int)date('Y');
+                $fechaRecepcion = date('Y-m-d');
+                $nowIso = \App\Repositories\MetrologiaRepositoryUtils::nowIso();
+
+                $folioRecepcion = $folioSvc->nextRecepcionFolio($year);
+                if ($recepRepo->existsFolioRecepcion($folioRecepcion)) {
+                    // extremadamente raro (concurrente), pero protegemos
+                    $error = 'No se pudo asignar folio de recepción (duplicado). Intente de nuevo.';
+                } else {
+                    $foliosEquipos = $folioSvc->nextEquipoFolios($year, count($equipos));
+                    // Valida folios por equipo (concurrente)
+                    foreach ($foliosEquipos as $f) {
+                        if ($bitRepo->existsFolio($f)) {
+                            $error = 'No se pudo asignar folio de equipo (duplicado). Intente de nuevo.';
+                            break;
+                        }
+                    }
+                }
+
+                if ($error === '') {
+                    $recibeNombre = trim((string)($user['nombre'] ?? ''));
+                    $recibeRpe = strtoupper(trim((string)($user['rpe'] ?? '')));
+
+                    $recepcion = [
+                        'folio_recepcion' => $folioRecepcion,
+                        'fecha_recepcion' => $fechaRecepcion,
+                        'motivo_recepcion' => $motivo,
+                        'recibe' => [
+                            'usuario_id' => (string)($user['id'] ?? ''),
+                            'rpe' => $recibeRpe,
+                            'nombre' => $recibeNombre,
+                            'area' => 'Metrología',
+                            'zona' => 'DM-000',
+                            'firma_data_url' => null,
+                            'firma_dispositivo' => null,
+                            'firma_pendiente' => true,
+                        ],
+                        'entrega' => [
+                            'rpe' => $entregaRpe,
+                            'nombre' => $entregaNombre,
+                            'area' => $entregaArea,
+                            'zona' => $entregaZona,
+                            'firma_data_url' => null,
+                            'firma_dispositivo' => null,
+                            'firma_pendiente' => true,
+                        ],
+                        'equipos' => [],
+                        'estado' => 'recibida',
+                        'created_by' => (string)($user['id'] ?? ''),
+                        'created_at' => $nowIso,
+                        'updated_at' => $nowIso,
+                    ];
+
+                    foreach ($equipos as $i => $e) {
+                        $recepcion['equipos'][] = [
+                            'id' => \App\Repositories\MetrologiaRepositoryUtils::newId('mreq'),
+                            'numero' => $i + 1,
+                            'folio' => $foliosEquipos[$i] ?? ($year . '-0000'),
+                            'marca' => $e['marca'],
+                            'modelo' => $e['modelo'],
+                            'serie' => $e['serie'],
+                            'descripcion' => $e['descripcion'],
+                            'observaciones' => $e['observaciones'],
+                            'inspeccion_final' => $e['inspeccion_final'],
+                            'estado' => 'recibido',
+                        ];
+                    }
+
+                    $saved = $recepRepo->save($recepcion);
+
+                    // Bitácora plana por equipo
+                    foreach (($saved['equipos'] ?? []) as $eq) {
+                        $bitRepo->save([
+                            'recepcion_id' => $saved['id'] ?? '',
+                            'folio_recepcion' => $saved['folio_recepcion'] ?? '',
+                            'folio' => $eq['folio'] ?? '',
+                            'descripcion' => $eq['descripcion'] ?? '',
+                            'no_serie' => $eq['serie'] ?? '',
+                            'marca' => $eq['marca'] ?? '',
+                            'modelo' => $eq['modelo'] ?? '',
+                            'zona' => $saved['entrega']['zona'] ?? '',
+                            'area' => $saved['entrega']['area'] ?? '',
+                            'recibido' => $saved['fecha_recepcion'] ?? $fechaRecepcion,
+                            'estado' => $eq['estado'] ?? 'no_programado',
+                            'observaciones' => $eq['observaciones'] ?? '',
+                            'recibe' => $saved['recibe']['nombre'] ?? '',
+                            'entrega' => $saved['entrega']['nombre'] ?? '',
+                        ]);
+                    }
+
+                    // Historial módulo Metrología
+                    $metHistory->log(null, (string)($user['id'] ?? ''), 'recepcion_creada', 'Recepción registrada.', [
+                        'recepcion_id' => $saved['id'] ?? '',
+                        'folio_recepcion' => $saved['folio_recepcion'] ?? '',
+                        'fecha_recepcion' => $saved['fecha_recepcion'] ?? $fechaRecepcion,
+                        'entrega_rpe' => $entregaRpe,
+                        'entrega_nombre' => $entregaNombre,
+                        'entrega_zona' => $entregaZona,
+                        'entrega_area' => $entregaArea,
+                        'total_equipos' => count((array)($saved['equipos'] ?? [])),
+                    ]);
+                    foreach (($saved['equipos'] ?? []) as $eq) {
+                        $metHistory->log(null, (string)($user['id'] ?? ''), 'equipo_recibido', 'Equipo recibido.', [
+                            'recepcion_id' => $saved['id'] ?? '',
+                            'folio_recepcion' => $saved['folio_recepcion'] ?? '',
+                            'folio' => $eq['folio'] ?? '',
+                            'serie' => $eq['serie'] ?? '',
+                            'marca' => $eq['marca'] ?? '',
+                            'modelo' => $eq['modelo'] ?? '',
+                        ]);
+                    }
+
+                    header('Location: ' . $basePath . '/metrologia-recepcion.php?msg=ok&rid=' . rawurlencode((string)($saved['id'] ?? '')));
+                    exit;
+                }
+            }
+        }
+    }
+}
+
+if (($_GET['msg'] ?? '') === 'ok') {
+    $success = 'Recepción guardada correctamente.';
+}
+$rid = (string)($_GET['rid'] ?? '');
+$detalleRecepcion = $rid !== '' ? $recepRepo->find($rid) : null;
+
+$pageTitle = 'Metrología — Recepción';
+$breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Metrología'], ['label' => 'Recepción']];
+$currentUser = $user;
+ob_start();
+include $base . '/views/metrologia/recepcion.php';
+$content = ob_get_clean();
+include $base . '/views/layout.php';
+
