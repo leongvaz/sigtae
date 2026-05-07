@@ -5,6 +5,7 @@ $error = $error ?? '';
 $warning = $warning ?? '';
 $success = $success ?? '';
 $canManage = $canManage ?? false;
+$suggestNextEquipoFolio = $suggestNextEquipoFolio ?? '';
 
 $zonasEntrega = $zonasEntrega ?? [
     'Zocalo',
@@ -136,7 +137,6 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
                                         <th style="min-width:220px;">Descripción *</th>
                                         <th style="min-width:220px;">Observaciones</th>
                                         <th style="width:120px;">Folio</th>
-                                        <th style="width:210px;">Inspección final</th>
                                     </tr>
                                 </thead>
                                 <tbody id="equiposBody"></tbody>
@@ -160,6 +160,9 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
             const btnAdd = document.getElementById('btnAddEquipo');
             const btnRemove = document.getElementById('btnRemoveEquipo');
             const table = document.getElementById('tablaEquipos');
+            const base = window.SIGTAE_BASE_PATH || '';
+            const apiSuggest = base + '/api/metrologia-equipos.php?action=suggest';
+            let nextFolio = <?= json_encode((string)$suggestNextEquipoFolio) ?>;
 
             function esc(s) {
                 return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] || c));
@@ -175,35 +178,131 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
 
             function addRow(prefill = {}) {
                 const tr = document.createElement('tr');
-                const gid = 'ins_' + Math.random().toString(16).slice(2);
+                const uid = 'eq_' + Math.random().toString(16).slice(2);
                 tr.innerHTML = `
                     <td class="fw-semibold text-muted" data-col="numero"></td>
-                    <td><input name="equipo_marca[]" class="form-control form-control-sm" required value="${esc(prefill.marca)}"></td>
-                    <td><input name="equipo_modelo[]" class="form-control form-control-sm" required value="${esc(prefill.modelo)}"></td>
-                    <td><input name="equipo_serie[]" class="form-control form-control-sm" required value="${esc(prefill.serie)}"></td>
-                    <td><input name="equipo_descripcion[]" class="form-control form-control-sm" required value="${esc(prefill.descripcion)}"></td>
-                    <td><input name="equipo_observaciones[]" class="form-control form-control-sm" value="${esc(prefill.observaciones)}"></td>
-                    <td class="text-muted small">Auto</td>
                     <td>
-                        <div class="d-flex flex-column gap-1 small">
-                            <label class="d-flex align-items-center gap-1">
-                                <input type="radio" name="${gid}" value="conforme" checked>
-                                Conforme
-                            </label>
-                            <label class="d-flex align-items-center gap-1">
-                                <input type="radio" name="${gid}" value="no_conforme">
-                                No conforme
-                            </label>
-                        </div>
-                        <input type="hidden" name="equipo_inspeccion[]" value="conforme" data-ins>
+                        <input name="equipo_marca[]" class="form-control form-control-sm js-eq-marca" required
+                               list="${uid}_marca_list" value="${esc(prefill.marca)}" autocomplete="off">
+                        <datalist id="${uid}_marca_list"></datalist>
                     </td>
+                    <td>
+                        <input name="equipo_modelo[]" class="form-control form-control-sm js-eq-modelo" required
+                               list="${uid}_modelo_list" value="${esc(prefill.modelo)}" autocomplete="off">
+                        <datalist id="${uid}_modelo_list"></datalist>
+                    </td>
+                    <td>
+                        <input name="equipo_serie[]" class="form-control form-control-sm js-eq-serie" required
+                               list="${uid}_serie_list" value="${esc(prefill.serie)}" autocomplete="off">
+                        <datalist id="${uid}_serie_list"></datalist>
+                    </td>
+                    <td>
+                        <input name="equipo_descripcion[]" class="form-control form-control-sm js-eq-desc" required
+                               list="${uid}_desc_list" value="${esc(prefill.descripcion)}" autocomplete="off">
+                        <datalist id="${uid}_desc_list"></datalist>
+                    </td>
+                    <td><input name="equipo_observaciones[]" class="form-control form-control-sm" value="${esc(prefill.observaciones)}"></td>
+                    <td><input name="equipo_folio[]" class="form-control form-control-sm js-eq-folio" value="${esc(prefill.folio || nextFolio)}" placeholder="${esc(nextFolio)}"></td>
                 `;
-                // Para el backend, mantenemos un campo plano equipo_inspeccion[]; sincronizamos al cambiar radios.
-                const radios = tr.querySelectorAll('input[type="radio"]');
-                const hid = tr.querySelector('input[data-ins]');
-                radios.forEach(r => r.addEventListener('change', () => { if (r.checked) hid.value = r.value; }));
                 body.appendChild(tr);
                 renumber();
+
+                // Avanza sugerencia de folio localmente (AAAA-NNNN).
+                (function bumpFolio(){
+                    const m = String(nextFolio || '').match(/^(\d{4})-(\d{4})$/);
+                    if (!m) return;
+                    const y = m[1];
+                    const n = parseInt(m[2], 10);
+                    if (!isFinite(n)) return;
+                    nextFolio = y + '-' + String(n + 1).padStart(4, '0');
+                })();
+
+                // Autocompletado + autollenado (como estaba funcionando)
+                function debounce(fn, ms) {
+                    let t = null;
+                    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+                }
+                async function suggest(field, q) {
+                    q = String(q || '').trim();
+                    if (q.length < 2) return [];
+                    const qs = '&field=' + encodeURIComponent(field) + '&q=' + encodeURIComponent(q) + '&limit=12';
+                    // En algunos entornos (localhost sin rewrite) el API queda bajo /public/api.
+                    const urls = [
+                        apiSuggest + qs,
+                        (base + '/public/api/metrologia-equipos.php?action=suggest') + qs,
+                    ];
+                    for (const url of urls) {
+                        try {
+                            const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+                            if (!res.ok) continue;
+                            const data = await res.json().catch(() => null);
+                            if (!data || data.ok === false) continue;
+                            return data.items || [];
+                        } catch (_) {}
+                    }
+                    return [];
+                }
+                function fillFromItem(item) {
+                    if (!item) return;
+                    if (item.marca) marcaEl.value = item.marca;
+                    if (item.modelo) modeloEl.value = item.modelo;
+                    if (item.no_serie) serieEl.value = item.no_serie;
+                    if (item.descripcion) descEl.value = item.descripcion;
+                }
+                function setDatalist(dl, items) {
+                    if (!dl) return;
+                    dl.innerHTML = '';
+                    for (const it of (items || [])) {
+                        const opt = document.createElement('option');
+                        opt.value = it.value || '';
+                        dl.appendChild(opt);
+                    }
+                }
+
+                const marcaEl = tr.querySelector('.js-eq-marca');
+                const modeloEl = tr.querySelector('.js-eq-modelo');
+                const serieEl = tr.querySelector('.js-eq-serie');
+                const descEl = tr.querySelector('.js-eq-desc');
+                const dlMarca = tr.querySelector('#' + CSS.escape(uid + '_marca_list'));
+                const dlModelo = tr.querySelector('#' + CSS.escape(uid + '_modelo_list'));
+                const dlSerie = tr.querySelector('#' + CSS.escape(uid + '_serie_list'));
+                const dlDesc = tr.querySelector('#' + CSS.escape(uid + '_desc_list'));
+                const mapMarca = new Map(), mapModelo = new Map(), mapSerie = new Map(), mapDesc = new Map();
+
+                const onMarca = debounce(async () => {
+                    const items = await suggest('marca', marcaEl.value);
+                    mapMarca.clear(); items.forEach(it => mapMarca.set(String(it.value||''), it));
+                    setDatalist(dlMarca, items);
+                }, 180);
+                const onModelo = debounce(async () => {
+                    const items = await suggest('modelo', modeloEl.value);
+                    mapModelo.clear(); items.forEach(it => mapModelo.set(String(it.value||''), it));
+                    setDatalist(dlModelo, items);
+                }, 180);
+                const onSerie = debounce(async () => {
+                    const items = await suggest('no_serie', serieEl.value);
+                    mapSerie.clear(); items.forEach(it => mapSerie.set(String(it.value||''), it));
+                    setDatalist(dlSerie, items);
+                }, 180);
+                const onDesc = debounce(async () => {
+                    const items = await suggest('descripcion', descEl.value);
+                    mapDesc.clear(); items.forEach(it => mapDesc.set(String(it.value||''), it));
+                    setDatalist(dlDesc, items);
+                }, 180);
+
+                marcaEl.addEventListener('input', onMarca);
+                modeloEl.addEventListener('input', onModelo);
+                serieEl.addEventListener('input', onSerie);
+                descEl.addEventListener('input', onDesc);
+
+                function maybeFill(map, el) {
+                    const it = map.get(String(el.value || ''));
+                    if (it) fillFromItem(it);
+                }
+                marcaEl.addEventListener('change', () => maybeFill(mapMarca, marcaEl));
+                modeloEl.addEventListener('change', () => maybeFill(mapModelo, modeloEl));
+                serieEl.addEventListener('change', () => maybeFill(mapSerie, serieEl));
+                descEl.addEventListener('change', () => maybeFill(mapDesc, descEl));
             }
 
             function removeRow() {

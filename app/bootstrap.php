@@ -41,6 +41,7 @@ use App\Repositories\MetrologiaSolicitudRepositoryJson;
 use App\Repositories\MetrologiaExpedienteRepositoryJson;
 use App\Repositories\MetrologiaRecepcionRepositoryJson;
 use App\Repositories\MetrologiaBitacoraEquipoRepositoryJson;
+use App\Repositories\MetrologiaEquipoCatalogoRepositoryJson;
 use App\Repositories\ProgramaTrabajoRepositoryJson;
 use App\Repositories\ProgramaActividadRepositoryJson;
 use App\Repositories\ProgramaAvanceRepositoryJson;
@@ -50,6 +51,7 @@ use App\Services\MetrologiaPermissionService;
 use App\Services\MetrologiaFolioService;
 use App\Services\MetrologiaRecepcionFolioService;
 use App\Services\ProgramaCalendarioService;
+use App\Services\MetrologiaEquipoCatalogoSeedService;
 
 $json = function ($file) use ($storagePath) {
     return new JsonStorage($storagePath, $file);
@@ -68,6 +70,8 @@ $repositories = [
     // Módulo Metrología (Recepción de equipos)
     'met_recepcion' => new MetrologiaRecepcionRepositoryJson($json('metrologia_recepciones.json')),
     'met_bitacora_equipos' => new MetrologiaBitacoraEquipoRepositoryJson($json('metrologia_bitacora_equipos.json')),
+    // Metrología: base maestra de equipos (catálogo)
+    'met_equipo_catalogo' => new MetrologiaEquipoCatalogoRepositoryJson($json('metrologia_equipos.json')),
     // Administrativo: programas de trabajo (Gantt)
     'programa_trabajo' => new ProgramaTrabajoRepositoryJson($json('programas_trabajo.json')),
     'programa_actividad' => new ProgramaActividadRepositoryJson($json('programas_actividades.json')),
@@ -96,6 +100,11 @@ $metPermissionService = new MetrologiaPermissionService($metCatalogos);
 $metHistoryService = new MetrologiaHistoryService($json('metrologia_historial.json'));
 $metFolioService = new MetrologiaFolioService($repositories['met_solicitud'], $repositories['met_expediente']);
 $metRecepcionFolioService = new MetrologiaRecepcionFolioService($repositories['met_recepcion'], $repositories['met_bitacora_equipos']);
+$metEquipoSeedService = new MetrologiaEquipoCatalogoSeedService(
+    $json('metrologia_bitacora_equipos.json'),
+    $json('metrologia_programa_2026.json'),
+    $repositories['met_equipo_catalogo']
+);
 $programaCalendarioService = new ProgramaCalendarioService($json('calendario_laboral.json'));
 
 if (!function_exists('sigtae_auth_service')) {
@@ -146,5 +155,6 @@ return [
     'MetrologiaHistoryService' => $metHistoryService,
     'MetrologiaFolioService' => $metFolioService,
     'MetrologiaRecepcionFolioService' => $metRecepcionFolioService,
+    'MetrologiaEquipoCatalogoSeedService' => $metEquipoSeedService,
     'ProgramaCalendarioService' => $programaCalendarioService,
 ];

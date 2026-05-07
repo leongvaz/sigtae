@@ -13,6 +13,7 @@ namespace App\Services;
 class MetrologiaPermissionService
 {
     private array $catalogos;
+    private array $equiposAdminsRpe = ['G46B8', '9MMUY'];
 
     public function __construct(array $catalogos)
     {
@@ -57,6 +58,18 @@ class MetrologiaPermissionService
             }
         }
         return false;
+    }
+
+    /**
+     * Administración del catálogo maestro de equipos.
+     * Permite: admins del sistema y RPEs explícitos (Alba, Carlos).
+     */
+    public function canAdminEquiposCatalogo(?array $user): bool
+    {
+        if (!$user) return false;
+        if (!empty($user['es_super_admin'])) return true;
+        $rpe = strtoupper(trim((string)($user['rpe'] ?? '')));
+        return in_array($rpe, $this->equiposAdminsRpe, true);
     }
 }
 

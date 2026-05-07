@@ -12,6 +12,8 @@ $currentScript = basename($_SERVER['PHP_SELF'] ?? '');
 $isSuper       = !empty($currentUser['es_super_admin']);
 $canUserAdmin  = $isSuper;
 $puedeAsignar  = !empty($currentUser['puede_asignar']) || $isSuper;
+$canAdminMetEquipos = $isSuper || in_array(strtoupper(trim((string)($currentUser['rpe'] ?? ''))), ['G46B8','9MMUY'], true);
+$canAmi = \App\Services\AmiGuard::canAccess($currentUser ?? null);
 
 // Sidebar colapsable: grupos -> subgrupos -> enlaces
 $navTree = [
@@ -82,6 +84,7 @@ $navTree = [
                     ['url' => '/metrologia-autorizacion.php', 'label' => 'Autorización',      'icon' => 'bi-shield-check',   'match' => ['metrologia-autorizacion.php']],
                     ['url' => '/metrologia-reportes.php',     'label' => 'Concentrado Zonas', 'icon' => 'bi-table',          'match' => ['metrologia-reportes.php']],
                     ['url' => '/metrologia-programa.php',     'label' => 'Programa anual',    'icon' => 'bi-calendar2-week', 'match' => ['metrologia-programa.php']],
+                    ['url' => '/metrologia-equipos.php',      'label' => 'Catálogo de equipos', 'icon' => 'bi-box-seam',      'match' => ['metrologia-equipos.php'], 'visible' => $canAdminMetEquipos],
                 ],
             ],
             [
@@ -155,6 +158,24 @@ $navTree = [
                 'icon' => 'bi-calendar-check',
                 'children' => [
                     ['url' => '/prep-entrega-medidores.php', 'label' => 'Entrega de medidores', 'icon' => 'bi-calendar-check', 'match' => ['prep-entrega-medidores.php']],
+                ],
+            ],
+        ],
+    ],
+    [
+        'id' => 'ami',
+        'label' => 'AMI',
+        'icon' => 'bi-router',
+        'visible' => $canAmi,
+        'children' => [
+            [
+                'id' => 'ami-sigami',
+                'label' => 'SIGAMI',
+                'icon' => 'bi-arrow-repeat',
+                'children' => [
+                    ['url' => '/ami-cambio-sigami.php',    'label' => 'Cambio SIGAMI',     'icon' => 'bi-pencil-square', 'match' => ['ami-cambio-sigami.php']],
+                    ['url' => '/ami-consultar-sigami.php', 'label' => 'Consultar SIGAMI', 'icon' => 'bi-search',        'match' => ['ami-consultar-sigami.php']],
+                    ['url' => '/ami-iusa-sinamed.php', 'label' => 'IUSA — SINAMED', 'icon' => 'bi-cloud-arrow-up', 'match' => ['ami-iusa-sinamed.php']],
                 ],
             ],
         ],
@@ -1132,13 +1153,27 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                 function applyPersisted() {
                     if (!window.bootstrap || !bootstrap.Collapse) return;
                     const state = loadState();
+                    // Solo abrir automáticamente los contenedores que formen parte de la ruta del enlace activo.
+                    // Esto evita que queden desplegados grupos de una sesión anterior en páginas no relacionadas.
+                    const activeLink = document.querySelector('.sigtae-sidebar a.sb-link.active');
+                    const activeCollapseIds = new Set();
+                    if (activeLink) {
+                        let el = activeLink.parentElement;
+                        while (el) {
+                            if (el.classList && el.classList.contains('collapse')) {
+                                const id = el.getAttribute('id');
+                                if (id) activeCollapseIds.add(id);
+                            }
+                            el = el.parentElement;
+                        }
+                    }
                     document.querySelectorAll('[data-sigtae-toggle="collapse"]').forEach(function(btn) {
                         const target = btn.getAttribute('data-sigtae-target');
                         if (!target) return;
                         const id = target.replace(/^#/, '');
                         const c = document.getElementById(id);
                         if (!c) return;
-                        if (state[id] === true) {
+                        if (state[id] === true && activeCollapseIds.has(id)) {
                             try { bootstrap.Collapse.getOrCreateInstance(c, { toggle: false }).show(); } catch (_) {}
                             syncExpanded(btn, true);
                         }

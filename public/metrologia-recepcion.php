@@ -26,6 +26,7 @@ $recepRepo = $container['repositories']['met_recepcion'];
 $bitRepo = $container['repositories']['met_bitacora_equipos'];
 $folioSvc = $container['MetrologiaRecepcionFolioService'];
 $metHistory = $container['MetrologiaHistoryService'];
+$suggestNextEquipoFolio = $folioSvc->nextEquipoFolio((int)date('Y'));
 $zonasEntrega = [
     'Zocalo',
     'Benito Juarez',
@@ -66,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $equiposSerie = (array)($_POST['equipo_serie'] ?? []);
         $equiposDesc = (array)($_POST['equipo_descripcion'] ?? []);
         $equiposObs = (array)($_POST['equipo_observaciones'] ?? []);
-        $equiposIns = (array)($_POST['equipo_inspeccion'] ?? []);
+        $equiposFolio = (array)($_POST['equipo_folio'] ?? []);
 
         $confirmDupSeries = !empty($_POST['confirmar_series_duplicadas']);
 
@@ -89,18 +90,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $serie = trim((string)($equiposSerie[$i] ?? ''));
                 $desc = trim((string)($equiposDesc[$i] ?? ''));
                 $obs = trim((string)($equiposObs[$i] ?? ''));
-                $insp = (string)($equiposIns[$i] ?? 'conforme');
+                $folioManual = trim((string)($equiposFolio[$i] ?? ''));
                 if ($marca === '' && $modelo === '' && $serie === '' && $desc === '' && $obs === '') {
                     continue; // fila vacía
                 }
-                $insp = in_array($insp, ['conforme', 'no_conforme'], true) ? $insp : 'conforme';
                 $equipos[] = [
                     'marca' => $marca,
                     'modelo' => $modelo,
                     'serie' => $serie,
                     'descripcion' => $desc,
                     'observaciones' => $obs,
-                    'inspeccion_final' => $insp,
+                    'folio' => $folioManual,
                 ];
             }
 
@@ -141,7 +141,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // extremadamente raro (concurrente), pero protegemos
                     $error = 'No se pudo asignar folio de recepción (duplicado). Intente de nuevo.';
                 } else {
-                    $foliosEquipos = $folioSvc->nextEquipoFolios($year, count($equipos));
+                    // Folios manuales (si vienen); si faltan o vienen vacíos, completar con consecutivos sugeridos.
+                    $foliosEquipos = [];
+                    $need = 0;
+                    foreach ($equipos as $e) {
+                        $f = trim((string)($e['folio'] ?? ''));
+                        if ($f !== '') $foliosEquipos[] = $f;
+                        else { $foliosEquipos[] = null; $need++; }
+                    }
+                    if ($need > 0) {
+                        $gen = $folioSvc->nextEquipoFolios($year, $need);
+                        $gi = 0;
+                        foreach ($foliosEquipos as $i => $f) {
+                            if ($f === null) {
+                                $foliosEquipos[$i] = $gen[$gi] ?? ($year . '-0000');
+                                $gi++;
+                            }
+                        }
+                    }
                     // Valida folios por equipo (concurrente)
                     foreach ($foliosEquipos as $f) {
                         if ($bitRepo->existsFolio($f)) {
@@ -195,7 +212,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'serie' => $e['serie'],
                             'descripcion' => $e['descripcion'],
                             'observaciones' => $e['observaciones'],
-                            'inspeccion_final' => $e['inspeccion_final'],
                             'estado' => 'recibido',
                         ];
                     }
