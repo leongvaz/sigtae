@@ -2,7 +2,7 @@
 $ranking = $ranking ?? [];
 ?>
 
-<?php sigtae_page_header('Ranking de desempeño', 'Porcentaje de cumplimiento por colaborador (promedio ponderado de sus tareas evaluadas)'); ?>
+<?php sigtae_page_header('Ranking de desempeño', 'Porcentaje de tareas aprobadas sobre tareas evaluadas (Aprobada/Rechazada) por colaborador'); ?>
 
 <div class="row g-3">
     <div class="col-lg-8">
@@ -20,10 +20,10 @@ $ranking = $ranking ?? [];
                                 <th>Colaborador</th>
                                 <th>% Desempeño</th>
                                 <th class="text-center">Total</th>
-                                <th class="text-center"><span data-bs-toggle="tooltip" title="Atendidas en tiempo">En tiempo</span></th>
-                                <th class="text-center"><span data-bs-toggle="tooltip" title="Atendidas fuera de tiempo">Fuera</span></th>
-                                <th class="text-center">Incumplidas</th>
-                                <th class="text-center">Activas</th>
+                                <th class="text-center">Evaluadas</th>
+                                <th class="text-center text-success">Aprobadas</th>
+                                <th class="text-center text-danger">Rechazadas</th>
+                                <th class="text-center text-muted">Pend. eval.</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,10 +44,10 @@ $ranking = $ranking ?? [];
                                         </div>
                                     </td>
                                     <td class="text-center"><?= $r['total_tareas'] ?? 0 ?></td>
-                                    <td class="text-center text-success"><?= $r['tareas_atendidas_tiempo'] ?? 0 ?></td>
-                                    <td class="text-center text-warning"><?= $r['tareas_atendidas_fuera_tiempo'] ?? 0 ?></td>
-                                    <td class="text-center text-danger"><?= $r['tareas_incumplidas'] ?? 0 ?></td>
-                                    <td class="text-center text-muted"><?= $r['tareas_activas'] ?? 0 ?></td>
+                                    <td class="text-center"><?= $r['tareas_evaluadas'] ?? 0 ?></td>
+                                    <td class="text-center text-success"><?= $r['tareas_aprobadas'] ?? 0 ?></td>
+                                    <td class="text-center text-danger"><?= $r['tareas_rechazadas'] ?? 0 ?></td>
+                                    <td class="text-center text-muted"><?= $r['tareas_pendientes_evaluacion'] ?? 0 ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -63,11 +63,10 @@ $ranking = $ranking ?? [];
             <div class="card-body">
                 <p class="small mb-2"><strong>Colaboradores con tareas:</strong> <?= count($ranking) ?></p>
                 <hr>
-                <p class="small text-muted mb-2">El desempeño se calcula como el promedio ponderado de las tareas evaluadas:</p>
+                <p class="small text-muted mb-2">El desempeño se calcula sobre tareas <strong>evaluadas</strong>:</p>
                 <ul class="small text-muted ps-3 mb-0">
-                    <li><strong class="text-success">100%</strong> — presentada en tiempo</li>
-                    <li><strong class="text-warning">50%</strong> — presentada fuera de tiempo</li>
-                    <li><strong class="text-danger">0%</strong> — no presentada (incumplimiento)</li>
+                    <li><strong class="text-success">Aprobada</strong> — cuenta como 1</li>
+                    <li><strong class="text-danger">Rechazada</strong> — cuenta como 0</li>
                 </ul>
             </div>
         </div>

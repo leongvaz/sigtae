@@ -4,8 +4,9 @@ namespace App\Services;
 use App\Repositories\TaskRepositoryInterface;
 
 /**
- * Cálculo de desempeño individual: promedio simple sobre tareas asignadas.
- * Atendida en tiempo = 100%, fuera de tiempo = 50%, no atendida = 0%.
+ * Cálculo de desempeño individual.
+ * Regla vigente: porcentaje de tareas APROBADAS
+ * sobre tareas EVALUADAS (Aprobada/Rechazada).
  */
 class PerformanceService
 {
@@ -27,50 +28,57 @@ class PerformanceService
         $withState = [];
         foreach ($tasks as $t) {
             $st = $this->stateService->computeState($t);
-            if (!empty($st['cancelada'])) {
-                continue;
-            }
+            if (!empty($st['cancelada'])) continue;
             $withState[] = $st;
         }
         $total = count($withState);
-        $atendidasTiempo = 0;
-        $atendidasFuera = 0;
-        $incumplidas = 0;
-        $activas = 0;
-        $sum = 0;
+
+        $evaluadas = 0;
+        $aprobadas = 0;
+        $rechazadas = 0;
+        $pendientes = 0; // evidencia presentada, aún sin dictamen (o esperando nuevo intento)
+
         foreach ($withState as $t) {
-            if (!empty($t['pendiente_mejora']) && ($t['evaluacion'] ?? null) === null) {
-                $activas++;
+            $dict = strtolower((string)($t['dictamen'] ?? ''));
+            $eval = $t['evaluacion'] ?? null;
+            $evCount = count((array)($t['evidencias'] ?? []));
+            $evalVer = (int)($t['evaluacion_version'] ?? 0);
+            $hayNuevoIntento = ($dict === 'rechazada' && $evCount > $evalVer);
+
+            // Compatibilidad con valores históricos:
+            // - dictamen: satisfactoria / satisfactoria_fuera_tiempo => aprobada
+            // - dictamen: insatisfactoria => rechazada
+            // - evaluacion numérica (100/50) => aprobada; 0 => rechazada (si existiera)
+            $isAprob = in_array($dict, ['aprobada', 'satisfactoria', 'satisfactoria_fuera_tiempo'], true)
+                || ((string)$eval === 'aprobada')
+                || ((is_numeric($eval) || is_int($eval) || is_float($eval)) && (float)$eval >= 50);
+            $isRech = in_array($dict, ['rechazada', 'insatisfactoria'], true)
+                || ((string)$eval === 'rechazada')
+                || ((is_numeric($eval) || is_int($eval) || is_float($eval)) && (float)$eval === 0.0);
+            $isEval = $isAprob || $isRech;
+
+            if ($isEval && !$hayNuevoIntento) {
+                $evaluadas++;
+                if ($isAprob) $aprobadas++;
+                else $rechazadas++;
                 continue;
             }
-            $estado = $t['estado'] ?? '';
-            if (in_array($estado, ['atendida', 'vencida', 'incumplimiento'], true)) {
-                $p = $this->stateService->porcentajeCumplimiento($t);
-                if (array_key_exists('evaluacion', $t) && $t['evaluacion'] !== null && $t['evaluacion'] !== '') {
-                    $p = (float) $t['evaluacion'];
-                }
-                $sum += $p;
-                if ($estado === 'atendida') {
-                    $atendidasTiempo++;
-                } elseif ($estado === 'vencida') {
-                    $atendidasFuera++;
-                } else {
-                    $incumplidas++;
-                }
-            } else {
-                $activas++;
+
+            // Pendiente de evaluación: hay evidencia y aún no hay dictamen (o hay nuevo intento)
+            if ($evCount > 0) {
+                $pendientes++;
             }
         }
-        $evaluadas = $total - $activas;
-        $porcentaje = $evaluadas > 0 ? round($sum / $evaluadas, 1) : 0.0;
+
+        $porcentaje = $evaluadas > 0 ? round(($aprobadas / $evaluadas) * 100, 1) : 0.0;
 
         return [
             'responsable_id' => $responsableId,
             'total_tareas' => $total,
-            'tareas_atendidas_tiempo' => $atendidasTiempo,
-            'tareas_atendidas_fuera_tiempo' => $atendidasFuera,
-            'tareas_incumplidas' => $incumplidas,
-            'tareas_activas' => $activas,
+            'tareas_evaluadas' => $evaluadas,
+            'tareas_aprobadas' => $aprobadas,
+            'tareas_rechazadas' => $rechazadas,
+            'tareas_pendientes_evaluacion' => $pendientes,
             'porcentaje_desempeno' => $porcentaje,
         ];
     }
@@ -87,7 +95,9 @@ class PerformanceService
         foreach ($responsableIds as $rid) {
             $out[] = $this->getPerformance($rid);
         }
-        usort($out, fn($a, $b) => ($b['porcentaje_desempeno'] ?? 0) <=> ($a['porcentaje_desempeno'] ?? 0));
+        usort($out, function ($a, $b) {
+            return ($b['porcentaje_desempeno'] ?? 0) <=> ($a['porcentaje_desempeno'] ?? 0);
+        });
         return $out;
     }
 }

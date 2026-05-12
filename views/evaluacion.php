@@ -3,7 +3,7 @@ $pendientesEvaluar = $pendientesEvaluar ?? [];
 $userRepo = $userRepo ?? null;
 ?>
 
-<?php sigtae_page_header('Evaluación de tareas', 'Tareas con evidencia cargada pendientes de su evaluación'); ?>
+<?php sigtae_page_header('Evaluación de tareas', 'Aprobación o rechazo de tareas con evidencia presentada'); ?>
 
 <div class="card">
     <div class="card-body p-0">

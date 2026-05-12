@@ -12,6 +12,8 @@ $currentScript = basename($_SERVER['PHP_SELF'] ?? '');
 $isSuper       = !empty($currentUser['es_super_admin']);
 $canUserAdmin  = $isSuper;
 $puedeAsignar  = !empty($currentUser['puede_asignar']) || $isSuper;
+$canAdminMetEquipos = $isSuper || in_array(strtoupper(trim((string)($currentUser['rpe'] ?? ''))), ['G46B8','9MMUY','9L3DR'], true);
+$canAmi = \App\Services\AmiGuard::canAccess($currentUser);
 
 // Sidebar colapsable: grupos -> subgrupos -> enlaces
 $navTree = [
@@ -29,6 +31,14 @@ $navTree = [
                     ['url' => '/mis-tareas.php',    'label' => 'Mis tareas',    'icon' => 'bi-list-task',    'match' => ['mis-tareas.php']],
                     ['url' => '/asignar-tarea.php', 'label' => 'Asignar tarea', 'icon' => 'bi-plus-square',  'match' => ['asignar-tarea.php'], 'visible' => $puedeAsignar],
                     ['url' => '/calendario.php',    'label' => 'Calendario',    'icon' => 'bi-calendar3',    'match' => ['calendario.php']],
+                ],
+            ],
+            [
+                'id' => 'adm-prog',
+                'label' => 'Programa de trabajo',
+                'icon' => 'bi-bar-chart-steps',
+                'children' => [
+                    ['url' => '/programa-trabajo-gantt.php', 'label' => 'Programa de Trabajo', 'icon' => 'bi-bar-chart-steps', 'match' => ['programa-trabajo-gantt.php']],
                 ],
             ],
             [
@@ -50,17 +60,6 @@ $navTree = [
                     ['url' => '/historial.php',   'label' => 'Historial',   'icon' => 'bi-clock-history', 'match' => ['historial.php']],
                 ],
             ],
-            [
-                'id' => 'adm-admin',
-                'label' => 'Administrador',
-                'icon' => 'bi-gear',
-                'visible' => $isSuper || $canUserAdmin,
-                'children' => [
-                    ['url' => '/admin-usuarios.php',     'label' => 'Usuarios',     'icon' => 'bi-people',      'match' => ['admin-usuarios.php'],     'visible' => $canUserAdmin],
-                    ['url' => '/admin-oficinas.php',     'label' => 'Oficinas',     'icon' => 'bi-building',    'match' => ['admin-oficinas.php'],     'visible' => $isSuper],
-                    ['url' => '/admin-delegaciones.php', 'label' => 'Delegaciones', 'icon' => 'bi-person-gear', 'match' => ['admin-delegaciones.php']],
-                ],
-            ],
         ],
     ],
     [
@@ -74,22 +73,18 @@ $navTree = [
                 'icon' => 'bi-activity',
                 'children' => [
                     ['url' => '/metrologia-recepcion.php',      'label' => 'Recepción',         'icon' => 'bi-box-arrow-in-down',  'match' => ['metrologia-recepcion.php']],
-                    ['url' => '/metrologia-ordenes.php',        'label' => 'Orden de trabajo',  'icon' => 'bi-clipboard2-check',   'match' => ['metrologia-ordenes.php']],
-                    ['url' => '/metrologia-entrega.php',        'label' => 'Entrega',           'icon' => 'bi-box-arrow-up-right', 'match' => ['metrologia-entrega.php']],
-                    ['url' => '/metrologia-informe-diario.php', 'label' => 'Informes',          'icon' => 'bi-journal-text',       'match' => ['metrologia-informe-diario.php']],
-                ],
-            ],
-            [
-                'id' => 'met-gestion',
-                'label' => 'Gestión',
-                'icon' => 'bi-folder2-open',
-                'children' => [
+                    ['url' => '/metrologia-bitacora.php',       'label' => 'Bitácora',          'icon' => 'bi-journal-text',       'match' => ['metrologia-bitacora.php']],
+                    ['url' => '#', 'label' => 'Orden de trabajo (próximamente)',  'icon' => 'bi-clipboard2-check',   'match' => [], 'disabled' => true],
+                    ['url' => '#', 'label' => 'Entrega (próximamente)',           'icon' => 'bi-box-arrow-up-right', 'match' => [], 'disabled' => true],
+                    ['url' => '#', 'label' => 'Informes (próximamente)',          'icon' => 'bi-journal-text',       'match' => [], 'disabled' => true],
+                    // Antes vivían en "Metrología > Gestión"
                     ['url' => '/metrologia-dashboard.php',    'label' => 'Dashboard',         'icon' => 'bi-speedometer',    'match' => ['metrologia-dashboard.php']],
                     ['url' => '/metrologia-solicitudes.php',  'label' => 'Solicitudes',       'icon' => 'bi-inbox',          'match' => ['metrologia-solicitudes.php']],
                     ['url' => '/metrologia-expedientes.php',  'label' => 'Expedientes',       'icon' => 'bi-folder2-open',   'match' => ['metrologia-expedientes.php','metrologia-expediente.php']],
                     ['url' => '/metrologia-autorizacion.php', 'label' => 'Autorización',      'icon' => 'bi-shield-check',   'match' => ['metrologia-autorizacion.php']],
                     ['url' => '/metrologia-reportes.php',     'label' => 'Concentrado Zonas', 'icon' => 'bi-table',          'match' => ['metrologia-reportes.php']],
                     ['url' => '/metrologia-programa.php',     'label' => 'Programa anual',    'icon' => 'bi-calendar2-week', 'match' => ['metrologia-programa.php']],
+                    ['url' => '/metrologia-equipos.php',      'label' => 'Catálogo de equipos', 'icon' => 'bi-box-seam',      'match' => ['metrologia-equipos.php'], 'visible' => $canAdminMetEquipos],
                 ],
             ],
             [
@@ -115,6 +110,7 @@ $navTree = [
                 'children' => [
                     ['url' => '#', 'label' => 'Base de datos (próximamente)', 'icon' => 'bi-database', 'match' => [], 'disabled' => true],
                 ],
+                'visible' => false,
             ],
         ],
     ],
@@ -132,27 +128,79 @@ $navTree = [
                 ],
             ],
             [
-                'id' => 'prep-ot',
-                'label' => 'Orden de trabajo',
-                'icon' => 'bi-clipboard2-check',
+                'id' => 'prep-control',
+                'label' => 'Control de medidores y sellos',
+                'icon' => 'bi-boxes',
                 'children' => [
-                    ['url' => '#', 'label' => 'Orden de trabajo (próximamente)', 'icon' => 'bi-clipboard2-check', 'match' => [], 'disabled' => true],
+                    ['url' => '/prep-compra-nacional.php', 'label' => 'Compra nacional', 'icon' => 'bi-cart', 'match' => ['prep-compra-nacional.php']],
+                    ['url' => '/prep-muestreos.php', 'label' => 'Muestreos', 'icon' => 'bi-clipboard2-data', 'match' => ['prep-muestreos.php']],
                 ],
             ],
             [
-                'id' => 'prep-admin',
-                'label' => 'Administración',
-                'icon' => 'bi-gear',
+                'id' => 'prep-minutas',
+                'label' => 'Minutas de supervisión',
+                'icon' => 'bi-file-earmark-text',
                 'children' => [
-                    ['url' => '#', 'label' => 'Administración (próximamente)', 'icon' => 'bi-gear', 'match' => [], 'disabled' => true],
+                    ['url' => '/prep-minutas-supervision.php', 'label' => 'Minutas de supervisión', 'icon' => 'bi-file-earmark-text', 'match' => ['prep-minutas-supervision.php']],
                 ],
             ],
             [
-                'id' => 'prep-ti',
-                'label' => 'Transformadores de instrumento',
-                'icon' => 'bi-lightning-charge',
+                'id' => 'prep-soltras',
+                'label' => 'Soltras',
+                'icon' => 'bi-diagram-3',
                 'children' => [
-                    ['url' => '#', 'label' => 'Transformadores (próximamente)', 'icon' => 'bi-lightning-charge', 'match' => [], 'disabled' => true],
+                    ['url' => '/prep-soltras.php', 'label' => 'Soltras', 'icon' => 'bi-diagram-3', 'match' => ['prep-soltras.php']],
+                ],
+            ],
+            [
+                'id' => 'prep-entrega',
+                'label' => 'Entrega de medidores',
+                'icon' => 'bi-calendar-check',
+                'children' => [
+                    ['url' => '/prep-entrega-medidores.php', 'label' => 'Entrega de medidores', 'icon' => 'bi-calendar-check', 'match' => ['prep-entrega-medidores.php']],
+                ],
+            ],
+        ],
+    ],
+    [
+        'id' => 'ami',
+        'label' => 'AMI',
+        'icon' => 'bi-hdd-network',
+        'visible' => $canAmi,
+        'children' => [
+            [
+                'id' => 'ami-sigami',
+                'label' => 'SIGAMI',
+                'icon' => 'bi-arrow-repeat',
+                'children' => [
+                    ['url' => '/ami-cambio-sigami.php', 'label' => 'Cambio SIGAMI', 'icon' => 'bi-arrow-left-right', 'match' => ['ami-cambio-sigami.php']],
+                    ['url' => '/ami-consultar-sigami.php', 'label' => 'Consultar SIGAMI', 'icon' => 'bi-search', 'match' => ['ami-consultar-sigami.php']],
+                ],
+            ],
+            [
+                'id' => 'ami-sinamed',
+                'label' => 'IUSA — SINAMED',
+                'icon' => 'bi-cloud-arrow-up',
+                'children' => [
+                    ['url' => '/ami-iusa-sinamed.php', 'label' => 'Listas y universo', 'icon' => 'bi-table', 'match' => ['ami-iusa-sinamed.php']],
+                ],
+            ],
+        ],
+    ],
+    [
+        'id' => 'admin',
+        'label' => 'Admin',
+        'icon' => 'bi-gear',
+        'visible' => $isSuper || $canUserAdmin,
+        'children' => [
+            [
+                'id' => 'admin-sistema',
+                'label' => 'Sistema',
+                'icon' => 'bi-gear-wide-connected',
+                'children' => [
+                    ['url' => '/admin-usuarios.php',     'label' => 'Usuarios',     'icon' => 'bi-people',      'match' => ['admin-usuarios.php'],     'visible' => $canUserAdmin],
+                    ['url' => '/admin-oficinas.php',     'label' => 'Oficinas',     'icon' => 'bi-building',    'match' => ['admin-oficinas.php'],     'visible' => $isSuper],
+                    ['url' => '/admin-delegaciones.php', 'label' => 'Delegaciones', 'icon' => 'bi-person-gear', 'match' => ['admin-delegaciones.php']],
                 ],
             ],
         ],
@@ -628,7 +676,9 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                                 </button>
                                 <div class="collapse sb-collapse <?= $subOpen ? 'show' : '' ?>" id="sbsub-<?= htmlspecialchars($group['id'] ?? '') ?>-<?= htmlspecialchars($sub['id'] ?? '') ?>">
                                     <?php
-                                    $leafs = array_filter((array)($sub['children'] ?? []), fn($it) => !isset($it['visible']) || $it['visible']);
+                                    $leafs = array_filter((array)($sub['children'] ?? []), function ($it) {
+                                        return !isset($it['visible']) || $it['visible'];
+                                    });
                                     ?>
                                     <?php foreach ($leafs as $it): ?>
                                         <?php
@@ -864,7 +914,14 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                 return html;
             }
             window.sigtaeDashboardOpenEstado = async function(estado) {
-                const mapa = { asignada:'Asignadas', en_proceso:'En proceso', vencida:'Vencidas', incumplimiento:'Incumplimiento', atendida:'Atendidas', cancelada:'Canceladas' };
+                const mapa = {
+                    asignada:'Asignadas',
+                    en_proceso:'En proceso',
+                    vencida:'Atendidas fuera de tiempo',
+                    incumplimiento:'Incumplimiento',
+                    atendida:'Atendidas dentro de tiempo',
+                    cancelada:'Canceladas'
+                };
                 const title = 'Tareas — ' + (mapa[estado] || estado);
                 window.sigtaeOpenModalLoading(title);
                 try {
@@ -886,6 +943,18 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                     window.sigtaeOpenModal(t, items.length ? renderTasksTable(items) : '<div class="text-muted small">No hay tareas para este filtro.</div>');
                 } catch (e) {
                     window.sigtaeOpenModal(t, '<div class="alert alert-danger mb-0">No se pudo cargar el detalle. ' + escapeHtml(e.message) + '</div>');
+                }
+            };
+            window.sigtaeDashboardOpenPendientesEvaluacion = async function() {
+                const title = 'Tareas — Pendientes de evaluación';
+                window.sigtaeOpenModalLoading(title);
+                try {
+                    const basePath = window.SIGTAE_BASE_PATH || '';
+                    const data = await window.sigtaeFetchJson(basePath + '/api/tareas.php?action=pendiente_evaluacion');
+                    const items = data.items || [];
+                    window.sigtaeOpenModal(title, items.length ? renderTasksTable(items) : '<div class="text-muted small">No hay tareas para este filtro.</div>');
+                } catch (e) {
+                    window.sigtaeOpenModal(title, '<div class="alert alert-danger mb-0">No se pudo cargar el detalle. ' + escapeHtml(e.message) + '</div>');
                 }
             };
             window.sigtaeDashboardOpenPrioridad = async function(prioridad) {
@@ -926,6 +995,97 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                     window.sigtaeOpenModal(title, '<div class="alert alert-danger mb-0">No se pudo cargar el detalle. ' + escapeHtml(e.message) + '</div>');
                 }
             };
+        })();
+
+        // Programa de Trabajo: modal de evidencias (global, funciona con PJAX)
+        (function() {
+            function escapeHtml(s) {
+                return String(s ?? '').replace(/[&<>"']/g, function(c) {
+                    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]) || c;
+                });
+            }
+
+            function getEvidenceMap() {
+                const el = document.querySelector('.sigtae-content #evidenciasData');
+                if (!el) return {};
+                try { return JSON.parse(el.textContent || '{}') || {}; } catch (e) { return {}; }
+            }
+
+            function renderEvidenceList(map, actividadId, fecha) {
+                const items = (((map || {})[actividadId] || {})[fecha] || []);
+                const tb = document.querySelector('.sigtae-content #evList');
+                const cnt = document.querySelector('.sigtae-content #evCount');
+                if (cnt) cnt.textContent = items.length + ' archivo(s)';
+                if (!tb) return;
+                tb.innerHTML = '';
+                for (const ev of items) {
+                    const tr = document.createElement('tr');
+                    const fileLabel = escapeHtml(ev.nombre_original || ev.nombre_archivo || '');
+                    const comment = escapeHtml(ev.comentario || '');
+                    const usr = escapeHtml(ev.usuario_carga || '');
+                    const fec = escapeHtml(ev.fecha_carga || ev.created_at || '');
+                    const link = (window.SIGTAE_BASE_PATH||'') + '/programa-evidencia.php?id=' + encodeURIComponent(ev.id || '');
+                    tr.innerHTML =
+                        '<td class="small">' + fileLabel + '</td>'
+                        + '<td class="small text-muted">' + comment + '</td>'
+                        + '<td class="small">' + usr + '</td>'
+                        + '<td class="small text-muted">' + fec + '</td>'
+                        + '<td class="text-end"><a class="btn btn-sm btn-outline-primary" href="' + link + '" target="_blank" rel="noopener" title="Descargar"><i class="bi bi-download"></i></a></td>';
+                    tb.appendChild(tr);
+                }
+            }
+
+            function wireDropzone() {
+                const drop = document.querySelector('.sigtae-content #ptEvDrop');
+                const files = document.querySelector('.sigtae-content #ptEvFiles');
+                if (!drop || !files) return;
+                if (drop.__wired) return;
+                drop.__wired = true;
+                drop.addEventListener('click', function() { files.click(); });
+                drop.addEventListener('dragover', function(ev) { ev.preventDefault(); drop.classList.add('border-primary'); });
+                drop.addEventListener('dragleave', function() { drop.classList.remove('border-primary'); });
+                drop.addEventListener('drop', function(ev) {
+                    ev.preventDefault();
+                    drop.classList.remove('border-primary');
+                    if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files.length) {
+                        files.files = ev.dataTransfer.files;
+                    }
+                });
+            }
+
+            document.addEventListener('show.bs.modal', function(e) {
+                const modalEl = e && e.target ? e.target : null;
+                if (!modalEl || modalEl.id !== 'modalEvidencias') return;
+                const btn = e.relatedTarget;
+                if (!btn) return;
+                const programaId = btn.getAttribute('data-programa-id') || '';
+                const actividadId = btn.getAttribute('data-actividad-id') || '';
+                const fecha = btn.getAttribute('data-fecha') || '';
+
+                const title = document.querySelector('.sigtae-content #modalEvidenciasTitle');
+                const meta = document.querySelector('.sigtae-content #modalEvidenciasMeta');
+                if (title) title.textContent = 'Evidencias — ' + fecha;
+                if (meta) meta.textContent = 'Actividad: ' + actividadId + ' · Programa: ' + programaId;
+
+                const pid = document.querySelector('.sigtae-content #evProgramaId');
+                const aid = document.querySelector('.sigtae-content #evActividadId');
+                const fe = document.querySelector('.sigtae-content #evFecha');
+                if (pid) pid.value = programaId;
+                if (aid) aid.value = actividadId;
+                if (fe) fe.value = fecha;
+
+                renderEvidenceList(getEvidenceMap(), actividadId, fecha);
+            });
+
+            document.addEventListener('shown.bs.modal', function(e) {
+                const modalEl = e && e.target ? e.target : null;
+                if (!modalEl || modalEl.id !== 'modalEvidencias') return;
+                wireDropzone();
+            });
+
+            window.addEventListener('sigtae:pageLoaded', function() {
+                wireDropzone();
+            });
         })();
 
         // Navegación tipo PJAX (sidebar) para evitar recargas completas
@@ -1000,13 +1160,27 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                 function applyPersisted() {
                     if (!window.bootstrap || !bootstrap.Collapse) return;
                     const state = loadState();
+                    // Solo abrir automáticamente los contenedores que formen parte de la ruta del enlace activo.
+                    // Esto evita que queden desplegados grupos de una sesión anterior en páginas no relacionadas.
+                    const activeLink = document.querySelector('.sigtae-sidebar a.sb-link.active');
+                    const activeCollapseIds = new Set();
+                    if (activeLink) {
+                        let el = activeLink.parentElement;
+                        while (el) {
+                            if (el.classList && el.classList.contains('collapse')) {
+                                const id = el.getAttribute('id');
+                                if (id) activeCollapseIds.add(id);
+                            }
+                            el = el.parentElement;
+                        }
+                    }
                     document.querySelectorAll('[data-sigtae-toggle="collapse"]').forEach(function(btn) {
                         const target = btn.getAttribute('data-sigtae-target');
                         if (!target) return;
                         const id = target.replace(/^#/, '');
                         const c = document.getElementById(id);
                         if (!c) return;
-                        if (state[id] === true) {
+                        if (state[id] === true && activeCollapseIds.has(id)) {
                             try { bootstrap.Collapse.getOrCreateInstance(c, { toggle: false }).show(); } catch (_) {}
                             syncExpanded(btn, true);
                         }

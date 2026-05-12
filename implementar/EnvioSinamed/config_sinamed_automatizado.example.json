@@ -1,0 +1,44 @@
+{
+  "_comment": "Copie este archivo como config_sinamed_automatizado.local.json y llene credenciales. No suba el .local.json al repositorio.",
+  "calcom_json": "calcom.json",
+  "calcom_completo_json": "calcomCompleto.json",
+  "snapshot_json": "../../storage/json/sinamed_automation/snapshot.json",
+  "history_jsonl": "../../storage/json/sinamed_automation/run_history.jsonl",
+  "enviado_txt": "Enviado.txt",
+  "sql_server": {
+    "driver": "{ODBC Driver 17 for SQL Server}",
+    "server": "10.4.59.8",
+    "database": "master",
+    "uid": "usrSINAMED",
+    "pwd": "CAMBIAR"
+  },
+  "postgres": {
+    "host": "10.96.248.12",
+    "port": 5432,
+    "database": "psigmia",
+    "user": "iscpsigmia",
+    "password": "CAMBIAR"
+  },
+  "postgres_envio": {
+    "sql_file": "envio_sinamed.sql",
+    "encoding": "utf-8"
+  },
+  "sinamed": {
+    "callback_url": "http://10.4.59.10:8084/SINAMEDServices/api/IoT/callback",
+    "token": "CAMBIAR_TOKEN_HEADER_TOKEN",
+    "token_header_name": "TOKEN",
+    "timeout_sec": 120,
+    "headers": {}
+  },
+  "sinamed_payload": {
+    "wrapper_key": "dataConst",
+    "items_from_columns": {
+      "nuMedidor": "numero_cfe",
+      "energiaActivaTotal": "delivered"
+    }
+  },
+  "ventana_lectura_dias_atras": 3,
+  "sigami_aldesa": 4,
+  "sigami_sinamed": 6,
+  "dry_run": false
+}

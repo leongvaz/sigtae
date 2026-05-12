@@ -32,9 +32,8 @@ return [
 
     // Dictamen de evaluación (valores históricos como requiere_correccion pueden existir en JSON antiguos)
     'dictamen' => [
-        'satisfactoria',
-        'satisfactoria_fuera_tiempo',
-        'insatisfactoria',
+        'aprobada',
+        'rechazada',
         'no_presentada',
         'requiere_correccion', // legado
     ],
@@ -78,4 +77,15 @@ return [
         'tarea_cancelada',
         'tarea_reasignada',
     ],
+
+    // Regla de gracia posterior a fecha límite para presentación de evidencias.
+    // Ejemplo: 0.10 => 10% de los días originalmente otorgados.
+    'gracia_presentacion_porcentaje' => 0.10,
+
+    /**
+     * Archivo JSON del catálogo maestro de equipos (Metrología), relativo a storage/json.
+     * Tras validar un merge: p.ej. metrologia_equipos_merged.json
+     * También se puede definir la variable de entorno SIGTAE_MET_EQUIPO_CATALOGO_JSON (mismo nombre de archivo).
+     */
+    'metrologia_equipos_catalogo_file' => 'metrologia_equipos.json',
 ];

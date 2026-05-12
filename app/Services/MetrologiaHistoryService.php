@@ -61,6 +61,10 @@ class MetrologiaHistoryService
         if (!empty($filters['tipo_evento'])) {
             $list = array_values(array_filter($list, fn($h) => ($h['tipo_evento'] ?? '') === $filters['tipo_evento']));
         }
+        if (!empty($filters['bitacora_equipo_id'])) {
+            $bid = (string)$filters['bitacora_equipo_id'];
+            $list = array_values(array_filter($list, fn($h) => ($h['metadata']['bitacora_equipo_id'] ?? '') === $bid));
+        }
         if (!empty($filters['desde'])) {
             $list = array_values(array_filter($list, fn($h) => ($h['fecha_hora'] ?? '') >= $filters['desde']));
         }

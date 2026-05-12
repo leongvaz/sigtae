@@ -13,9 +13,12 @@ $puedeCancelar = $puedeCancelar ?? false;
 $candidatosReasignar = $candidatosReasignar ?? [];
 
 $dictamenLabels = [
-    'satisfactoria' => 'Satisfactoria (en tiempo)',
-    'satisfactoria_fuera_tiempo' => 'Satisfactoria (fuera de tiempo)',
-    'insatisfactoria' => 'Insatisfactoria',
+    'aprobada' => 'Aprobada',
+    'rechazada' => 'Rechazada',
+    // Compatibilidad con dictámenes históricos
+    'satisfactoria' => 'Aprobada',
+    'satisfactoria_fuera_tiempo' => 'Aprobada',
+    'insatisfactoria' => 'Rechazada',
     'no_presentada' => 'No presentada',
     'requiere_correccion' => 'Requiere corrección',
 ];
@@ -86,7 +89,7 @@ if (!$fechaPresentacion && !empty($task['evidencias'])) {
         </div>
 
         <!-- Presentar evidencia -->
-        <?php if ($esResponsable && empty($task['cancelada'])): ?>
+        <?php if ($esResponsable && empty($task['cancelada']) && empty($task['cerrada'])): ?>
         <div class="card mb-3">
             <div class="card-header card-header-accent"><i class="bi bi-cloud-upload me-1"></i> Presentar evidencia</div>
             <div class="card-body">
@@ -155,21 +158,24 @@ if (!$fechaPresentacion && !empty($task['evidencias'])) {
         <!-- Evaluación -->
         <?php
         $evCount = count($task['evidencias'] ?? []);
-        $evalAbierta = ($task['evaluacion'] ?? null) === null;
-        $opcionesEval = ['satisfactoria', 'insatisfactoria'];
+        $dict = strtolower((string)($task['dictamen'] ?? ''));
+        $eval = $task['evaluacion'] ?? null;
+        $evalVer = (int)($task['evaluacion_version'] ?? 0);
+        $hayNuevoIntento = ($dict === 'rechazada' && $evCount > $evalVer);
+        $evalAbierta = ($eval === null) || $hayNuevoIntento;
+        $opcionesEval = ['aprobada', 'rechazada'];
         $puedeMostrarEval = $puedeEvaluar && $evalAbierta && $evCount > 0 && empty($task['cancelada']);
         ?>
         <?php if ($puedeMostrarEval): ?>
         <div class="card mb-3">
             <div class="card-header card-header-accent"><i class="bi bi-check2-square me-1"></i> Evaluación</div>
             <div class="card-body">
-                <?php if (!empty($task['tuvo_insatisfactoria']) || !empty($task['pendiente_mejora'])): ?>
+                <?php if ($dict === 'rechazada' && !empty($task['rechazo_fecha_limite'])): ?>
                     <div class="alert alert-warning small py-2 mb-3">
                         <i class="bi bi-exclamation-triangle me-1"></i>
-                        Hubo una evaluación <strong>insatisfactoria</strong>. Si ahora elige <strong>Satisfactoria</strong>, el sistema registrará el cierre como <strong>fuera de tiempo</strong> (50%).
+                        Esta tarea fue <strong>rechazada</strong>. El responsable puede re-presentar evidencia hasta <strong><?= htmlspecialchars((string)$task['rechazo_fecha_limite']) ?></strong>.
                     </div>
                 <?php endif; ?>
-                <p class="small text-muted mb-3">Si marca <strong>Satisfactoria</strong>, el sistema determina automáticamente si fue en tiempo o fuera de tiempo según la fecha límite y la primera evidencia.</p>
                 <form method="post">
                     <input type="hidden" name="action" value="evaluar">
                     <div class="row g-2">
@@ -178,7 +184,7 @@ if (!$fechaPresentacion && !empty($task['evidencias'])) {
                             <select name="dictamen" class="form-select form-select-sm" required>
                                 <option value="">Seleccione...</option>
                                 <?php foreach ($opcionesEval as $d): ?>
-                                    <option value="<?= htmlspecialchars($d) ?>"><?= $d === 'satisfactoria' ? 'Satisfactoria' : 'Insatisfactoria' ?></option>
+                                    <option value="<?= htmlspecialchars($d) ?>"><?= $d === 'aprobada' ? 'Aprobada' : 'Rechazada' ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -245,15 +251,13 @@ if (!$fechaPresentacion && !empty($task['evidencias'])) {
                         $dm = $task['dictamen'] ?? '';
                         if ($dm !== '') {
                             echo htmlspecialchars($dictamenLabels[$dm] ?? ucfirst(str_replace('_', ' ', $dm)));
-                        } elseif (!empty($task['pendiente_mejora'])) {
-                            echo '<span class="text-warning">Pendiente de nuevo intento</span>';
                         } else {
                             echo '—';
                         }
                     ?></dd>
-                    <?php if (($task['evaluacion'] ?? null) !== null): ?>
-                        <dt class="col-5">Puntuación</dt>
-                        <dd class="col-7"><?= htmlspecialchars((string)$task['evaluacion']) ?>%</dd>
+                    <?php if (!empty($task['cerrada'])): ?>
+                        <dt class="col-5">Cerrada</dt>
+                        <dd class="col-7"><span class="badge bg-success">Sí</span></dd>
                     <?php endif; ?>
                 </dl>
                 <?php if (!empty($task['comentarios_evaluador'])): ?>

@@ -1,0 +1,18 @@
+-- Copie este archivo como envio_sinamed.sql y adapte la consulta real (la que usa envioDiario.exe contra PostgreSQL PSIGMIA).
+-- Debe devolver filas con las columnas definidas en config sinamed_payload.items_from_columns
+-- (por defecto: numero_cfe, delivered).
+--
+-- El marcador %%MEDIDORES_IN%% se reemplaza por una lista SQL segura, por ejemplo:
+-- 'E852JP','E308NF'
+--
+-- Ejemplo ficticio (reemplazar tablas/campos):
+/*
+SELECT
+    UPPER(TRIM(t.medidor)) AS numero_cfe,
+    COALESCE(t.lectura_activa, 0)::double precision AS delivered
+FROM esquema.tele_medidas t
+WHERE UPPER(TRIM(t.medidor)) IN (%%MEDIDORES_IN%%)
+  AND t.fecha_lectura >= CURRENT_DATE - INTERVAL '3 days'
+*/
+
+SELECT NULL::text AS numero_cfe, NULL::double precision AS delivered WHERE FALSE;

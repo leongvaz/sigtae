@@ -1,0 +1,37 @@
+# --- Datos de ejecución (no versionar: cada servidor conserva los suyos al hacer pull) ---
+
+# JSON de aplicación (tareas, usuarios, metrología, programas, historiales, etc.)
+storage/json/*.json
+storage/json/**/*.json
+storage/json/**/*.jsonl
+
+# Subidas (evidencias de tareas, SIG metrología, etc.)
+storage/uploads/**
+
+# Mantener carpetas vacías en el repo si añades archivos .gitkeep:
+# !storage/uploads/.gitkeep
+# !storage/json/sinamed_automation/.gitkeep
+
+# --- PHP / entorno ---
+/vendor/
+composer.phar
+.env
+.env.*
+!.env.example
+
+# --- Herramientas y SO ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# --- IDEs ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# --- Logs / cachés locales ---
+*.log
+.phpunit.result.cache

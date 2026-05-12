@@ -4,6 +4,7 @@ $enProceso = $enProceso ?? [];
 $vencidas = $vencidas ?? [];
 $incumplidas = $incumplidas ?? [];
 $atendidas = $atendidas ?? [];
+$pendientesEvaluacion = $pendientesEvaluacion ?? [];
 $promedioArea = $promedioArea ?? 0;
 $porEstado = $porEstado ?? [];
 $porPrioridad = $porPrioridad ?? [];
@@ -31,11 +32,11 @@ sigtae_page_header('Dashboard', 'Resumen operativo y cumplimiento del departamen
 <div class="row g-3 mb-4">
     <?php
     $kpis = [
-        ['label' => 'Tareas activas', 'value' => count($activas),     'icon' => 'bi-list-task',       'color' => '#1d4ed8', 'onClick' => "sigtaeDashboardOpenEstados(['asignada','en_proceso'], 'Tareas — Activas')"],
+        ['label' => 'Pendientes de evaluación', 'value' => count($pendientesEvaluacion), 'icon' => 'bi-list-task', 'color' => '#1d4ed8', 'onClick' => "sigtaeDashboardOpenPendientesEvaluacion()"],
         ['label' => 'En proceso',     'value' => count($enProceso),   'icon' => 'bi-arrow-repeat',    'color' => '#c17d0a', 'onClick' => "sigtaeDashboardOpenEstado('en_proceso')"],
-        ['label' => 'Vencidas',       'value' => count($vencidas),    'icon' => 'bi-exclamation-triangle', 'color' => '#a16207', 'onClick' => "sigtaeDashboardOpenEstado('vencida')"],
+        ['label' => 'Atendidas fuera de tiempo', 'value' => count($vencidas), 'icon' => 'bi-exclamation-triangle', 'color' => '#a16207', 'onClick' => "sigtaeDashboardOpenEstado('vencida')"],
         ['label' => 'Incumplidas',    'value' => count($incumplidas), 'icon' => 'bi-x-octagon',       'color' => '#b91c1c', 'onClick' => "sigtaeDashboardOpenEstado('incumplimiento')"],
-        ['label' => 'Atendidas',      'value' => count($atendidas),   'icon' => 'bi-check2-circle',   'color' => '#047857', 'onClick' => "sigtaeDashboardOpenEstado('atendida')"],
+        ['label' => 'Atendidas dentro de tiempo', 'value' => count($atendidas), 'icon' => 'bi-check2-circle', 'color' => '#047857', 'onClick' => "sigtaeDashboardOpenEstado('atendida')"],
         ['label' => 'Desempeño área', 'value' => $promedioArea . '%', 'icon' => 'bi-speedometer2',    'color' => '#1a4d6d'],
     ];
     foreach ($kpis as $k):
@@ -61,24 +62,24 @@ sigtae_page_header('Dashboard', 'Resumen operativo y cumplimiento del departamen
                 <?php sigtae_chart_card_close(); ?>
             </div>
             <div class="col-md-6">
-                <?php sigtae_chart_card_open('Cumplimiento por oficina', '% de tareas atendidas respecto al total de cada oficina.', 240); ?>
+                <?php sigtae_chart_card_open('Cumplimiento por oficina', '% de tareas con evidencia presentada (atendidas) respecto al total de cada oficina.', 240); ?>
                     <canvas id="chartOficina"></canvas>
                 <?php sigtae_chart_card_close(); ?>
             </div>
             <div class="col-md-6">
-                <?php sigtae_chart_card_open('Desempeño por oficina', 'Promedio del % de desempeño de los integrantes con tareas evaluadas, por oficina.', 240); ?>
+                <?php sigtae_chart_card_open('Desempeño por oficina', 'Promedio del % de tareas APROBADAS sobre tareas EVALUADAS (Aprobada/Rechazada), por oficina.', 240); ?>
                     <canvas id="chartDesempOficina"></canvas>
                 <?php sigtae_chart_card_close(); ?>
             </div>
             <div class="col-12">
-                <?php sigtae_chart_card_open('Ranking de desempeño', '% de desempeño por responsable: 100% en tiempo, 50% fuera de tiempo, 0% no presentadas.', 280); ?>
+                <?php sigtae_chart_card_open('Ranking de desempeño', '% de tareas APROBADAS sobre tareas EVALUADAS (Aprobada/Rechazada).', 280); ?>
                     <canvas id="chartRanking"></canvas>
                 <?php sigtae_chart_card_close(); ?>
             </div>
             <div class="col-12">
                 <div class="card">
                     <div class="card-header py-2 d-flex align-items-center">
-                        <span>Avance por integrante <?= sigtae_info_icon('Desempeño acumulado de cada integrante activo, considerando todas sus tareas evaluadas.') ?></span>
+                        <span>Avance por integrante <?= sigtae_info_icon('Desempeño por integrante: % de tareas aprobadas sobre tareas evaluadas (Aprobada/Rechazada).') ?></span>
                     </div>
                     <div class="card-body p-0">
                         <?php if (empty($integrantesDashboard)): ?>

@@ -13,6 +13,7 @@ namespace App\Services;
 class MetrologiaPermissionService
 {
     private array $catalogos;
+    private array $equiposAdminsRpe = ['G46B8', '9MMUY', '9L3DR'];
 
     public function __construct(array $catalogos)
     {
@@ -30,7 +31,13 @@ class MetrologiaPermissionService
     {
         if (!$user) return false;
         if (!empty($user['es_super_admin'])) return true;
-        return ($user['oficina_id'] ?? '') === 'of-metro' && !empty($user['puede_asignar']);
+        // Gestión del módulo (Calibración): usuarios del laboratorio de Metrología.
+        // - Jefaturas / usuarios con puede_asignar en Metrología: gestionan.
+        // - Técnicos/supervisores (nivel 3) en Metrología: pueden registrar/editar en Calibración.
+        if (($user['oficina_id'] ?? '') !== 'of-metro') return false;
+        if (!empty($user['puede_asignar'])) return true;
+        $nivel = (int)($user['nivel_jerarquico'] ?? 999);
+        return $nivel >= 3;
     }
 
     public function canCaptureCalibration(?array $user): bool
@@ -51,6 +58,18 @@ class MetrologiaPermissionService
             }
         }
         return false;
+    }
+
+    /**
+     * Administración del catálogo maestro de equipos.
+     * Permite: admins del sistema y RPEs explícitos (Alba, Carlos).
+     */
+    public function canAdminEquiposCatalogo(?array $user): bool
+    {
+        if (!$user) return false;
+        if (!empty($user['es_super_admin'])) return true;
+        $rpe = strtoupper(trim((string)($user['rpe'] ?? '')));
+        return in_array($rpe, $this->equiposAdminsRpe, true);
     }
 }
 

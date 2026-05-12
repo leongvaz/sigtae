@@ -24,6 +24,7 @@ if (!$task) {
     exit;
 }
 $task = $stateService->computeState($task);
+$submissionWindowClosed = $stateService->isSubmissionWindowClosed($task);
 
 $error = '';
 $success = '';
@@ -37,11 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($task['cancelada'])) {
         $error = 'La tarea está cancelada.';
     } elseif ($action === 'comentario_responsable' && $esResponsable) {
+        if ($stateService->isSubmissionWindowClosed($task)) {
+            $error = 'El plazo (incluyendo gracia) ha vencido. Ya no es posible actualizar comentarios.';
+        } else {
         $task['comentarios_responsable'] = trim($_POST['comentarios_responsable'] ?? '');
         $taskRepo->save($task);
         $historyService->log($task['id'], $user['id'], 'comentario_agregado', 'Comentario del responsable actualizado', []);
         $success = 'Comentario guardado.';
+        }
     } elseif ($action === 'evidencia' && $esResponsable) {
+        if ($stateService->isSubmissionWindowClosed($task)) {
+            $error = 'El plazo (incluyendo gracia) ha vencido. Ya no es posible subir evidencias.';
+        } else {
         $nombre = trim($_POST['ev_nombre'] ?? '') ?: 'Evidencia';
         $comentario = trim($_POST['ev_comentario'] ?? '');
         $evidencias = $task['evidencias'] ?? [];
@@ -74,7 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         // Filtra "no file" (campo vacío)
-        $archivos = array_values(array_filter($archivos, fn($f) => ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE));
+        $archivos = array_values(array_filter($archivos, function ($f) {
+            return ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+        }));
 
         $cfg = $container['config'] ?? [];
         $uploadBase = $cfg['upload_path'] ?? (dirname(__DIR__) . '/../storage/uploads');
@@ -152,9 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             break;
                         }
 
-                        $tipoArchivo = str_starts_with((string)$mime, 'image/')
-                            ? 'imagen'
-                            : (str_starts_with((string)$mime, 'video/') ? 'video' : 'documento');
+                        $mimeStr = (string)$mime;
+                        $isImage = substr($mimeStr, 0, 6) === 'image/';
+                        $isVideo = substr($mimeStr, 0, 6) === 'video/';
+                        $tipoArchivo = $isImage ? 'imagen' : ($isVideo ? 'video' : 'documento');
 
                         $nuevasEvidencias[] = [
                             'id' => 'ev-' . uniqid('', true),
@@ -179,6 +190,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $evidencias[] = $nev;
             }
             $task['evidencias'] = $evidencias;
+
+            // Si estaba rechazada, al subir nueva evidencia se reabre para evaluación del nuevo intento.
+            if (strtolower((string)($task['dictamen'] ?? '')) === 'rechazada') {
+                $task['evaluacion'] = null;
+            }
+
             $task = $stateService->computeState($task);
             $taskRepo->save($task);
             $cuantos = count($nuevasEvidencias);
@@ -194,6 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $cuantos > 1
                 ? "Evidencia registrada ({$cuantos} archivos)."
                 : 'Evidencia registrada.';
+        }
         }
     } elseif ($action === 'cancelar_tarea' && $permissionService->canCancelTask($user, $task)) {
         $motivo = trim($_POST['motivo_cancelacion'] ?? '');
@@ -239,56 +257,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dictamen = $_POST['dictamen'] ?? '';
         $comentarios = trim($_POST['comentarios_evaluador'] ?? '');
         if ($dictamen === '') {
-            $error = 'Seleccione un dictamen.';
-        } elseif ($dictamen === 'insatisfactoria') {
-            $task['tuvo_insatisfactoria'] = true;
-            $task['pendiente_mejora'] = true;
-            $task['dictamen'] = null;
-            $task['evaluacion'] = null;
+            $error = 'Seleccione un resultado.';
+        } elseif ($dictamen === 'rechazada') {
+            $nowIso = (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('c');
+            $hoy = substr($nowIso, 0, 10);
+            $dias = (int)$stateService->diasGraciaForTask($task);
+            if ($dias < 1) $dias = 1;
+            $limRe = (new \DateTimeImmutable($hoy, new \DateTimeZone('America/Mexico_City')))->modify('+' . $dias . ' day')->format('Y-m-d');
+
+            $task['dictamen'] = 'rechazada';
+            $task['evaluacion'] = 'rechazada';
+            $task['evaluacion_version'] = count((array)($task['evidencias'] ?? []));
+            $task['rechazo_at'] = $nowIso;
+            $task['rechazo_fecha_limite'] = $limRe;
             $task['comentarios_evaluador'] = $comentarios;
             $task['porcentaje_cumplimiento'] = $stateService->porcentajeCumplimiento($task);
             $task = $stateService->computeState($task);
             $taskRepo->save($task);
-            $historyService->log($task['id'], $user['id'], 'evaluacion_insatisfactoria', 'Evaluación insatisfactoria. Se requiere nuevo intento con evidencia. ' . $comentarios, []);
+            $historyService->log($task['id'], $user['id'], 'evaluacion_insatisfactoria', 'Evaluación RECHAZADA. Nuevo plazo para re-presentar evidencia hasta ' . $limRe . '. ' . $comentarios, []);
             $task = $taskRepo->find($id);
             $task = $stateService->computeState($task);
-            $success = 'Evaluación registrada como insatisfactoria. El responsable puede cargar nueva evidencia para un nuevo intento.';
-        } elseif ($dictamen === 'satisfactoria') {
-            $huboInsatisfactoria = !empty($task['tuvo_insatisfactoria']);
-            if ($huboInsatisfactoria) {
-                $dictamenFinal = 'satisfactoria_fuera_tiempo';
-                $task['evaluacion'] = 50;
-            } else {
-                $evs = $task['evidencias'] ?? [];
-                $prim = $stateService->primeraFechaEvidencia($evs);
-                $lim = $task['fecha_limite'] ?? null;
-                if ($lim !== null && $lim !== '' && $prim && $prim > $lim) {
-                    $dictamenFinal = 'satisfactoria_fuera_tiempo';
-                    $task['evaluacion'] = 50;
-                } else {
-                    $dictamenFinal = 'satisfactoria';
-                    $task['evaluacion'] = 100;
-                }
-            }
-            $task['dictamen'] = $dictamenFinal;
+            $success = 'Evaluación registrada como RECHAZADA. El responsable puede volver a presentar evidencia hasta ' . $limRe . '.';
+        } elseif ($dictamen === 'aprobada') {
+            $nowIso = (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('c');
+            $task['dictamen'] = 'aprobada';
+            $task['evaluacion'] = 'aprobada';
             $task['comentarios_evaluador'] = $comentarios;
-            $task['tuvo_insatisfactoria'] = false;
-            $task['pendiente_mejora'] = false;
+            $task['cerrada'] = true;
+            $task['cerrada_at'] = $nowIso;
+            $task['cerrada_por_id'] = (string)($user['id'] ?? '');
+            // Limpia marcas de rechazo para futuros intentos
+            $task['rechazo_at'] = null;
+            $task['rechazo_fecha_limite'] = null;
+            $task['evaluacion_version'] = null;
             $task['porcentaje_cumplimiento'] = $stateService->porcentajeCumplimiento($task);
             $task['fecha_entrega'] = $task['fecha_entrega'] ?? (count($task['evidencias'] ?? []) > 0 ? substr($task['evidencias'][0]['fecha_subida'] ?? '', 0, 10) : null);
             $task = $stateService->computeState($task);
             $taskRepo->save($task);
-            $historyService->log($task['id'], $user['id'], 'evaluacion_registrada', "Evaluación: {$dictamenFinal}. {$comentarios}", []);
+            $historyService->log($task['id'], $user['id'], 'evaluacion_registrada', "Evaluación APROBADA. {$comentarios}", []);
             $task = $taskRepo->find($id);
             $task = $stateService->computeState($task);
-            $success = 'Evaluación registrada. Resultado: ' . ($dictamenFinal === 'satisfactoria' ? 'satisfactoria en tiempo' : 'satisfactoria fuera de tiempo') . ' (según plazo y evidencia).';
+            $success = 'Evaluación registrada como APROBADA. La tarea queda cerrada.';
         } else {
-            $error = 'Seleccione Satisfactoria o Insatisfactoria.';
+            $error = 'Seleccione Aprobada o Rechazada.';
         }
     }
 }
 
 $task = $stateService->computeState($taskRepo->find($id));
+$submissionWindowClosed = $stateService->isSubmissionWindowClosed($task);
 $asignador = $userRepo->find($task['asignador_id'] ?? '');
 $responsable = $userRepo->find($task['responsable_id'] ?? '');
 $puedeEvaluar = empty($task['cancelada']) && $permissionService->canEvaluate($user, $task, $responsable);

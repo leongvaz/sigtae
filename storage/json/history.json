@@ -239,5 +239,52 @@
         "metadata": [],
         "id": "evt-2812a7d9800f",
         "fecha_hora": "2026-04-27T09:08:18-06:00"
+    },
+    {
+        "tarea_id": "task-5e2118efa6c2",
+        "usuario_id": "usr-9nktl",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-95e1aa8b1e15",
+        "fecha_hora": "2026-04-30T23:51:14-06:00"
+    },
+    {
+        "tarea_id": "task-5e2118efa6c2",
+        "usuario_id": "usr-9nktl",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v2 agregada: Evidencia (2 archivos)",
+        "metadata": [],
+        "id": "evt-90e7267ddf5c",
+        "fecha_hora": "2026-04-30T23:52:11-06:00"
+    },
+    {
+        "tarea_id": "task-c99f4b445da6",
+        "usuario_id": "usr-g46bg",
+        "tipo_evento": "tarea_creada",
+        "descripcion": "Tarea creada y asignada a Zayanith Martinez Lopez",
+        "metadata": {
+            "folio": "TAS-2026-0009"
+        },
+        "id": "evt-6d07b9490b3f",
+        "fecha_hora": "2026-05-04T19:08:26-06:00"
+    },
+    {
+        "tarea_id": "task-ef2dcd1e7113",
+        "usuario_id": "usr-9l7y0",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v1 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-1880264d76a8",
+        "fecha_hora": "2026-05-05T20:27:18-06:00"
+    },
+    {
+        "tarea_id": "task-ef2dcd1e7113",
+        "usuario_id": "usr-9l7y0",
+        "tipo_evento": "evidencia_subida",
+        "descripcion": "Evidencia v2 agregada: Evidencia",
+        "metadata": [],
+        "id": "evt-dec1d5a9c4df",
+        "fecha_hora": "2026-05-05T20:28:44-06:00"
     }
 ]
