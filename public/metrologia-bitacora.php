@@ -153,25 +153,20 @@ if (empty($bitRepo->findAll())) {
 $anio = (int)($_GET['anio'] ?? date('Y'));
 $fZona = trim((string)($_GET['zona'] ?? ''));
 $fArea = trim((string)($_GET['area'] ?? ''));
-<<<<<<< HEAD
 $fQuery = trim((string)($_GET['q'] ?? ''));
-=======
-$fFolio = trim((string)($_GET['folio'] ?? ''));
-$fSerie = trim((string)($_GET['serie'] ?? ''));
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 $fEstado = trim((string)($_GET['estado'] ?? ''));
+$fOrigen = trim((string)($_GET['origen'] ?? ''));
+if (!in_array($fOrigen, ['', 'con_recepcion', 'sin_recepcion'], true)) {
+    $fOrigen = '';
+}
 
 $bitacora = $bitRepo->findByFilters([
     'anio' => $anio,
     'zona' => $fZona !== '' ? $fZona : null,
     'area' => $fArea !== '' ? $fArea : null,
-<<<<<<< HEAD
     'q' => $fQuery !== '' ? $fQuery : null,
-=======
-    'folio' => $fFolio !== '' ? $fFolio : null,
-    'serie' => $fSerie !== '' ? $fSerie : null,
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
     'estado' => $fEstado !== '' ? $fEstado : null,
+    'origen' => $fOrigen !== '' ? $fOrigen : null,
 ]);
 
 $zonasEntrega = [];

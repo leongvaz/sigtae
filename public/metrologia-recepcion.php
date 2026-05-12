@@ -160,7 +160,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                     // Valida folios por equipo (concurrente)
-<<<<<<< HEAD
                     foreach ($foliosEquipos as $i => $f) {
                         $serie = strtoupper(trim((string)($equipos[$i]['serie'] ?? '')));
                         $excludeId = null;
@@ -171,10 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
                         if ($bitRepo->existsFolio($f, $excludeId)) {
-=======
-                    foreach ($foliosEquipos as $f) {
-                        if ($bitRepo->existsFolio($f)) {
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                             $error = 'No se pudo asignar folio de equipo (duplicado). Intente de nuevo.';
                             break;
                         }
@@ -233,7 +228,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Bitácora plana por equipo
                     foreach (($saved['equipos'] ?? []) as $eq) {
-<<<<<<< HEAD
                         $serieUp = strtoupper(trim((string)($eq['serie'] ?? '')));
                         $existing = null;
                         if ($serieUp !== '') {
@@ -241,9 +235,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if (!empty($hits)) $existing = $hits[0];
                         }
                         $payload = [
-=======
-                        $bitRepo->save([
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                             'recepcion_id' => $saved['id'] ?? '',
                             'folio_recepcion' => $saved['folio_recepcion'] ?? '',
                             'folio' => $eq['folio'] ?? '',
@@ -258,7 +249,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'observaciones' => $eq['observaciones'] ?? '',
                             'recibe' => $saved['recibe']['nombre'] ?? '',
                             'entrega' => $saved['entrega']['nombre'] ?? '',
-<<<<<<< HEAD
                         ];
                         if (is_array($existing) && !empty($existing['id'])) {
                             $payload['id'] = (string)$existing['id'];
@@ -296,9 +286,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $entity['area'] = (string)($saved['entrega']['area'] ?? '');
                         $entity['oficina'] = (string)($entity['oficina'] ?? '');
                         $equipRepo->save($entity);
-=======
-                        ]);
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                     }
 
                     // Historial módulo Metrología
@@ -336,7 +323,6 @@ if (($_GET['msg'] ?? '') === 'ok') {
 }
 $rid = (string)($_GET['rid'] ?? '');
 $detalleRecepcion = $rid !== '' ? $recepRepo->find($rid) : null;
-<<<<<<< HEAD
 $historialRecepcionesEquipos = [];
 if ($detalleRecepcion) {
     $metHistory = $container['MetrologiaHistoryService'] ?? null;
@@ -370,8 +356,6 @@ if ($detalleRecepcion) {
         ksort($historialRecepcionesEquipos);
     }
 }
-=======
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 
 $pageTitle = 'Metrología — Recepción';
 $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Metrología'], ['label' => 'Recepción']];

@@ -1,10 +1,7 @@
 <?php
 $catalogos = $catalogos ?? [];
 $detalleRecepcion = $detalleRecepcion ?? null;
-<<<<<<< HEAD
 $historialRecepcionesEquipos = $historialRecepcionesEquipos ?? [];
-=======
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 $error = $error ?? '';
 $warning = $warning ?? '';
 $success = $success ?? '';
@@ -333,7 +330,6 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <span><i class="bi bi-eye me-1"></i> Detalle de recepción</span>
-<<<<<<< HEAD
         <div class="d-flex align-items-center gap-2">
             <a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener"
                href="<?= htmlspecialchars($basePath ?? '') ?>/metrologia-recepcion-formato.php?rid=<?= urlencode((string)($detalleRecepcion['id'] ?? '')) ?>"
@@ -469,52 +465,6 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
                 <?php endif; ?>
             </div>
         </div>
-=======
-        <span class="text-muted small"><?= htmlspecialchars($detalleRecepcion['folio_recepcion'] ?? '') ?></span>
-    </div>
-    <div class="card-body">
-        <div class="row g-2">
-            <div class="col-md-4">
-                <div class="small text-muted">Fecha recepción</div>
-                <div class="fw-semibold"><?= htmlspecialchars($detalleRecepcion['fecha_recepcion'] ?? '') ?></div>
-            </div>
-            <div class="col-md-8">
-                <div class="small text-muted">Motivo</div>
-                <div class="fw-semibold"><?= htmlspecialchars($detalleRecepcion['motivo_recepcion'] ?? '') ?></div>
-            </div>
-        </div>
-        <hr>
-        <div class="table-responsive">
-            <table class="table table-sm table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>No.</th>
-                        <th>Folio</th>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Serie</th>
-                        <th>Descripción</th>
-                        <th>Observaciones</th>
-                        <th>Inspección</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach (($detalleRecepcion['equipos'] ?? []) as $eq): ?>
-                        <tr>
-                            <td class="text-muted"><?= (int)($eq['numero'] ?? 0) ?></td>
-                            <td class="fw-semibold"><?= htmlspecialchars($eq['folio'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($eq['marca'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($eq['modelo'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($eq['serie'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($eq['descripcion'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($eq['observaciones'] ?? '') ?></td>
-                            <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($eq['inspeccion_final'] ?? 'conforme') ?></span></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
     </div>
 </div>
 <?php endif; ?>

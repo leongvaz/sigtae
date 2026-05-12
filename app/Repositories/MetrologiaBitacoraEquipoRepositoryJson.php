@@ -32,7 +32,6 @@ class MetrologiaBitacoraEquipoRepositoryJson implements MetrologiaBitacoraEquipo
         $list = $this->storage->read([]);
         $pred = function(array $e) use ($filters): bool {
             if (!empty($filters['anio'])) {
-<<<<<<< HEAD
                 $y = 0;
                 $cand = (string)($e['recibido'] ?? '');
                 if (preg_match('/^(\d{4})\-\d{2}\-\d{2}$/', $cand, $m)) {
@@ -47,25 +46,11 @@ class MetrologiaBitacoraEquipoRepositoryJson implements MetrologiaBitacoraEquipo
                 }
                 // Si no podemos inferir año, no filtramos por anio para no ocultar registros.
                 if ($y !== 0 && $y !== (int)$filters['anio']) return false;
-=======
-                $cand = (string)($e['recibido'] ?? '');
-                $y = 0;
-                if (preg_match('/^(\d{4})\-\d{2}\-\d{2}$/', $cand, $m)) {
-                    $y = (int)$m[1];
-                } else {
-                    $y = (int)substr((string)($e['folio'] ?? ''), 0, 4);
-                }
-                if ($y !== (int)$filters['anio']) return false;
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
             }
             if (!empty($filters['zona'])) {
                 $val = (string)$filters['zona'];
                 $z = (string)($e['zona_id'] ?? $e['zona'] ?? '');
-<<<<<<< HEAD
                 if (stripos($z, $val) === false) return false;
-=======
-                if ($z !== $val) return false;
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
             }
             if (!empty($filters['area'])) {
                 $val = (string)$filters['area'];
@@ -83,16 +68,23 @@ class MetrologiaBitacoraEquipoRepositoryJson implements MetrologiaBitacoraEquipo
                     if ($st !== $wanted) return false;
                 }
             }
-<<<<<<< HEAD
             if (!empty($filters['q'])) {
                 $q = (string)$filters['q'];
                 $f = (string)($e['folio'] ?? '');
                 $s = (string)($e['no_serie'] ?? '');
                 if (stripos($f, $q) === false && stripos($s, $q) === false) return false;
-=======
+            }
+            if (!empty($filters['origen'])) {
+                $o = (string)$filters['origen'];
+                $rid = trim((string)($e['recepcion_id'] ?? ''));
+                if ($o === 'con_recepcion') {
+                    if ($rid === '') return false;
+                } elseif ($o === 'sin_recepcion') {
+                    if ($rid !== '') return false;
+                }
+            }
             foreach (['folio' => 'folio', 'serie' => 'no_serie'] as $k => $field) {
                 if (!empty($filters[$k]) && stripos((string)($e[$field] ?? ''), (string)$filters[$k]) === false) return false;
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
             }
             return true;
         };
@@ -116,7 +108,6 @@ class MetrologiaBitacoraEquipoRepositoryJson implements MetrologiaBitacoraEquipo
                 }
             }
         }
-<<<<<<< HEAD
 
         // Upsert: si no viene ID pero ya existe un registro para este equipo,
         // actualiza en vez de insertar duplicado.
@@ -152,8 +143,6 @@ class MetrologiaBitacoraEquipoRepositoryJson implements MetrologiaBitacoraEquipo
             }
         }
 
-=======
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
         $entity['id'] = $id ?? MetrologiaRepositoryUtils::newId('mbeq');
         $entity['created_at'] = $entity['created_at'] ?? $now;
         $entity['updated_at'] = $now;

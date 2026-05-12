@@ -5,16 +5,11 @@ $fZona = $fZona ?? '';
 $fArea = $fArea ?? '';
 $fFolio = $fFolio ?? '';
 $fSerie = $fSerie ?? '';
-<<<<<<< HEAD
 $fQuery = $fQuery ?? '';
 $fEstado = $fEstado ?? '';
+$fOrigen = $fOrigen ?? '';
 $zonasEntrega = $zonasEntrega ?? [];
 $canEditBitacora = !empty($currentUser['es_super_admin']) || in_array(strtoupper(trim((string)($currentUser['rpe'] ?? ''))), ['G46B8','9L3DR'], true);
-=======
-$fEstado = $fEstado ?? '';
-$zonasEntrega = $zonasEntrega ?? [];
-$canEditBitacora = !empty($currentUser['es_super_admin']) || strtoupper(trim((string)($currentUser['rpe'] ?? ''))) === 'G46B8';
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 
 $actions = '<a href="' . htmlspecialchars($basePath ?? '') . '/metrologia-dashboard.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Dashboard</a>';
 sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa anual)', $actions);
@@ -26,43 +21,45 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
         <span class="text-muted small"><?= count($bitacora) ?> registros</span>
     </div>
     <div class="card-body">
-        <form method="get" class="row g-2 align-items-end mb-2">
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold mb-1">Año</label>
-                <input type="number" class="form-control form-control-sm" name="anio" value="<?= (int)$anio ?>" min="2020" max="2100">
+        <form method="get" class="mb-3">
+            <div class="row g-2 align-items-end mb-2">
+                <div class="col-6 col-md-2">
+                    <label class="form-label small fw-semibold mb-1">Año</label>
+                    <input type="number" class="form-control form-control-sm" name="anio" value="<?= (int)$anio ?>" min="2020" max="2100">
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold mb-1">Zona</label>
+                    <input type="text" class="form-control form-control-sm" name="zona" value="<?= htmlspecialchars($fZona) ?>" placeholder="Ej. DM210">
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold mb-1">Área (texto)</label>
+                    <input type="text" class="form-control form-control-sm" name="area" value="<?= htmlspecialchars($fArea) ?>" placeholder="Ej. MEDICION">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label small fw-semibold mb-1">Folio o Serie</label>
+                    <input type="text" class="form-control form-control-sm" name="q" value="<?= htmlspecialchars($fQuery) ?>" placeholder="Ej. 2026-0281 o No. serie">
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold mb-1">Zona</label>
-                <input type="text" class="form-control form-control-sm" name="zona" value="<?= htmlspecialchars($fZona) ?>" placeholder="Ej. DM210">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold mb-1">Área (texto)</label>
-                <input type="text" class="form-control form-control-sm" name="area" value="<?= htmlspecialchars($fArea) ?>" placeholder="Ej. MEDICION">
-            </div>
-<<<<<<< HEAD
-            <div class="col-md-4">
-                <label class="form-label small fw-semibold mb-1">Folio o Serie</label>
-                <input type="text" class="form-control form-control-sm" name="q" value="<?= htmlspecialchars($fQuery) ?>" placeholder="Ej. 2026-0281 o No. serie">
-=======
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold mb-1">Folio</label>
-                <input type="text" class="form-control form-control-sm" name="folio" value="<?= htmlspecialchars($fFolio) ?>" placeholder="2026-0281">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold mb-1">Serie</label>
-                <input type="text" class="form-control form-control-sm" name="serie" value="<?= htmlspecialchars($fSerie) ?>">
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold mb-1">Estado</label>
-                <select class="form-select form-select-sm" name="estado">
-                    <option value="">Todos</option>
-                    <option value="programado" <?= $fEstado === 'programado' ? 'selected' : '' ?>>Programado</option>
-                    <option value="no_programado" <?= $fEstado === 'no_programado' ? 'selected' : '' ?>>No Programado</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-sm btn-outline-primary" type="submit"><i class="bi bi-funnel"></i> Filtrar</button>
+            <div class="row g-2 align-items-end">
+                <div class="col-6 col-md-2">
+                    <label class="form-label small fw-semibold mb-1">Estado</label>
+                    <select class="form-select form-select-sm" name="estado">
+                        <option value="">Todos</option>
+                        <option value="programado" <?= $fEstado === 'programado' ? 'selected' : '' ?>>Programado</option>
+                        <option value="no_programado" <?= $fEstado === 'no_programado' ? 'selected' : '' ?>>No Programado</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-5">
+                    <label class="form-label small fw-semibold mb-1">Origen en SIGTAE</label>
+                    <select class="form-select form-select-sm" name="origen" title="Con recepción: capturados en Recepción web. Sin recepción: carga inicial (p. ej. programa) u otros sin vínculo a recepción.">
+                        <option value="" <?= $fOrigen === '' ? 'selected' : '' ?>>Todos</option>
+                        <option value="con_recepcion" <?= $fOrigen === 'con_recepcion' ? 'selected' : '' ?>>Con recepción (captura web)</option>
+                        <option value="sin_recepcion" <?= $fOrigen === 'sin_recepcion' ? 'selected' : '' ?>>Sin recepción (carga previa / programa)</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-5 d-flex align-items-end justify-content-md-end">
+                    <button class="btn btn-sm btn-outline-primary" type="submit"><i class="bi bi-funnel"></i> Filtrar</button>
+                </div>
             </div>
         </form>
 
@@ -118,14 +115,11 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
                                         <a class="btn btn-sm btn-outline-primary" href="<?= htmlspecialchars($basePath ?? '') ?>/metrologia-recepcion.php?rid=<?= urlencode((string)$b['recepcion_id']) ?>" title="Abrir recepción (página)">
                                             <i class="bi bi-box-arrow-up-right"></i>
                                         </a>
-<<<<<<< HEAD
                                         <a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener"
                                            href="<?= htmlspecialchars($basePath ?? '') ?>/metrologia-recepcion-formato.php?rid=<?= urlencode((string)$b['recepcion_id']) ?>"
                                            title="Imprimir formato de recepción">
                                             <i class="bi bi-printer"></i>
                                         </a>
-=======
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -134,33 +128,37 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
                 </table>
             </div>
             <script>
-<<<<<<< HEAD
             (function(){
+                var bitacoraDtLang = {
+                    lengthMenu: 'Mostrar _MENU_ filas',
+                    zeroRecords: 'Sin resultados',
+                    info: 'Mostrando _START_–_END_ de _TOTAL_',
+                    infoEmpty: 'Sin registros',
+                    infoFiltered: '(filtrado de _MAX_ en total)',
+                    search: 'Buscar en tabla:',
+                    paginate: { first: '«', last: '»', previous: 'Anterior', next: 'Siguiente' }
+                };
                 function initBitacoraDataTable() {
                     if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) return;
-                    const $tbl = jQuery('#tablaBitacora');
+                    var $tbl = jQuery('#tablaBitacora');
                     if (!$tbl.length) return;
-                    if (jQuery.fn.DataTable.isDataTable($tbl[0])) return;
+                    if (jQuery.fn.DataTable.isDataTable($tbl[0])) {
+                        try { $tbl.DataTable().destroy(); } catch (e) {}
+                    }
                     $tbl.DataTable({
-                        language: { url: (window.SIGTAE_BASE_PATH || '') + '/vendor/datatables/i18n/es-ES.json' },
+                        language: bitacoraDtLang,
                         order: [[0,'desc']],
-                        pageLength: 15
+                        paging: true,
+                        pageLength: 25,
+                        lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
+                        deferRender: true,
+                        dom: "<'row align-items-center mb-2'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row align-items-center mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
                     });
                 }
                 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initBitacoraDataTable);
                 else initBitacoraDataTable();
                 window.addEventListener('sigtae:pageLoaded', initBitacoraDataTable);
             })();
-=======
-            $(function() {
-                $('#tablaBitacora').DataTable({
-                    language: { url: (window.SIGTAE_BASE_PATH || '') + '/vendor/datatables/i18n/es-ES.json' },
-                    order: [[0,'desc']],
-                    pageLength: 15
-                });
-            });
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
-            </script>
 
             <?php if ($canEditBitacora): ?>
             <!-- Modal edición Bitácora -->
@@ -279,7 +277,6 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
 
             <script>
             (function() {
-<<<<<<< HEAD
                 function initBitacoraEditModal() {
                     if (!window.bootstrap || !bootstrap.Modal) return;
                     const base = window.SIGTAE_BASE_PATH || '';
@@ -393,106 +390,6 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
                 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initBitacoraEditModal);
                 else initBitacoraEditModal();
                 window.addEventListener('sigtae:pageLoaded', initBitacoraEditModal);
-=======
-                const base = window.SIGTAE_BASE_PATH || '';
-                const apiUpdate = base + '/api/metrologia-bitacora.php?action=update';
-                const apiDetail = base + '/api/metrologia-bitacora.php?action=detail&id=';
-                const modalEl = document.getElementById('modalBitEdit');
-                const modal = modalEl ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
-                const errEl = document.getElementById('bitErr');
-                function showErr(msg){ errEl.textContent = msg || ''; errEl.classList.toggle('d-none', !msg); }
-                function setv(id,v){ const el=document.getElementById(id); if(el) el.value = v ?? ''; }
-                function val(id){ const el=document.getElementById(id); return el ? el.value : ''; }
-                async function apiJson(url, opts){
-                    const res = await fetch(url, Object.assign({ headers: { 'X-Requested-With': 'fetch' } }, opts||{}));
-                    const data = await res.json().catch(()=>null);
-                    if(!res.ok || !data || data.ok===false) throw new Error((data&&data.message)?data.message:('HTTP '+res.status));
-                    return data;
-                }
-                async function loadToForm(id){
-                    const data = await apiJson(apiDetail + encodeURIComponent(id), { method:'GET' });
-                    const it = data.item || {};
-                    setv('bitId', it.id||'');
-                    setv('bitFolio', it.folio||'');
-                    setv('bitSerie', it.no_serie||'');
-                    setv('bitMarca', it.marca||'');
-                    setv('bitModelo', it.modelo||'');
-                    setv('bitDesc', it.descripcion||'');
-                    setv('bitZona', it.zona||'');
-                    setv('bitArea', it.area||'');
-                    setv('bitOficina', it.oficina||'');
-                    setv('bitProgramaAnual', it.programa_anual||'');
-                    setv('bitRecibido', it.recibido||'');
-                    setv('bitTecnico', it.tecnico||'');
-                    setv('bitFechaCal', it.fecha_calibracion_baja||'');
-                    setv('bitEvalConf', it.evaluacion_conformidad||'');
-                    setv('bitFechaImp', it.fecha_impresion||'');
-                    setv('bitFechaEntEsc', it.fecha_entrega_informe_escaneado||'');
-                    setv('bitEntregado', it.entregado||'');
-                    setv('bitAQuien', it.nombre_a_quien_se_entrega||'');
-                    setv('bitNomGmcs', it.nomenclatura_gmcs||'');
-                    setv('bitJefeArea', it.jefe_area||'');
-                    setv('bitRpeJefeArea', it.rpe_jefe_area||'');
-                    setv('bitFechaProg', it.fecha_programada||'');
-                    setv('bitTablero', it.tablero_evolutivo||'');
-                    setv('bitObs', it.observaciones||'');
-                }
-                async function save(){
-                    showErr('');
-                    try{
-                        await apiJson(apiUpdate, {
-                            method:'POST',
-                            headers:{ 'Content-Type':'application/json', 'X-Requested-With':'fetch' },
-                            body: JSON.stringify({
-                                id: val('bitId'),
-                                folio: val('bitFolio'),
-                                no_serie: val('bitSerie'),
-                                marca: val('bitMarca'),
-                                modelo: val('bitModelo'),
-                                descripcion: val('bitDesc'),
-                                zona: val('bitZona'),
-                                area: val('bitArea'),
-                                oficina: val('bitOficina'),
-                                programa_anual: val('bitProgramaAnual'),
-                                recibido: val('bitRecibido'),
-                                tecnico: val('bitTecnico'),
-                                fecha_calibracion_baja: val('bitFechaCal'),
-                                evaluacion_conformidad: val('bitEvalConf'),
-                                fecha_impresion: val('bitFechaImp'),
-                                fecha_entrega_informe_escaneado: val('bitFechaEntEsc'),
-                                entregado: val('bitEntregado'),
-                                nombre_a_quien_se_entrega: val('bitAQuien'),
-                                nomenclatura_gmcs: val('bitNomGmcs'),
-                                jefe_area: val('bitJefeArea'),
-                                rpe_jefe_area: val('bitRpeJefeArea'),
-                                fecha_programada: val('bitFechaProg'),
-                                tablero_evolutivo: val('bitTablero'),
-                                observaciones: val('bitObs'),
-                            })
-                        });
-                        window.location.reload();
-                    }catch(e){
-                        showErr(e.message || String(e));
-                    }
-                }
-                document.querySelectorAll('.btnEditBit').forEach(btn=>{
-                    btn.addEventListener('click', async ()=>{
-                        const tr = btn.closest('tr');
-                        const id = tr ? (tr.getAttribute('data-id')||'') : '';
-                        if(!id) return;
-                        showErr('');
-                        try{
-                            await loadToForm(id);
-                            modal && modal.show();
-                        }catch(e){
-                            showErr(e.message || String(e));
-                            modal && modal.show();
-                        }
-                    });
-                });
-                const btnSave = document.getElementById('btnBitSave');
-                if(btnSave) btnSave.addEventListener('click', save);
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
             })();
             </script>
             <?php endif; ?>
@@ -522,7 +419,6 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
 
             <script>
             (function(){
-<<<<<<< HEAD
                 function initBitacoraViewModal() {
                     if (!window.bootstrap || !bootstrap.Modal) return;
                     const base = window.SIGTAE_BASE_PATH || '';
@@ -633,78 +529,6 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
                 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initBitacoraViewModal);
                 else initBitacoraViewModal();
                 window.addEventListener('sigtae:pageLoaded', initBitacoraViewModal);
-=======
-                const base = window.SIGTAE_BASE_PATH || '';
-                const apiDetail = base + '/api/metrologia-bitacora.php?action=detail&id=';
-                const modalEl = document.getElementById('modalBitView');
-                const modal = modalEl ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
-                const errEl = document.getElementById('bitViewErr');
-                const bodyEl = document.getElementById('bitViewBody');
-
-                function showErr(msg){ errEl.textContent = msg || ''; errEl.classList.toggle('d-none', !msg); }
-                function esc(s){
-                    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] || c));
-                }
-                function addRow(label, value){
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<th class="small text-muted" style="width: 280px;">${esc(label)}</th><td>${esc(value || '—')}</td>`;
-                    bodyEl.appendChild(tr);
-                }
-                async function apiJson(url){
-                    const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
-                    const data = await res.json().catch(()=>null);
-                    if(!res.ok || !data || data.ok===false) throw new Error((data&&data.message)?data.message:('HTTP '+res.status));
-                    return data;
-                }
-
-                async function open(id){
-                    showErr('');
-                    bodyEl.innerHTML = '';
-                    try{
-                        const data = await apiJson(apiDetail + encodeURIComponent(id));
-                        const it = data.item || {};
-
-                        // Columnas solicitadas (en el orden del Excel)
-                        addRow('DESCRIPCIÓN', it.descripcion);
-                        addRow('FOLIO', it.folio);
-                        addRow('No. SERIE', it.no_serie);
-                        addRow('PROGRAMA ANUAL DE CALIBRACIÓN', it.programa_anual);
-                        addRow('RECIBIDO', it.recibido);
-                        addRow('TÉCNICO', it.tecnico);
-                        addRow('FECHA DE CALIBRACIÓN/BAJA', it.fecha_calibracion_baja);
-                        addRow('EVALUACIÓN DE CONFORMIDAD', it.evaluacion_conformidad);
-                        addRow('FECHA DE IMPRESIÓN', it.fecha_impresion);
-                        addRow('FECHA DE ENTREGA DE INFORME ESCANEADO', it.fecha_entrega_informe_escaneado);
-                        addRow('ENTREGADO', it.entregado);
-                        addRow('NOMBRE A QUIEN SE ENTREGA', it.nombre_a_quien_se_entrega);
-                        addRow('MARCA', it.marca);
-                        addRow('MODELO', it.modelo);
-                        addRow('ZONA', it.zona);
-                        addRow('ÁREA', it.area);
-                        addRow('OFICINA', it.oficina);
-                        addRow('NOMENCLATURA GMCS', it.nomenclatura_gmcs);
-                        addRow('JEFE DE ÁREA', it.jefe_area);
-                        addRow('RPE JEFE DE ÁREA', it.rpe_jefe_area);
-                        addRow('FECHA PROGRAMADA', it.fecha_programada);
-                        addRow('TABLERO EVOLUTIVO', it.tablero_evolutivo);
-                        addRow('OBSERVACIONES', it.observaciones);
-
-                        modal && modal.show();
-                    } catch(e){
-                        showErr(e.message || String(e));
-                        modal && modal.show();
-                    }
-                }
-
-                document.querySelectorAll('.btnViewBit').forEach(btn=>{
-                    btn.addEventListener('click', ()=>{
-                        const tr = btn.closest('tr');
-                        const id = tr ? (tr.getAttribute('data-id')||'') : '';
-                        if(!id) return;
-                        open(id);
-                    });
-                });
->>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
             })();
             </script>
         <?php endif; ?>
