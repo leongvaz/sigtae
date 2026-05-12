@@ -1,8 +1,11 @@
 <?php
 // API JSON para consulta/edición inline (modal) de Bitácora.
 
+<<<<<<< HEAD
 use App\Services\MetrologiaBitacoraAuditHelper;
 
+=======
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 $base = dirname(__DIR__, 2);
 $container = require $base . '/app/bootstrap.php';
 $basePath = $container['base_path'] ?? '';
@@ -24,7 +27,11 @@ $action = (string)($_GET['action'] ?? '');
 // - detail: cualquier usuario con acceso a Metrología
 // - update: admins del sistema o Alba (RPE)
 $canAccess = $metPerm->canAccess($user);
+<<<<<<< HEAD
 $canEdit = !empty($user['es_super_admin']) || in_array(strtoupper(trim((string)($user['rpe'] ?? ''))), ['G46B8','9L3DR'], true);
+=======
+$canEdit = !empty($user['es_super_admin']) || strtoupper(trim((string)($user['rpe'] ?? ''))) === 'G46B8';
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 
 if ($action === 'detail' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!$canAccess) {
@@ -94,6 +101,7 @@ if ($action === 'detail' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
+<<<<<<< HEAD
 if ($action === 'audit' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!$canAccess) {
         http_response_code(403);
@@ -134,6 +142,8 @@ if ($action === 'audit' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
+=======
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 if ($action !== 'update' || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(400);
     echo json_encode(['ok' => false, 'message' => 'Acción no soportada.'], JSON_UNESCAPED_UNICODE);
@@ -164,11 +174,14 @@ if (!$row) {
     exit;
 }
 
+<<<<<<< HEAD
 $antes = json_decode(json_encode($row), true);
 if (!is_array($antes)) {
     $antes = [];
 }
 
+=======
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 // Campos editables en bitácora
 $row['folio'] = trim((string)($data['folio'] ?? ($row['folio'] ?? '')));
 $row['no_serie'] = strtoupper(trim((string)($data['no_serie'] ?? ($row['no_serie'] ?? ''))));
@@ -228,6 +241,7 @@ if ($equipRepo) {
     $equipRepo->save($entity);
 }
 
+<<<<<<< HEAD
 $cambios = MetrologiaBitacoraAuditHelper::diffCampos($antes, $saved);
 if ($cambios !== []) {
     /** @var \App\Services\MetrologiaHistoryService $metHistory */
@@ -243,5 +257,7 @@ if ($cambios !== []) {
     ]);
 }
 
+=======
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 echo json_encode(['ok' => true, 'item' => $saved], JSON_UNESCAPED_UNICODE);
 

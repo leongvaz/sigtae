@@ -42,13 +42,29 @@ if (count($medidores) === 0) {
     exit;
 }
 
+<<<<<<< HEAD
+=======
+// Parámetros de conexión SQL Server (migrado desde implementar/cambioEstado).
+$serverName = "10.4.59.8";
+$connectionOptions = [
+    "Database" => "master",
+    "Uid" => "usrSINAMED",
+    "PWD" => "U\$rS1N4M3D2025",
+    "CharacterSet" => "UTF-8"
+];
+
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 if (!function_exists('sqlsrv_connect')) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'message' => 'Extensión sqlsrv no disponible en este servidor.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
+<<<<<<< HEAD
 $conn = \App\Services\AmiKcentinelConnection::connect();
+=======
+$conn = (call_user_func('sqlsrv_connect', $serverName, $connectionOptions));
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 if (!$conn) {
     http_response_code(502);
     echo json_encode(['ok' => false, 'message' => 'Error de conexión a la base de datos.'], JSON_UNESCAPED_UNICODE);

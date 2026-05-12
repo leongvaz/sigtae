@@ -32,6 +32,10 @@
                 "serie": "280062",
                 "descripcion": "AMPERIMETRO A.T.",
                 "observaciones": "",
+<<<<<<< HEAD
+=======
+                "inspeccion_final": "conforme",
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                 "estado": "recibido"
             }
         ],
@@ -74,6 +78,10 @@
                 "serie": "K6325L",
                 "descripcion": "AMPERIMETRO DIGITAL DE GANCHO",
                 "observaciones": "",
+<<<<<<< HEAD
+=======
+                "inspeccion_final": "conforme",
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                 "estado": "recibido"
             },
             {
@@ -85,6 +93,10 @@
                 "serie": "190316146",
                 "descripcion": "AMPERIMETRO DE POTENCIA",
                 "observaciones": "",
+<<<<<<< HEAD
+=======
+                "inspeccion_final": "conforme",
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                 "estado": "recibido"
             }
         ],

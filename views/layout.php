@@ -12,8 +12,13 @@ $currentScript = basename($_SERVER['PHP_SELF'] ?? '');
 $isSuper       = !empty($currentUser['es_super_admin']);
 $canUserAdmin  = $isSuper;
 $puedeAsignar  = !empty($currentUser['puede_asignar']) || $isSuper;
+<<<<<<< HEAD
 $canAdminMetEquipos = $isSuper || in_array(strtoupper(trim((string)($currentUser['rpe'] ?? ''))), ['G46B8','9MMUY','9L3DR'], true);
 $canAmi = \App\Services\AmiGuard::canAccess($currentUser);
+=======
+$canAdminMetEquipos = $isSuper || in_array(strtoupper(trim((string)($currentUser['rpe'] ?? ''))), ['G46B8','9MMUY'], true);
+$canAmi = \App\Services\AmiGuard::canAccess($currentUser ?? null);
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 
 // Sidebar colapsable: grupos -> subgrupos -> enlaces
 $navTree = [
@@ -165,7 +170,11 @@ $navTree = [
     [
         'id' => 'ami',
         'label' => 'AMI',
+<<<<<<< HEAD
         'icon' => 'bi-hdd-network',
+=======
+        'icon' => 'bi-router',
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
         'visible' => $canAmi,
         'children' => [
             [
@@ -173,6 +182,7 @@ $navTree = [
                 'label' => 'SIGAMI',
                 'icon' => 'bi-arrow-repeat',
                 'children' => [
+<<<<<<< HEAD
                     ['url' => '/ami-cambio-sigami.php', 'label' => 'Cambio SIGAMI', 'icon' => 'bi-arrow-left-right', 'match' => ['ami-cambio-sigami.php']],
                     ['url' => '/ami-consultar-sigami.php', 'label' => 'Consultar SIGAMI', 'icon' => 'bi-search', 'match' => ['ami-consultar-sigami.php']],
                 ],
@@ -183,6 +193,11 @@ $navTree = [
                 'icon' => 'bi-cloud-arrow-up',
                 'children' => [
                     ['url' => '/ami-iusa-sinamed.php', 'label' => 'Listas y universo', 'icon' => 'bi-table', 'match' => ['ami-iusa-sinamed.php']],
+=======
+                    ['url' => '/ami-cambio-sigami.php',    'label' => 'Cambio SIGAMI',     'icon' => 'bi-pencil-square', 'match' => ['ami-cambio-sigami.php']],
+                    ['url' => '/ami-consultar-sigami.php', 'label' => 'Consultar SIGAMI', 'icon' => 'bi-search',        'match' => ['ami-consultar-sigami.php']],
+                    ['url' => '/ami-iusa-sinamed.php', 'label' => 'IUSA — SINAMED', 'icon' => 'bi-cloud-arrow-up', 'match' => ['ami-iusa-sinamed.php']],
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                 ],
             ],
         ],

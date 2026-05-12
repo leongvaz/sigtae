@@ -13,7 +13,11 @@ namespace App\Services;
 class MetrologiaPermissionService
 {
     private array $catalogos;
+<<<<<<< HEAD
     private array $equiposAdminsRpe = ['G46B8', '9MMUY', '9L3DR'];
+=======
+    private array $equiposAdminsRpe = ['G46B8', '9MMUY'];
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 
     public function __construct(array $catalogos)
     {

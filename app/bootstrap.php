@@ -56,11 +56,14 @@ use App\Services\MetrologiaEquipoCatalogoSeedService;
 $json = function ($file) use ($storagePath) {
     return new JsonStorage($storagePath, $file);
 };
+<<<<<<< HEAD
 
 $metEquipoCatalogoFile = trim((string)(getenv('SIGTAE_MET_EQUIPO_CATALOGO_JSON') ?: ''));
 if ($metEquipoCatalogoFile === '') {
     $metEquipoCatalogoFile = (string)($constants['metrologia_equipos_catalogo_file'] ?? 'metrologia_equipos.json');
 }
+=======
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
 
 $repositories = [
     'user' => new UserRepositoryJson($json('users.json')),
@@ -75,8 +78,13 @@ $repositories = [
     // Módulo Metrología (Recepción de equipos)
     'met_recepcion' => new MetrologiaRecepcionRepositoryJson($json('metrologia_recepciones.json')),
     'met_bitacora_equipos' => new MetrologiaBitacoraEquipoRepositoryJson($json('metrologia_bitacora_equipos.json')),
+<<<<<<< HEAD
     // Metrología: base maestra de equipos (catálogo). Ver $metEquipoCatalogoFile (env o constants).
     'met_equipo_catalogo' => new MetrologiaEquipoCatalogoRepositoryJson($json($metEquipoCatalogoFile)),
+=======
+    // Metrología: base maestra de equipos (catálogo)
+    'met_equipo_catalogo' => new MetrologiaEquipoCatalogoRepositoryJson($json('metrologia_equipos.json')),
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
     // Administrativo: programas de trabajo (Gantt)
     'programa_trabajo' => new ProgramaTrabajoRepositoryJson($json('programas_trabajo.json')),
     'programa_actividad' => new ProgramaActividadRepositoryJson($json('programas_actividades.json')),

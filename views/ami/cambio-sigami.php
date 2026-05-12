@@ -4,12 +4,20 @@ sigtae_page_header('Cambio SIGAMI', 'Actualizar estado de medidores (SIGAMI/SINA
 ?>
 
 <div class="row g-3">
+<<<<<<< HEAD
     <div class="col-12">
+=======
+    <div class="col-lg-5">
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
         <div class="card">
             <div class="card-header card-header-accent"><i class="bi bi-sliders me-1"></i> Parámetros</div>
             <div class="card-body">
                 <label for="amiEstado" class="form-label small fw-semibold mb-1">Estado de los medidores</label>
+<<<<<<< HEAD
                 <select class="form-select form-select-sm" id="amiEstado" style="max-width: 28rem;">
+=======
+                <select class="form-select form-select-sm" id="amiEstado">
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                     <option value="2">LANDIS (2)</option>
                     <option value="3">ENERI (3)</option>
                     <option value="4">ALDESA (4)</option>
@@ -19,19 +27,42 @@ sigtae_page_header('Cambio SIGAMI', 'Actualizar estado de medidores (SIGAMI/SINA
                 <div class="form-text">El cambio actualiza `tlpnIdSigAmi` en `kcentinel.dbo.TELEPNUEVOMEDIDOR`.</div>
             </div>
         </div>
+<<<<<<< HEAD
     </div>
 
     <div class="col-12">
         <div class="card">
             <div class="card-header card-header-accent d-flex align-items-center justify-content-between flex-wrap gap-2">
+=======
+
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-shield-check me-1"></i> Validación</div>
+            <div class="card-body">
+                <div class="small text-muted">
+                    Acceso restringido a administradores y usuarios autorizados del módulo AMI.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header card-header-accent d-flex align-items-center justify-content-between">
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                 <span><i class="bi bi-list-ul me-1"></i> Medidores</span>
                 <span class="text-muted small" id="amiCount">0</span>
             </div>
             <div class="card-body">
                 <label for="amiMedidores" class="form-label small fw-semibold mb-1">Pega los medidores aquí (uno por línea)</label>
+<<<<<<< HEAD
                 <textarea class="form-control font-monospace" id="amiMedidores" rows="14" placeholder="Ej:&#10;E807PH&#10;E806PH&#10;E808PH"></textarea>
 
                 <div class="d-flex flex-wrap gap-2 mt-3">
+=======
+                <textarea class="form-control" id="amiMedidores" rows="14" placeholder="Ej:&#10;E807PH&#10;E806PH&#10;E808PH"></textarea>
+
+                <div class="d-flex gap-2 mt-3">
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
                     <button class="btn btn-primary" type="button" id="btnAmiActualizar">
                         <i class="bi bi-arrow-repeat me-1"></i> Actualizar
                     </button>

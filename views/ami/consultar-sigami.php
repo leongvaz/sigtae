@@ -1,5 +1,6 @@
 <?php
 $actions = '<a href="' . htmlspecialchars($basePath ?? '') . '/dashboard.php" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Dashboard</a>';
+<<<<<<< HEAD
 sigtae_page_header(
     'Consultar SIGAMI',
     'Consulta `tlpnMedidor` y `tlpnIdSigAmi` en `kcentinel.dbo.telepnuevomedidor` (servidor ' . htmlspecialchars(\App\Services\AmiKcentinelConnection::SERVER) . ').',
@@ -256,3 +257,10 @@ sigtae_page_header(
     });
 })();
 </script>
+=======
+sigtae_page_header('Consultar SIGAMI', 'Consultas del estado SIGAMI (próximamente)', $actions);
+?>
+
+<?php sigtae_empty_state('Módulo en construcción. Aquí irá la consulta de SIGAMI.', 'bi-search'); ?>
+
+>>>>>>> a566762f56f34e258489665ef5183cfc57a69d90
