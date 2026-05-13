@@ -78,8 +78,9 @@ sigtae_page_header(
 
 <script>
 (function () {
-    const base = window.SIGTAE_BASE_PATH || '';
-    const api = base + '/api/ami-consultar-sigami.php';
+    // Resolver respecto a esta página: si vive en /public/*.php, el API es /public/api/…
+    // (SIGTAE_BASE_PATH quita /public del path visible y base+’/api’ fallaría con docroot = raíz del repo).
+    const api = new URL('api/ami-consultar-sigami.php', window.location.href).href;
     const medEl = document.getElementById('amiConsMedidores');
     const countEl = document.getElementById('amiConsCount');
     const resEl = document.getElementById('amiConsResultado');

@@ -48,8 +48,7 @@ sigtae_page_header('Cambio SIGAMI', 'Actualizar estado de medidores (SIGAMI/SINA
 
 <script>
 (function () {
-    const base = window.SIGTAE_BASE_PATH || '';
-    const api = base + '/api/ami-cambio-sigami.php';
+    const api = new URL('api/ami-cambio-sigami.php', window.location.href).href;
     const estadoEl = document.getElementById('amiEstado');
     const medEl = document.getElementById('amiMedidores');
     const resEl = document.getElementById('amiResultado');
