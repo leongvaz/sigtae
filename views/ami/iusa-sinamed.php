@@ -35,7 +35,7 @@ $dryRun = is_array($snapshot) && !empty($snapshot['dry_run']);
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="text-muted small">Última corrida</div>
+                    <div class="text-muted small">Última ejecución</div>
                     <div class="fs-6 fw-semibold"><?= htmlspecialchars($genAt ?: '—') ?></div>
                     <?php if ($dryRun): ?>
                         <span class="badge text-bg-secondary mt-2">dry_run</span>

@@ -1,53 +1,43 @@
 
-Hora de inicio: 04:09:52
-Hora de fin: 04:10:02
-Tiempo transcurrido: 0 minutos 9 segundos
-Medidores enviados OK: 5
+Hora de inicio: 04:24:51
+Hora de fin: 04:24:56
+Tiempo transcurrido: 0 minutos 4 segundos
+Medidores enviados OK: 4
 Medidores con falla: 0
 
 Lista de medidores enviados (OK):
-E852JP | delivered=12278.9 | received=0.0
-E308NF | delivered=11073.8 | received=0.0
-E271JJ | delivered=658.344 | received=0.0
-E748JT | delivered=3412.63 | received=0.0
-E850JP | delivered=4844.7 | received=0.0
+E241JY | delivered=13032.9 | received=0.0
+E043PL | delivered=11353.5 | received=0.0
+E614KY | delivered=9168.24 | received=0.0
+E344PL | delivered=16701.7 | received=0.0
 
-Hora de inicio (automatizado): 2026-05-06T15:59:14
+Hora de inicio (automatizado): 2026-05-13T12:42:23
 Modo dry_run=True
-Prep (+2d → SIGAMI 6): 1999 medidores; sql_rows_reported=0; err=None
-Revert (-2d → SIGAMI 4): 1639 medidores; sql_rows_reported=0; err=None
+Prep (+2d → SIGAMI 6): 2300 medidores; sql_rows_reported=0; err=None
+Revert (-2d → SIGAMI 4): 0 medidores; sql_rows_reported=0; err=None
 Medidores enviados OK: 0
-Medidores con falla: 31
+Medidores con falla: 22
 
 Lista de medidores enviados (detalle):
-E263JJ | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E271JJ | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E273JU | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E274JJ | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E294JY | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E297JY | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E308NF | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E309PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E361RD | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E394PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E410PK | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E464PU | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E465PU | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E488PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E489PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E543PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E558PJ | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E652KA | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E653KA | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E653MY | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E664NG | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E680NG | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E688KA | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E689KA | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E741HY | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E748JT | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E794PK | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E850JP | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E852JP | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E863KF | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
-E929JT | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E041PC | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E043PC | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E043PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E105PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E214PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E241JY | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E268RB | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E337JU | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E343PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E344PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E370PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E376PK | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E413PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E448RA | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E496PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E614KY | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E668MJ | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E688PL | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E736PK | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E765PG | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E812KT | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
+E922NG | delivered=None | received=None | ok=False | err=dry_run: sin consulta PostgreSQL ni POST SINAMED
