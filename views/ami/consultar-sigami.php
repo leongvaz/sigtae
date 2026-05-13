@@ -89,7 +89,6 @@ sigtae_page_header(
     const btnQ = document.getElementById('btnAmiConsConsultar');
     const btnClr = document.getElementById('btnAmiConsLimpiar');
     const btnCsv = document.getElementById('btnAmiConsCsv');
-    const $tbl = jQuery('#tblConsultaSigami');
 
     function setAlert(kind, msg) {
         resEl.className = 'alert alert-' + kind + ' mb-0';
@@ -118,26 +117,6 @@ sigtae_page_header(
         btnCsv.disabled = n === 0;
     }
 
-    function destroyDataTable() {
-        if (jQuery.fn.DataTable.isDataTable($tbl[0])) {
-            $tbl.DataTable().destroy();
-        }
-        $tbl.find('tbody').empty();
-    }
-
-    medEl.addEventListener('input', updateCount);
-    updateCount();
-
-    btnClr.addEventListener('click', function () {
-        medEl.value = '';
-        setAlert('', '');
-        statsCard.classList.add('d-none');
-        tableCard.classList.add('d-none');
-        destroyDataTable();
-        updateCount();
-        medEl.focus();
-    });
-
     function renderStats(st) {
         if (!st) {
             statsCard.classList.add('d-none');
@@ -155,26 +134,62 @@ sigtae_page_header(
         statsUl.innerHTML = lines.join('');
     }
 
-    function fillTable(rows) {
-        destroyDataTable();
-        const tbody = $tbl.find('tbody');
-        rows.forEach(function (r) {
-            const tr = jQuery('<tr/>');
-            tr.append(jQuery('<td/>').text(r.medidor != null ? String(r.medidor) : ''));
-            tr.append(jQuery('<td/>').text(r.id_sigami != null && r.id_sigami !== '' ? String(r.id_sigami) : ''));
-            tbody.append(tr);
+    /** jQuery/DataTables se cargan al final del layout; este script va en el contenido y corre antes. */
+    function initAmiConsultarSigami() {
+        if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) return;
+        const $tbl = jQuery('#tblConsultaSigami');
+        if (!$tbl.length) return;
+
+        const dtLang = {
+            lengthMenu: 'Mostrar _MENU_ filas',
+            zeroRecords: 'Sin resultados',
+            info: 'Mostrando _START_–_END_ de _TOTAL_',
+            infoEmpty: 'Sin registros',
+            infoFiltered: '(filtrado de _MAX_)',
+            search: 'Buscar:',
+            paginate: { first: '«', last: '»', previous: 'Anterior', next: 'Siguiente' }
+        };
+
+        function destroyDataTable() {
+            if (jQuery.fn.DataTable.isDataTable($tbl[0])) {
+                $tbl.DataTable().destroy();
+            }
+            $tbl.find('tbody').empty();
+        }
+
+        function fillTable(rows) {
+            destroyDataTable();
+            const tbody = $tbl.find('tbody');
+            rows.forEach(function (r) {
+                const tr = jQuery('<tr/>');
+                tr.append(jQuery('<td/>').text(r.medidor != null ? String(r.medidor) : ''));
+                tr.append(jQuery('<td/>').text(r.id_sigami != null && r.id_sigami !== '' ? String(r.id_sigami) : ''));
+                tbody.append(tr);
+            });
+            tableCard.classList.remove('d-none');
+            if (rows.length === 0) return;
+            $tbl.DataTable({
+                language: dtLang,
+                order: [[0, 'asc']],
+                pageLength: 50,
+                lengthMenu: [[25, 50, 100, 250, 500, -1], [25, 50, 100, 250, 500, 'Todos']],
+                scrollY: '420px',
+                scrollCollapse: true
+            });
+        }
+
+        medEl.addEventListener('input', updateCount);
+        updateCount();
+
+        btnClr.addEventListener('click', function () {
+            medEl.value = '';
+            setAlert('', '');
+            statsCard.classList.add('d-none');
+            tableCard.classList.add('d-none');
+            destroyDataTable();
+            updateCount();
+            medEl.focus();
         });
-        tableCard.classList.remove('d-none');
-        if (rows.length === 0) return;
-        $tbl.DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
-            order: [[0, 'asc']],
-            pageLength: 50,
-            lengthMenu: [[25, 50, 100, 250, 500, -1], [25, 50, 100, 250, 500, 'Todos']],
-            scrollY: '420px',
-            scrollCollapse: true
-        });
-    }
 
     btnQ.addEventListener('click', async function () {
         setAlert('', '');
@@ -254,5 +269,12 @@ sigtae_page_header(
             btnCsv.innerHTML = prevHtml;
         }
     });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAmiConsultarSigami);
+    } else {
+        initAmiConsultarSigami();
+    }
 })();
 </script>
