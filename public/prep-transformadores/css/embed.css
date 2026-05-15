@@ -1,0 +1,24 @@
+/* Integración dentro del layout SIGTAE (no alterar estilos del módulo) */
+.sigtae-reportes-module {
+  margin: 0 -0.25rem;
+}
+
+.sigtae-reportes-module .app-shell.is-hidden {
+  display: block;
+}
+
+.sigtae-reportes-module #logoutBtn {
+  display: none !important;
+}
+
+.sigtae-reportes-module .app-shell {
+  min-height: auto;
+}
+
+.sigtae-reportes-module .main-content {
+  max-width: none;
+}
+
+.sigtae-content:has(.sigtae-reportes-module) {
+  padding-top: 0.75rem;
+}

@@ -80,9 +80,9 @@ $navTree = [
                     // Antes vivían en "Metrología > Gestión"
                     ['url' => '/metrologia-dashboard.php',    'label' => 'Dashboard',         'icon' => 'bi-speedometer',    'match' => ['metrologia-dashboard.php']],
                     ['url' => '/metrologia-solicitudes.php',  'label' => 'Solicitudes',       'icon' => 'bi-inbox',          'match' => ['metrologia-solicitudes.php']],
-                    ['url' => '/metrologia-expedientes.php',  'label' => 'Expedientes',       'icon' => 'bi-folder2-open',   'match' => ['metrologia-expedientes.php','metrologia-expediente.php']],
-                    ['url' => '/metrologia-autorizacion.php', 'label' => 'Autorización',      'icon' => 'bi-shield-check',   'match' => ['metrologia-autorizacion.php']],
-                    ['url' => '/metrologia-reportes.php',     'label' => 'Concentrado Zonas', 'icon' => 'bi-table',          'match' => ['metrologia-reportes.php']],
+                    ['url' => '#', 'label' => 'Expedientes (próximamente)',       'icon' => 'bi-folder2-open',   'match' => [], 'disabled' => true],
+                    ['url' => '#', 'label' => 'Autorización (próximamente)',      'icon' => 'bi-shield-check',   'match' => [], 'disabled' => true],
+                    ['url' => '#', 'label' => 'Concentrado Zonas (próximamente)', 'icon' => 'bi-table',          'match' => [], 'disabled' => true],
                     ['url' => '/metrologia-programa.php',     'label' => 'Programa anual',    'icon' => 'bi-calendar2-week', 'match' => ['metrologia-programa.php']],
                     ['url' => '/metrologia-equipos.php',      'label' => 'Catálogo de equipos', 'icon' => 'bi-box-seam',      'match' => ['metrologia-equipos.php'], 'visible' => $canAdminMetEquipos],
                 ],
@@ -158,6 +158,14 @@ $navTree = [
                 'icon' => 'bi-calendar-check',
                 'children' => [
                     ['url' => '/prep-entrega-medidores.php', 'label' => 'Entrega de medidores', 'icon' => 'bi-calendar-check', 'match' => ['prep-entrega-medidores.php']],
+                ],
+            ],
+            [
+                'id' => 'prep-transformadores',
+                'label' => 'Transformadores de instrumento',
+                'icon' => 'bi-lightning-charge',
+                'children' => [
+                    ['url' => '/prep-transformadores-instrumento.php', 'label' => 'Transformadores de instrumento', 'icon' => 'bi-lightning-charge', 'match' => ['prep-transformadores-instrumento.php']],
                 ],
             ],
         ],
@@ -1363,6 +1371,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                     pjaxPath.includes('metrologia-sig.php') ||
                     pjaxPath.includes('metrologia-bitacora.php') ||
                     pjaxPath.includes('metrologia-recepcion.php') ||
+                    pjaxPath.includes('prep-transformadores-instrumento.php') ||
                     pjaxPath.includes('ami-cambio-sigami.php') ||
                     pjaxPath.includes('ami-consultar-sigami.php')
                 ) return;
