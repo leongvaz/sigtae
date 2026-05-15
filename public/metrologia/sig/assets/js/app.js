@@ -74,8 +74,7 @@
             card.className = 'col-12 col-sm-6 col-lg-4 col-xl-3';
             var showNum = (s.id >= 4 && s.id <= 8);
             var titleBlock = showNum
-                ? ('<h6 class="card-title mb-1">' + escapeHtml(s.title) + '</h6>' +
-                   '<p class="card-section-num my-2">' + s.id + '</p>')
+                ? ('<h6 class="card-title mb-1">' + s.id + '. ' + escapeHtml(s.title) + '</h6>')
                 : '<h6 class="card-title">' + escapeHtml(s.title) + '</h6>';
             card.innerHTML =
                 '<div class="card h-100 ' + (isActive ? '' : 'disabled') + '" data-section-id="' + s.id + '" data-section-title="' + escapeHtml(s.title) + '" data-active="' + (isActive ? '1' : '0') + '">' +
@@ -83,7 +82,8 @@
                 titleBlock +
                 (isActive
                     ? ('<div class="progress mb-2" style="height: 8px;"><div class="progress-bar" role="progressbar" style="width: ' + (s.progressPercent || 0) + '%"></div></div>' +
-                       '<p class="small text-muted mb-0">' + (s.attendedLeaves || 0) + '/' + (s.totalLeaves || 0) + ' atendidos</p>')
+                       '<p class="small text-muted mb-1">' + (s.attendedLeaves || 0) + '/' + (s.totalLeaves || 0) + ' atendidos</p>' +
+                       '<p class="small text-muted mb-0">' + (s.progressPercent || 0) + '%</p>')
                     : '<span class="badge bg-warning text-dark">Próximamente</span>') +
                 '  </div></div>';
             wrap.appendChild(card);

@@ -234,13 +234,13 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
     <?php endforeach; endif; ?>
     <style>
         :root {
-            --sigtae-navy: #0c2340;
-            --sigtae-petrol: #1a4d6d;
-            --sigtae-cyan: #4a9fb8;
-            --sigtae-cyan-soft: #e8f4f8;
+            --sigtae-navy: #052e16;
+            --sigtae-petrol: #0f5132;
+            --sigtae-cyan: #16a34a;
+            --sigtae-cyan-soft: #dcfce7;
             --sigtae-gray: #5c6b7a;
             --sigtae-gray-light: #e2e8ee;
-            --sigtae-bg: #f4f6f9;
+            --sigtae-bg: #f4f7f4;
             --sigtae-white: #ffffff;
             --sigtae-success: #0d7d5c;
             --sigtae-warning: #c17d0a;
@@ -263,17 +263,17 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
         html { scrollbar-gutter: stable; }
         body {
             scrollbar-width: thin;
-            scrollbar-color: rgba(74,159,184,0.55) rgba(226,232,238,0.55);
+            scrollbar-color: rgba(22,163,74,0.50) rgba(226,232,238,0.55);
         }
         /* WebKit */
         body::-webkit-scrollbar { width: 10px; height: 10px; }
         body::-webkit-scrollbar-track { background: rgba(226,232,238,0.55); }
         body::-webkit-scrollbar-thumb {
-            background: rgba(74,159,184,0.55);
+            background: rgba(22,163,74,0.50);
             border-radius: 999px;
             border: 2px solid rgba(226,232,238,0.55);
         }
-        body::-webkit-scrollbar-thumb:hover { background: rgba(74,159,184,0.75); }
+        body::-webkit-scrollbar-thumb:hover { background: rgba(22,163,74,0.70); }
 
         /* Sidebar nav scrollbar */
         .sigtae-sidebar .sb-nav {
@@ -303,17 +303,42 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
             overflow: hidden;
         }
         .sigtae-sidebar .sb-brand {
-            display: flex; align-items: center; gap: .6rem;
+            display: flex; align-items: center; gap: .65rem;
             height: var(--tb-height);
             padding: 0 1rem;
             color: #fff;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1.05rem;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             border-bottom: 1px solid rgba(255,255,255,0.08);
             white-space: nowrap;
         }
-        .sigtae-sidebar .sb-brand i { font-size: 1.3rem; color: var(--sigtae-cyan); }
+        .sigtae-sidebar .sb-brand-badge {
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            display: grid; place-items: center;
+            background: #ecfdf5;
+            color: #052e16;
+            font-weight: 900;
+            font-size: .65rem;
+            letter-spacing: .5px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.20);
+        }
+        .sigtae-sidebar .sb-icon {
+            font-size: 1rem;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+            color: rgba(255,255,255,0.65);
+            transition: color .15s ease;
+        }
+        .sigtae-sidebar .sb-group-toggle:hover .sb-icon,
+        .sigtae-sidebar .sb-sub-toggle:hover .sb-icon { color: #fff; }
+        .sigtae-sidebar .sb-group-toggle[aria-expanded="true"] .sb-icon,
+        .sigtae-sidebar .sb-sub-toggle[aria-expanded="true"] .sb-icon {
+            color: #86efac;
+        }
         .sigtae-sidebar .sb-nav {
             flex: 1;
             overflow-y: auto;
@@ -368,7 +393,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
         .sigtae-sidebar .sb-group-toggle[aria-expanded="true"] .sb-dot,
         .sigtae-sidebar .sb-sub-toggle[aria-expanded="true"] .sb-dot {
             background: var(--sigtae-cyan);
-            box-shadow: 0 0 0 3px rgba(74,159,184,0.20);
+            box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
             opacity: 1;
         }
         .sigtae-sidebar .sb-caret { margin-left: auto; font-size: .9rem; opacity: .75; transition: transform .15s ease; }
@@ -426,7 +451,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
         }
         .sigtae-sidebar .sb-link.active .sb-dot {
             background: var(--sigtae-cyan);
-            box-shadow: 0 0 0 3px rgba(74,159,184,0.22);
+            box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
             opacity: 1;
         }
         .sigtae-sidebar .sb-link.active::after {
@@ -454,11 +479,12 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
         body.sb-collapsed .sigtae-sidebar .sb-brand span,
         body.sb-collapsed .sigtae-sidebar .sb-link span:not(.sb-dot),
         body.sb-collapsed .sigtae-sidebar .sb-section,
-        body.sb-collapsed .sigtae-sidebar .sb-group-toggle span:not(.sb-dot),
-        body.sb-collapsed .sigtae-sidebar .sb-sub-toggle span:not(.sb-dot),
+        body.sb-collapsed .sigtae-sidebar .sb-group-toggle span:not(.sb-icon),
+        body.sb-collapsed .sigtae-sidebar .sb-sub-toggle span:not(.sb-icon),
         body.sb-collapsed .sigtae-sidebar .sb-caret,
         body.sb-collapsed .sigtae-sidebar .sb-collapse,
         body.sb-collapsed .sigtae-sidebar .sb-foot { display: none; }
+        body.sb-collapsed .sigtae-sidebar .sb-icon { width: auto; }
         body.sb-collapsed .sigtae-sidebar .sb-group-toggle,
         body.sb-collapsed .sigtae-sidebar .sb-sub-toggle { justify-content: center; padding-left: 0; padding-right: 0; }
         body.sb-collapsed .sigtae-sidebar .sb-dot { margin-left: 0; }
@@ -584,7 +610,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
 
         /* Clickable */
         .sigtae-clickable { cursor: pointer; }
-        .sigtae-clickable:hover { outline: 2px solid rgba(74,159,184,0.25); outline-offset: 2px; }
+        .sigtae-clickable:hover { outline: 2px solid rgba(22,163,74,0.25); outline-offset: 2px; }
 
         /* Timeline */
         .sigtae-timeline {
@@ -643,7 +669,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
 <body>
     <aside class="sigtae-sidebar" aria-label="Menú lateral">
         <a class="sb-brand" href="<?= htmlspecialchars($basePath) ?>/dashboard.php">
-            <i class="bi bi-clipboard-check"></i>
+            <div class="sb-brand-badge" aria-hidden="true">SIG</div>
             <span>SIGTAE</span>
         </a>
         <nav class="sb-nav">
@@ -656,7 +682,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                             data-sigtae-target="#sbgrp-<?= htmlspecialchars($group['id'] ?? '') ?>"
                             aria-expanded="<?= $groupOpen ? 'true' : 'false' ?>"
                             title="<?= htmlspecialchars($group['label'] ?? '') ?>">
-                        <span class="sb-dot" aria-hidden="true"></span>
+                        <i class="bi <?= htmlspecialchars($group['icon'] ?? 'bi-circle') ?> sb-icon" aria-hidden="true"></i>
                         <span><?= htmlspecialchars($group['label'] ?? '') ?></span>
                         <i class="bi bi-chevron-down sb-caret"></i>
                     </button>
@@ -670,7 +696,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                                         data-sigtae-target="#sbsub-<?= htmlspecialchars($group['id'] ?? '') ?>-<?= htmlspecialchars($sub['id'] ?? '') ?>"
                                         aria-expanded="<?= $subOpen ? 'true' : 'false' ?>"
                                         title="<?= htmlspecialchars($sub['label'] ?? '') ?>">
-                                    <span class="sb-dot" aria-hidden="true"></span>
+                                    <i class="bi <?= htmlspecialchars($sub['icon'] ?? 'bi-dash') ?> sb-icon" aria-hidden="true"></i>
                                     <span><?= htmlspecialchars($sub['label'] ?? '') ?></span>
                                     <i class="bi bi-chevron-down sb-caret"></i>
                                 </button>

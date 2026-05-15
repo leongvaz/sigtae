@@ -38,8 +38,11 @@ $pendientesEvaluacion = array_filter($withState, function($t) {
 });
 
 $perfArea = $performanceService->getRanking();
-$promedioArea = count($perfArea) > 0
-    ? round(array_sum(array_column($perfArea, 'porcentaje_desempeno')) / count($perfArea), 1)
+$perfConEval = array_values(array_filter($perfArea, function ($p) {
+    return ((int)($p['tareas_evaluadas'] ?? 0)) > 0;
+}));
+$promedioArea = count($perfConEval) > 0
+    ? round(array_sum(array_column($perfConEval, 'porcentaje_desempeno')) / count($perfConEval), 1)
     : 0;
 
 $porEstado = [];
@@ -122,7 +125,7 @@ foreach ($offices as $of) {
     $n = 0;
     foreach ($uids as $uid) {
         $perf = $performanceService->getPerformance($uid);
-        if (($perf['total_tareas'] ?? 0) > 0) {
+        if (((int)($perf['tareas_evaluadas'] ?? 0)) > 0) {
             $sum += (float)($perf['porcentaje_desempeno'] ?? 0);
             $n++;
         }
@@ -148,7 +151,7 @@ $sumSo = 0.0;
 $nSo = 0;
 foreach ($uidsSinOf as $uid) {
     $perf = $performanceService->getPerformance($uid);
-    if (($perf['total_tareas'] ?? 0) > 0) {
+    if (((int)($perf['tareas_evaluadas'] ?? 0)) > 0) {
         $sumSo += (float)($perf['porcentaje_desempeno'] ?? 0);
         $nSo++;
     }

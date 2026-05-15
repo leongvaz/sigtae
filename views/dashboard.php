@@ -67,11 +67,12 @@ sigtae_page_header('Dashboard', 'Resumen operativo y cumplimiento del departamen
                 <?php sigtae_chart_card_close(); ?>
             </div>
             <div class="col-md-6">
-                <?php sigtae_chart_card_open('Desempeño por oficina', 'Promedio del % de tareas APROBADAS sobre tareas EVALUADAS (Aprobada/Rechazada), por oficina.', 240); ?>
+                <?php sigtae_chart_card_open('Desempeño por oficina', 'Promedio del % de desempeño solo entre colaboradores con al menos una tarea evaluada (aprobadas sobre evaluadas, por persona).', 240); ?>
                     <canvas id="chartDesempOficina"></canvas>
                 <?php sigtae_chart_card_close(); ?>
             </div>
-            <div class="col-12">
+            <?php /* Ranking horizontal oculto temporalmente (reactivar quitando d-none) */ ?>
+            <div class="col-12 d-none">
                 <?php sigtae_chart_card_open('Ranking de desempeño', '% de tareas APROBADAS sobre tareas EVALUADAS (Aprobada/Rechazada).', 280); ?>
                     <canvas id="chartRanking"></canvas>
                 <?php sigtae_chart_card_close(); ?>
