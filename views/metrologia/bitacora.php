@@ -149,8 +149,9 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
                         language: bitacoraDtLang,
                         order: [[0,'desc']],
                         paging: true,
+                        pagingType: 'full_numbers',
                         pageLength: 25,
-                        lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
+                        lengthMenu: [[15, 25, 50, 100, -1], [15, 25, 50, 100, 'Todos']],
                         deferRender: true,
                         dom: "<'row align-items-center mb-2'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row align-items-center mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
                     });
@@ -159,6 +160,7 @@ sigtae_page_header('Bitácora', 'Concentrado por equipo (Recepción / Programa a
                 else initBitacoraDataTable();
                 window.addEventListener('sigtae:pageLoaded', initBitacoraDataTable);
             })();
+            </script>
 
             <?php if ($canEditBitacora): ?>
             <!-- Modal edición Bitácora -->

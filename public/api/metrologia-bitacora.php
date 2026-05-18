@@ -23,7 +23,7 @@ $action = (string)($_GET['action'] ?? '');
 // Permisos:
 // - detail: cualquier usuario con acceso a Metrología
 // - update: admins del sistema o Alba (RPE)
-$canAccess = $metPerm->canAccess($user);
+$canAccess = $metPerm->canAccessRoute($user, 'metrologia-bitacora.php');
 $canEdit = !empty($user['es_super_admin']) || in_array(strtoupper(trim((string)($user['rpe'] ?? ''))), ['G46B8','9L3DR'], true);
 
 if ($action === 'detail' && $_SERVER['REQUEST_METHOD'] === 'GET') {

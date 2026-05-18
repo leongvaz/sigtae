@@ -16,13 +16,16 @@ class MetrologiaFolioService
 {
     private MetrologiaSolicitudRepositoryInterface $solRepo;
     private MetrologiaExpedienteRepositoryInterface $expRepo;
+    private MetrologiaFolioNormalizer $folioNormalizer;
 
     public function __construct(
         MetrologiaSolicitudRepositoryInterface $solRepo,
-        MetrologiaExpedienteRepositoryInterface $expRepo
+        MetrologiaExpedienteRepositoryInterface $expRepo,
+        ?MetrologiaFolioNormalizer $folioNormalizer = null
     ) {
         $this->solRepo = $solRepo;
         $this->expRepo = $expRepo;
+        $this->folioNormalizer = $folioNormalizer ?? new MetrologiaFolioNormalizer();
     }
 
     public function isDuplicate(string $folio, ?string $excludeSolicitudId = null, ?string $excludeExpedienteId = null): bool
@@ -42,11 +45,7 @@ class MetrologiaFolioService
 
     public function normalize(string $folio): string
     {
-        $folio = trim($folio);
-        // normalización suave: espacios -> guion, múltiple guion, mayúsculas
-        $folio = preg_replace('/\s+/', '-', $folio) ?? $folio;
-        $folio = preg_replace('/-+/', '-', $folio) ?? $folio;
-        return strtoupper($folio);
+        return $this->folioNormalizer->normalize($folio);
     }
 }
 

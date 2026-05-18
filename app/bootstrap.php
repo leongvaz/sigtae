@@ -49,6 +49,9 @@ use App\Repositories\ProgramaEvidenciaRepositoryJson;
 use App\Services\MetrologiaHistoryService;
 use App\Services\MetrologiaPermissionService;
 use App\Services\MetrologiaFolioService;
+use App\Services\MetrologiaFolioNormalizer;
+use App\Services\MetrologiaZonaService;
+use App\Services\MetrologiaProgramaImportService;
 use App\Services\MetrologiaRecepcionFolioService;
 use App\Services\ProgramaCalendarioService;
 use App\Services\MetrologiaEquipoCatalogoSeedService;
@@ -102,8 +105,11 @@ $metCatalogos = $json('metrologia_catalogos.json')->read([
     'actividades_informe_diario' => [],
 ]);
 $metPermissionService = new MetrologiaPermissionService($metCatalogos);
+$metFolioNormalizer = new MetrologiaFolioNormalizer();
+$metZonaService = new MetrologiaZonaService($metCatalogos['zonas'] ?? []);
+$metProgramaImportService = new MetrologiaProgramaImportService($metFolioNormalizer, $metZonaService);
 $metHistoryService = new MetrologiaHistoryService($json('metrologia_historial.json'));
-$metFolioService = new MetrologiaFolioService($repositories['met_solicitud'], $repositories['met_expediente']);
+$metFolioService = new MetrologiaFolioService($repositories['met_solicitud'], $repositories['met_expediente'], $metFolioNormalizer);
 $metRecepcionFolioService = new MetrologiaRecepcionFolioService($repositories['met_recepcion'], $repositories['met_bitacora_equipos']);
 $metEquipoSeedService = new MetrologiaEquipoCatalogoSeedService(
     $json('metrologia_bitacora_equipos.json'),
@@ -157,6 +163,9 @@ return [
     // Metrología (Fase 1)
     'metrologia_catalogos' => $metCatalogos,
     'MetrologiaPermissionService' => $metPermissionService,
+    'MetrologiaFolioNormalizer' => $metFolioNormalizer,
+    'MetrologiaZonaService' => $metZonaService,
+    'MetrologiaProgramaImportService' => $metProgramaImportService,
     'MetrologiaHistoryService' => $metHistoryService,
     'MetrologiaFolioService' => $metFolioService,
     'MetrologiaRecepcionFolioService' => $metRecepcionFolioService,

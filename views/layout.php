@@ -14,6 +14,7 @@ $canUserAdmin  = $isSuper;
 $puedeAsignar  = !empty($currentUser['puede_asignar']) || $isSuper;
 $canAdminMetEquipos = $isSuper || in_array(strtoupper(trim((string)($currentUser['rpe'] ?? ''))), ['G46B8','9MMUY','9L3DR'], true);
 $canAmi = \App\Services\AmiGuard::canAccess($currentUser ?? null);
+$isZonaMetrologia = !empty($currentUser['es_usuario_zona']) && empty($currentUser['es_super_admin']);
 
 // Sidebar colapsable: grupos -> subgrupos -> enlaces
 $navTree = [
@@ -214,6 +215,31 @@ $navTree = [
         ],
     ],
 ];
+
+if ($isZonaMetrologia) {
+    $navTree = [
+        [
+            'id' => 'met',
+            'label' => 'Metrología',
+            'icon' => 'bi-rulers',
+            'children' => [
+                [
+                    'id' => 'met-zona-sol',
+                    'label' => 'Solicitudes',
+                    'icon' => 'bi-inbox',
+                    'children' => [
+                        [
+                            'url' => '/metrologia-solicitudes.php',
+                            'label' => 'Solicitud de calibración',
+                            'icon' => 'bi-inbox',
+                            'match' => ['metrologia-solicitudes.php'],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+}
 
 function sigtaeNavIsActive(array $item, string $currentScript): bool {
     return in_array($currentScript, (array)($item['match'] ?? []), true);

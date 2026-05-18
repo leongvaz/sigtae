@@ -17,7 +17,7 @@ $auth = sigtae_auth_service($container, $basePath);
 $user = $auth->requireAuth();
 
 $metPerm = $container['MetrologiaPermissionService'];
-if (!$metPerm->canAccess($user) || !$metPerm->canManage($user)) {
+if (!$metPerm->canAccessRoute($user, basename($_SERVER['PHP_SELF'] ?? 'metrologia-programa-json.php')) || !$metPerm->canManage($user)) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=utf-8');
     echo "No autorizado.\n";
@@ -72,23 +72,9 @@ $normalize = function(string $s): string {
 $startsWith = function(string $s, string $prefix): bool {
     return $prefix === '' ? true : substr($s, 0, strlen($prefix)) === $prefix;
 };
-$normalizeFolio = function(string $folio): string {
-    $f = trim($folio);
-    if ($f === '') return '';
-    // 26-0565 => 2026-0565
-    if (preg_match('/^(\\d{2})\\-(\\d{4})$/', $f, $m)) {
-        return '20' . $m[1] . '-' . $m[2];
-    }
-    // 2026--5 => 2026-0005
-    if (preg_match('/^(\\d{4})\\-\\-(\\d{1,4})$/', $f, $m)) {
-        return $m[1] . '-' . str_pad($m[2], 4, '0', STR_PAD_LEFT);
-    }
-    // 2026-5 => 2026-0005
-    if (preg_match('/^(\\d{4})\\-(\\d{1,4})$/', $f, $m)) {
-        return $m[1] . '-' . str_pad($m[2], 4, '0', STR_PAD_LEFT);
-    }
-    return $f;
-};
+$folioNormalizer = $container['MetrologiaFolioNormalizer'];
+$zonaService = $container['MetrologiaZonaService'];
+$normalizeFolio = fn(string $folio): string => $folioNormalizer->normalize($folio);
 $parseDateDMY = function(string $s): string {
     $s = trim($s);
     if ($s === '') return '';
@@ -138,7 +124,7 @@ foreach ($lines as $line) {
         'nombre_a_quien_se_entrega' => $get('NOMBRE A QUIEN SE ENTREGA'),
         'marca' => $get('MARCA'),
         'modelo' => $get('MODELO'),
-        'zona' => $get('ZONA'),
+        'zona' => ($zonaService->normalize($get('ZONA'))['zona_display'] ?? $get('ZONA')),
         'area' => $get('AREA'),
         'oficina' => $get('OFICINA'),
         'nomenclatura_gmcs' => $get('NOMENCLATURA GMCS'),

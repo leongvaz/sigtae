@@ -48,40 +48,107 @@ $__fmtFechaLarga = function ($ymd) use ($__meses, $__diasSem) {
 $ptHoyIdx = isset($hoyIdx) ? (int)$hoyIdx : -1;
 $ptWeekGroups = $weekGroups ?? [];
 $ptPerResponsable = $perResponsableList ?? [];
+
+// Clave de la semana ISO actual (para resaltar la semana vigente en la cabecera)
+$_todayDtPT = \DateTimeImmutable::createFromFormat('Y-m-d', (string)$today);
+$ptTodayWeekKey = $_todayDtPT ? ($_todayDtPT->format('o') . '-' . $_todayDtPT->format('W')) : '';
+unset($_todayDtPT);
 ?>
 
 <style>
-/* Programa de Trabajo - estilos del módulo */
+/* ============================================================
+   Programa de Trabajo – estilos del módulo (rediseño visual)
+   ============================================================ */
 .pt-kpi-row { margin-bottom: .75rem; }
 
+/* ── Matriz: layout base ─────────────────────────────────── */
 .pt-matrix-wrapper { position: relative; }
 .pt-matrix-wrapper table { min-width: 1400px; border-collapse: separate; border-spacing: 0; }
 .pt-matrix-wrapper td { transition: background-color .12s ease; }
-.pt-matrix-wrapper td.pt-blank { background: #fff !important; }
-.pt-matrix-wrapper td.pt-p-active { background: rgba(13,110,253,0.22) !important; box-shadow: inset 0 0 0 1px rgba(13,110,253,.18); }  /* azul P */
-.pt-matrix-wrapper td.pt-e-in-time { background: rgba(253,126,20,0.24) !important; box-shadow: inset 0 0 0 1px rgba(253,126,20,.18); } /* naranja E en tiempo */
-.pt-matrix-wrapper td.pt-e-late { background: rgba(220,53,69,0.24) !important; box-shadow: inset 0 0 0 1px rgba(220,53,69,.18); }     /* rojo E vencido */
-.pt-matrix-wrapper td.pt-e-done { background: rgba(25,135,84,0.24) !important; box-shadow: inset 0 0 0 1px rgba(25,135,84,.18); }     /* verde E presentado */
-.pt-matrix-wrapper td:hover { background-color: rgba(74,159,184,.07); }
 
-/* Evidencias (solo entregables): ocultar hasta hover para que no estorbe */
-.pt-ev-btn { opacity: .25; }
+/* Celdas fuera del rango de la actividad: patrón rayado */
+.pt-matrix-wrapper td.pt-blank {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #f4f5f6,
+            #f4f5f6 2px,
+            #fafafa 2px,
+            #fafafa 8px
+        ) !important;
+    border-color: #eee !important;
+}
+
+/* Celdas P (programado) – azul más sólido */
+.pt-matrix-wrapper td.pt-p-active {
+    background: rgba(13,110,253,0.13) !important;
+    box-shadow: inset 0 -2px 0 rgba(13,110,253,.35);
+}
+
+/* Celdas E (ejecutado) – mayor contraste */
+.pt-matrix-wrapper td.pt-e-in-time {
+    background: rgba(253,126,20,0.18) !important;
+    box-shadow: inset 0 2px 0 rgba(253,126,20,.55);
+}
+.pt-matrix-wrapper td.pt-e-late {
+    background: rgba(220,53,69,0.18) !important;
+    box-shadow: inset 0 2px 0 rgba(220,53,69,.65);
+}
+.pt-matrix-wrapper td.pt-e-done {
+    background: rgba(25,135,84,0.18) !important;
+    box-shadow: inset 0 2px 0 rgba(25,135,84,.70);
+}
+/* Altura mínima uniforme para las celdas en rango */
+.pt-matrix-wrapper td.pt-p-active,
+.pt-matrix-wrapper td.pt-e-in-time,
+.pt-matrix-wrapper td.pt-e-late,
+.pt-matrix-wrapper td.pt-e-done { min-height: 32px; }
+
+.pt-matrix-wrapper td:hover { background-color: rgba(74,159,184,.10) !important; cursor: default; }
+
+/* Evidencias (solo entregables): ocultar hasta hover */
+.pt-ev-btn { opacity: .25; transition: opacity .15s; }
 td:hover .pt-ev-btn, .pt-ev-btn:focus { opacity: 1; }
 
-/* Sticky header */
+/* ── Cabeceras sticky ────────────────────────────────────── */
 .pt-matrix-wrapper thead tr.pt-week-row th,
 .pt-matrix-wrapper thead tr.pt-day-row th { position: sticky; top: 0; z-index: 4; background: #f8f9fa; }
-.pt-matrix-wrapper thead tr.pt-week-row th { top: 0; z-index: 5; }
-.pt-matrix-wrapper thead tr.pt-day-row th { top: 28px; z-index: 4; }
-.pt-matrix-wrapper thead tr.pt-week-row th {
-    height: 28px;
-    line-height: 28px;
-    padding-top: 0;
-    padding-bottom: 0;
-}
-.pt-matrix-wrapper thead tr.pt-day-row th { height: 38px; }
+.pt-matrix-wrapper thead tr.pt-week-row th { top: 0; z-index: 5; height: 28px; line-height: 28px; padding-top: 0; padding-bottom: 0; }
+.pt-matrix-wrapper thead tr.pt-day-row th { top: 28px; z-index: 4; height: 40px; }
 
-/* Sticky cols (No, Actividad) */
+/* Semana actual – destacada con borde y fondo cálido */
+.pt-week-current {
+    background: #fff8e1 !important;
+    border-bottom: 3px solid #ffc107 !important;
+    color: #664d03 !important;
+    font-weight: 700 !important;
+}
+
+/* Columna HOY */
+.pt-col-today { background: rgba(255,193,7,0.14) !important; }
+.pt-col-today-header {
+    background: #fff3cd !important;
+    color: #664d03 !important;
+    font-weight: 700 !important;
+    border-top: 3px solid #ffc107 !important;
+    position: relative;
+}
+/* Chip "HOY" sobre la cabecera del día actual */
+.pt-today-chip {
+    display: inline-block;
+    font-size: .5rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    color: #664d03;
+    background: #ffc107;
+    border-radius: 3px;
+    padding: 1px 4px;
+    line-height: 1.3;
+    margin-bottom: 2px;
+    vertical-align: middle;
+}
+
+/* ── Columnas sticky (No, Actividad) ────────────────────── */
 .pt-matrix-wrapper td.pt-sticky-1, .pt-matrix-wrapper th.pt-sticky-1 {
     position: sticky; left: 0; background: #ffffff; z-index: 3;
     box-shadow: 1px 0 0 #e9ecef;
@@ -93,40 +160,151 @@ td:hover .pt-ev-btn, .pt-ev-btn:focus { opacity: 1; }
 .pt-matrix-wrapper thead tr th.pt-sticky-1,
 .pt-matrix-wrapper thead tr th.pt-sticky-2 { z-index: 6; background: #f8f9fa; }
 
-/* Hoy */
-.pt-col-today { background: rgba(255, 193, 7, 0.10) !important; }
-.pt-col-today-header { background: #fff3cd !important; color: #664d03; font-weight: 600; }
+/* ── Borde lateral de estado (ficha de 6px con borde redondeado izquierdo) */
+tr.pt-state-cumplido > td.pt-sticky-1   { box-shadow: inset 6px 0 0 #198754, 1px 0 0 #e9ecef; }
+tr.pt-state-atrasado > td.pt-sticky-1   { box-shadow: inset 6px 0 0 #dc3545, 1px 0 0 #e9ecef; }
+tr.pt-state-en_proceso > td.pt-sticky-1 { box-shadow: inset 6px 0 0 #0d6efd, 1px 0 0 #e9ecef; }
+tr.pt-state-excedido > td.pt-sticky-1   { box-shadow: inset 6px 0 0 #198754, 1px 0 0 #e9ecef; }
+tr.pt-state-sin_iniciar > td.pt-sticky-1{ box-shadow: inset 6px 0 0 #adb5bd, 1px 0 0 #e9ecef; }
 
-/* Borde lateral por estado (en sticky-1 de ambas filas P y E) */
-tr.pt-state-cumplido > td.pt-sticky-1 { box-shadow: inset 4px 0 0 #198754, 1px 0 0 #e9ecef; }
-tr.pt-state-atrasado > td.pt-sticky-1 { box-shadow: inset 4px 0 0 #dc3545, 1px 0 0 #e9ecef; }
-tr.pt-state-en_proceso > td.pt-sticky-1 { box-shadow: inset 4px 0 0 #0d6efd, 1px 0 0 #e9ecef; }
-tr.pt-state-excedido > td.pt-sticky-1 { box-shadow: inset 4px 0 0 #198754, 1px 0 0 #e9ecef; }
-tr.pt-state-sin_iniciar > td.pt-sticky-1 { box-shadow: inset 4px 0 0 #adb5bd, 1px 0 0 #e9ecef; }
-/* Pista visual extra del estado en la columna de Actividad */
-tr.pt-state-cumplido td.pt-sticky-2 { background: linear-gradient(to right, rgba(25,135,84,.05), #fff 70%); }
-tr.pt-state-atrasado td.pt-sticky-2 { background: linear-gradient(to right, rgba(220,53,69,.05), #fff 70%); }
-tr.pt-state-en_proceso td.pt-sticky-2 { background: linear-gradient(to right, rgba(13,110,253,.05), #fff 70%); }
-tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba(25,135,84,.05), #fff 70%); }
+/* Gradiente en columna Actividad según estado */
+tr.pt-state-cumplido td.pt-sticky-2   { background: linear-gradient(to right, rgba(25,135,84,.08), #fff 65%); }
+tr.pt-state-atrasado td.pt-sticky-2   { background: linear-gradient(to right, rgba(220,53,69,.08), #fff 65%); }
+tr.pt-state-en_proceso td.pt-sticky-2 { background: linear-gradient(to right, rgba(13,110,253,.06), #fff 65%); }
+tr.pt-state-excedido td.pt-sticky-2   { background: linear-gradient(to right, rgba(25,135,84,.08), #fff 65%); }
 
-/* Pills de medición */
+/* Fechas de rango: visibles solo en hover de la fila */
+.pt-act-range { opacity: 0; transition: opacity .18s; font-size: .72rem; }
+tr:hover .pt-act-range { opacity: 1; }
+
+/* Separador entre pares P/E: la fila E lleva borde inferior más grueso */
+tr.pt-row-e > td { border-bottom: 2px solid #dee2e6 !important; }
+
+/* ── Pill P / E ────────────────────────────────────────── */
+.pt-pe-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    line-height: 1;
+}
+.pt-pe-p { background: #0d6efd; color: #fff; }
+.pt-pe-e-done    { background: #198754; color: #fff; }
+.pt-pe-e-atrasado{ background: #dc3545; color: #fff; }
+.pt-pe-e-proceso { background: #fd7e14; color: #fff; }
+.pt-pe-e-default { background: #6c757d; color: #fff; }
+
+/* ── Barra de avance dual (P programado / E ejecutado) ─── */
+.pt-avance-dual { display: flex; flex-direction: column; gap: 3px; }
+.pt-avance-track {
+    position: relative;
+    height: 7px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.pt-avance-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width .3s ease;
+}
+.pt-avance-fill-p  { background: rgba(13,110,253,.55); }
+.pt-avance-fill-e-done    { background: #198754; }
+.pt-avance-fill-e-late    { background: #dc3545; }
+.pt-avance-fill-e-process { background: #0d6efd; }
+.pt-avance-fill-e-default { background: #adb5bd; }
+
+/* ── Estado con ícono ───────────────────────────────────── */
+.pt-estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: .72rem;
+    font-weight: 600;
+    padding: .18rem .45rem;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.pt-estado-cumplido  { background: rgba(25,135,84,.12); color: #135c38; }
+.pt-estado-atrasado  { background: rgba(220,53,69,.12); color: #9e1d2a; }
+.pt-estado-en_proceso{ background: rgba(13,110,253,.10); color: #0a52cc; }
+.pt-estado-sin_iniciar{ background: rgba(173,181,189,.15); color: #495057; }
+.pt-estado-excedido  { background: rgba(25,135,84,.15); color: #0a4d2b; }
+.pt-med-label { font-size: .65rem; color: #6c757d; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+
+/* ── Pills de medición (formulario nuevo programa) ─────── */
 .pt-pills .btn-check + .btn { font-size: .75rem; padding: .15rem .55rem; }
 .pt-pills .btn-check:checked + .btn { box-shadow: 0 0 0 .15rem rgba(13,110,253,.20); }
 
-/* Cards de programas */
+/* ── Cards de programas ─────────────────────────────────── */
 .pt-prog-card { border: 1px solid #e9ecef; border-radius: .5rem; transition: box-shadow .15s ease, transform .15s ease; }
 .pt-prog-card:hover { box-shadow: 0 .35rem .9rem rgba(0,0,0,.06); transform: translateY(-1px); }
 .pt-prog-card.active { border-color: #4a9fb8; box-shadow: 0 0 0 .15rem rgba(74,159,184,.15); }
 
-/* Mini-gantt timeline */
-.pt-gantt-row { display: flex; align-items: center; gap: .5rem; padding: .35rem 0; border-bottom: 1px dashed #e9ecef; }
+/* ── Mini-Gantt timeline (accordion) ───────────────────── */
+.pt-gantt-row { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #f0f0f0; }
 .pt-gantt-row:last-child { border-bottom: 0; }
-.pt-gantt-track { position: relative; flex: 1; height: 14px; background: #f1f3f5; border-radius: 7px; overflow: hidden; }
-.pt-gantt-bar { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, #4a9fb8, #1a4d6d); border-radius: 7px; }
-.pt-gantt-progress { position: absolute; top: 0; bottom: 0; background: rgba(25,135,84,.65); border-radius: 7px; }
-.pt-gantt-today { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #ffc107; }
+.pt-gantt-track {
+    position: relative;
+    flex: 1;
+    height: 22px;
+    background: #f1f3f5;
+    border-radius: 6px;
+    overflow: visible;
+}
+.pt-gantt-bar {
+    position: absolute; top: 0; bottom: 0;
+    border-radius: 6px;
+    opacity: .88;
+}
+.pt-gantt-bar-cumplido  { background: linear-gradient(90deg, #28a745, #198754); }
+.pt-gantt-bar-atrasado  { background: linear-gradient(90deg, #f77, #dc3545); }
+.pt-gantt-bar-en_proceso{ background: linear-gradient(90deg, #5a9cf8, #0d6efd); }
+.pt-gantt-bar-excedido  { background: linear-gradient(90deg, #28a745, #198754); }
+.pt-gantt-bar-sin_iniciar{ background: linear-gradient(90deg, #ced4da, #adb5bd); }
+.pt-gantt-progress {
+    position: absolute; top: 0; bottom: 0;
+    background: rgba(255,255,255,.35);
+    border-right: 2px solid rgba(255,255,255,.7);
+    border-radius: 6px 0 0 6px;
+    pointer-events: none;
+}
+.pt-gantt-today {
+    position: absolute; top: -3px; bottom: -3px;
+    width: 3px;
+    background: #ff8c00;
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(255,140,0,.6);
+    z-index: 2;
+}
+/* Escala de meses del mini-Gantt */
+.pt-gantt-scale {
+    display: flex;
+    margin-bottom: 6px;
+    position: relative;
+    height: 18px;
+}
+.pt-gantt-scale-month {
+    font-size: .62rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: capitalize;
+    border-left: 1px solid #dee2e6;
+    padding-left: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+}
 
-/* Validación viva */
+/* ── Validación viva ─────────────────────────────────────── */
 .is-pt-invalid { border-color: #dc3545 !important; box-shadow: 0 0 0 .12rem rgba(220,53,69,.18) !important; }
 </style>
 
@@ -157,13 +335,6 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
       <i class="bi bi-list-check me-1"></i> Programas
     </button>
   </li>
-  <?php if ($programaActual): ?>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabGantt" type="button" role="tab">
-      <i class="bi bi-bar-chart-steps me-1"></i> Vista Gantt
-    </button>
-  </li>
-  <?php endif; ?>
 </ul>
 
 <div class="tab-content">
@@ -303,7 +474,117 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
         <?php endif; ?>
 
         <?php if ($programaActual && !empty($actividades) && !empty($columnas)): ?>
-          <div class="card mt-2">
+
+          <?php
+          /* ─── Mini-Gantt: datos de escala de meses ─── */
+          $ganttRangeIni = (string)($programaActual['fecha_inicio'] ?? '');
+          $ganttRangeFin = (string)($programaActual['fecha_fin'] ?? '');
+          $ganttIniDt = $ganttRangeIni !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $ganttRangeIni) : null;
+          $ganttFinDt = $ganttRangeFin !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $ganttRangeFin) : null;
+          $ganttTotalDias = ($ganttIniDt && $ganttFinDt) ? max(1, ($ganttFinDt->getTimestamp() - $ganttIniDt->getTimestamp()) / 86400 + 1) : 1;
+          $ganttMeses = [];
+          if ($ganttIniDt && $ganttFinDt) {
+              $cur = $ganttIniDt->modify('first day of this month');
+              while ($cur <= $ganttFinDt) {
+                  $mesIni = $cur < $ganttIniDt ? $ganttIniDt : $cur;
+                  $_mesFinCand = $cur->modify('last day of this month');
+                  $mesFin = $_mesFinCand > $ganttFinDt ? $ganttFinDt : $_mesFinCand;
+                  $offsetD = ($mesIni->getTimestamp() - $ganttIniDt->getTimestamp()) / 86400;
+                  $widthD  = ($mesFin->getTimestamp() - $mesIni->getTimestamp()) / 86400 + 1;
+                  $ganttMeses[] = [
+                      'label' => $__meses[(int)$cur->format('n')] . ' ' . $cur->format('Y'),
+                      'offset' => ($offsetD / $ganttTotalDias) * 100,
+                      'width'  => ($widthD  / $ganttTotalDias) * 100,
+                  ];
+                  $cur = $cur->modify('+1 month')->modify('first day of this month');
+              }
+          }
+          $ganttTodayDt = \DateTimeImmutable::createFromFormat('Y-m-d', (string)$today);
+          $ganttTodayPct = null;
+          if ($ganttTodayDt && $ganttIniDt && $ganttFinDt && $ganttTodayDt >= $ganttIniDt && $ganttTodayDt <= $ganttFinDt) {
+              $ganttTodayPct = (($ganttTodayDt->getTimestamp() - $ganttIniDt->getTimestamp()) / 86400 / $ganttTotalDias) * 100;
+          }
+          $ganttBarClass = [
+              'cumplido'   => 'pt-gantt-bar-cumplido',
+              'atrasado'   => 'pt-gantt-bar-atrasado',
+              'en_proceso' => 'pt-gantt-bar-en_proceso',
+              'excedido'   => 'pt-gantt-bar-excedido',
+              'sin_iniciar'=> 'pt-gantt-bar-sin_iniciar',
+          ];
+          ?>
+          <div class="accordion mb-2 mt-2" id="accordionGantt">
+            <div class="accordion-item border-0 shadow-sm">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGantt" aria-expanded="false" aria-controls="collapseGantt" style="background:#f8f9fa; font-size:.85rem; font-weight:600;">
+                  <i class="bi bi-bar-chart-steps me-2 text-primary"></i>
+                  Vista Gantt — cronograma general
+                  <span class="badge bg-secondary ms-2 fw-normal" style="font-size:.7rem;"><?= count($actividades) ?> actividades</span>
+                </button>
+              </h2>
+              <div id="collapseGantt" class="accordion-collapse collapse" data-bs-parent="#accordionGantt">
+                <div class="accordion-body pb-2 pt-2 px-3">
+                  <?php if (!empty($ganttMeses)): ?>
+                  <!-- Escala de meses -->
+                  <div class="d-flex mb-1 align-items-start" style="padding-left: 250px; padding-right: 80px;">
+                    <div class="pt-gantt-scale flex-grow-1" style="position:relative;">
+                      <?php foreach ($ganttMeses as $gm): ?>
+                        <div class="pt-gantt-scale-month"
+                             style="position:absolute; left:<?= number_format($gm['offset'],2,'.','') ?>%; width:<?= number_format($gm['width'],2,'.','') ?>%;">
+                          <?= htmlspecialchars($gm['label']) ?>
+                        </div>
+                      <?php endforeach; ?>
+                    </div>
+                  </div>
+                  <?php endif; ?>
+
+                  <?php foreach ($actividades as $a):
+                    $aid = (string)($a['id'] ?? '');
+                    $aIni = (string)($a['fecha_inicio'] ?? '');
+                    $aFin = (string)($a['fecha_fin'] ?? '');
+                    $aIniDt = $aIni !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $aIni) : null;
+                    $aFinDt = $aFin !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $aFin) : null;
+                    if (!$aIniDt || !$aFinDt || !$ganttIniDt) continue;
+                    $offsetDays = max(0, ($aIniDt->getTimestamp() - $ganttIniDt->getTimestamp()) / 86400);
+                    $lenDays    = max(1, ($aFinDt->getTimestamp() - $aIniDt->getTimestamp()) / 86400 + 1);
+                    $offsetPct  = ($offsetDays / $ganttTotalDias) * 100;
+                    $lenPct     = ($lenDays    / $ganttTotalDias) * 100;
+                    $ra2        = $resumenActividades[$aid] ?? ['avance' => 0, 'estado' => 'sin_iniciar'];
+                    $avancePct2 = (float)($ra2['avance'] ?? 0);
+                    $progPct    = $lenPct * ($avancePct2 / 100);
+                    $gEstado    = (string)($ra2['estado'] ?? 'sin_iniciar');
+                    $gBarClass  = $ganttBarClass[$gEstado] ?? 'pt-gantt-bar-sin_iniciar';
+                  ?>
+                  <div class="pt-gantt-row">
+                    <div style="width:250px; min-width:250px;" class="small text-truncate pe-2" title="<?= htmlspecialchars($a['actividad'] ?? '') ?>">
+                      <span class="fw-semibold text-muted me-1"><?= (int)($a['numero'] ?? 0) ?>.</span>
+                      <?= htmlspecialchars($a['actividad'] ?? '') ?>
+                    </div>
+                    <div class="pt-gantt-track">
+                      <div class="pt-gantt-bar <?= $gBarClass ?>"
+                           style="left:<?= number_format($offsetPct,2,'.','') ?>%; width:<?= number_format($lenPct,2,'.','') ?>%;"
+                           title="<?= htmlspecialchars($__fmtFechaCol($aIni)) ?> → <?= htmlspecialchars($__fmtFechaCol($aFin)) ?>">
+                      </div>
+                      <?php if ($progPct > 0): ?>
+                      <div class="pt-gantt-progress"
+                           style="left:<?= number_format($offsetPct,2,'.','') ?>%; width:<?= number_format($progPct,2,'.','') ?>%;"
+                           title="Avance: <?= $avancePct2 ?>%">
+                      </div>
+                      <?php endif; ?>
+                      <?php if ($ganttTodayPct !== null): ?>
+                        <div class="pt-gantt-today" style="left:<?= number_format($ganttTodayPct,2,'.','') ?>%;" title="Hoy"></div>
+                      <?php endif; ?>
+                    </div>
+                    <div class="small text-muted text-end" style="width:80px; min-width:80px;">
+                      <span class="fw-semibold"><?= htmlspecialchars((string)$avancePct2) ?>%</span>
+                    </div>
+                  </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-0">
               <div class="card-header card-header-accent d-flex align-items-center justify-content-between flex-wrap gap-2">
                   <span><i class="bi bi-table me-1"></i> Matriz Programado (P) vs Ejecutado (E)</span>
                   <div class="d-flex align-items-center gap-2">
@@ -332,21 +613,29 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
                                   <tr class="pt-week-row">
                                       <th class="pt-sticky-1" rowspan="2" style="width:40px;">No.</th>
                                       <th class="pt-sticky-2" rowspan="2" style="min-width:220px;">Actividad</th>
-                                      <th rowspan="2" style="width:90px;">Cantidad</th>
-                                      <th rowspan="2" style="width:140px;">Medición</th>
-                                      <th rowspan="2" style="min-width:130px;">Tipo</th>
-                                      <th rowspan="2" style="min-width:180px;">Responsable</th>
-                                      <th rowspan="2" style="width:30px;">L</th>
-                                      <?php foreach ($ptWeekGroups as $g): ?>
-                                          <th colspan="<?= (int)$g['count'] ?>" class="text-center small text-uppercase" style="background:#eef3f6;">
+                                      <th rowspan="2" style="width:90px;">Cant.</th>
+                                      <th rowspan="2" style="width:140px;">Estado</th>
+                                      <th rowspan="2" style="min-width:120px;">Tipo</th>
+                                      <th rowspan="2" style="min-width:165px;">Responsable</th>
+                                      <th rowspan="2" style="width:28px;" title="Prog./Ejec.">P/E</th>
+                                      <?php foreach ($ptWeekGroups as $g):
+                                            $isCurrentWeek = ($ptTodayWeekKey !== '' && $g['key'] === $ptTodayWeekKey);
+                                      ?>
+                                          <th colspan="<?= (int)$g['count'] ?>"
+                                              class="text-center small text-uppercase<?= $isCurrentWeek ? ' pt-week-current' : '' ?>"
+                                              style="<?= $isCurrentWeek ? '' : 'background:#eef3f6;' ?>">
                                               Sem. <?= (int)$g['week'] ?>
                                           </th>
                                       <?php endforeach; ?>
-                                      <th rowspan="2" style="width:85px;">Avance</th>
+                                      <th rowspan="2" style="width:90px;">Avance</th>
                                   </tr>
                                   <tr class="pt-day-row">
                                       <?php foreach ($columnas as $i => $f): $isHoy = ($i === $ptHoyIdx); ?>
-                                          <th class="text-center small <?= $isHoy ? 'pt-col-today-header' : '' ?>" title="<?= htmlspecialchars($__fmtFechaLarga($f)) ?>">
+                                          <th class="text-center small<?= $isHoy ? ' pt-col-today-header' : '' ?>"
+                                              title="<?= htmlspecialchars($__fmtFechaLarga($f)) ?>">
+                                              <?php if ($isHoy): ?>
+                                                  <span class="pt-today-chip">HOY</span><br>
+                                              <?php endif; ?>
                                               <?= htmlspecialchars($__fmtFechaCol($f)) ?>
                                           </th>
                                       <?php endforeach; ?>
@@ -355,17 +644,21 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
                                   <tr class="pt-day-row">
                                       <th class="pt-sticky-1" style="width:40px;">No.</th>
                                       <th class="pt-sticky-2" style="min-width:220px;">Actividad</th>
-                                      <th style="width:90px;">Cantidad</th>
-                                      <th style="width:140px;">Medición</th>
-                                      <th style="min-width:130px;">Tipo</th>
-                                      <th style="min-width:180px;">Responsable</th>
-                                      <th style="width:30px;">L</th>
+                                      <th style="width:90px;">Cant.</th>
+                                      <th style="width:140px;">Estado</th>
+                                      <th style="min-width:120px;">Tipo</th>
+                                      <th style="min-width:165px;">Responsable</th>
+                                      <th style="width:28px;" title="Prog./Ejec.">P/E</th>
                                       <?php foreach ($columnas as $i => $f): $isHoy = ($i === $ptHoyIdx); ?>
-                                          <th class="text-center small <?= $isHoy ? 'pt-col-today-header' : '' ?>" title="<?= htmlspecialchars($__fmtFechaLarga($f)) ?>">
+                                          <th class="text-center small<?= $isHoy ? ' pt-col-today-header' : '' ?>"
+                                              title="<?= htmlspecialchars($__fmtFechaLarga($f)) ?>">
+                                              <?php if ($isHoy): ?>
+                                                  <span class="pt-today-chip">HOY</span><br>
+                                              <?php endif; ?>
                                               <?= htmlspecialchars($__fmtFechaCol($f)) ?>
                                           </th>
                                       <?php endforeach; ?>
-                                      <th style="width:85px;">Avance</th>
+                                      <th style="width:90px;">Avance</th>
                                   </tr>
                                   <?php endif; ?>
                               </thead>
@@ -385,13 +678,38 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
                                           : ($estado === 'excedido' ? 'bg-success'
                                           : ($estado === 'en_proceso' ? 'bg-primary' : 'bg-secondary')));
                                       $stateClass = 'pt-state-' . $estado;
+                                      // Icono y clase para el componente de estado
+                                      $estadoIcono = [
+                                          'cumplido'   => 'bi-check-circle-fill',
+                                          'atrasado'   => 'bi-exclamation-triangle-fill',
+                                          'en_proceso' => 'bi-arrow-right-circle-fill',
+                                          'excedido'   => 'bi-plus-circle-fill',
+                                          'sin_iniciar'=> 'bi-circle',
+                                      ];
+                                      $medIcono = [
+                                          'cantidad'    => 'bi-123',
+                                          'porcentaje'  => 'bi-percent',
+                                          'entregable'  => 'bi-paperclip',
+                                      ];
+                                      $estadoLabel = str_replace('_', ' ', $estado);
+                                      $medLabel = htmlspecialchars($medAct);
+                                      // Pill de la etiqueta E según estado de la actividad
+                                      $ePillClass = 'pt-pe-e-' . (in_array($estado, ['atrasado']) ? 'atrasado' : (in_array($estado, ['cumplido','excedido']) ? 'done' : (in_array($estado, ['en_proceso']) ? 'proceso' : 'default')));
+                                      // % programado hasta hoy para barra dual (solo tipo cantidad)
+                                      $pctPtoDate = ($medAct === 'cantidad' && (float)($a['cantidad'] ?? 0) > 0)
+                                          ? min(100, round((float)($ra['sumPtoDate'] ?? 0) / (float)($a['cantidad']) * 100, 1))
+                                          : null;
+                                      // Clase del relleno E según estado
+                                      $avanceFillClass = $estado === 'cumplido' || $estado === 'excedido' ? 'pt-avance-fill-e-done'
+                                          : ($estado === 'atrasado' ? 'pt-avance-fill-e-late'
+                                          : ($estado === 'en_proceso' ? 'pt-avance-fill-e-process' : 'pt-avance-fill-e-default'));
                                       $terminada = !empty($a['terminada']);
                                       ?>
                                       <tr class="<?= $stateClass ?>">
                                           <td rowspan="2" class="text-center fw-semibold pt-sticky-1"><?= (int)($a['numero'] ?? 0) ?></td>
                                           <td rowspan="2" class="pt-sticky-2">
                                               <div class="fw-semibold small"><?= htmlspecialchars($a['actividad'] ?? '') ?></div>
-                                              <div class="small text-muted"><i class="bi bi-calendar-range me-1"></i><?= htmlspecialchars($__fmtFechaCol($rIni)) ?> &rarr; <?= htmlspecialchars($__fmtFechaCol($rFin)) ?></div>
+                                              <div class="pt-act-range text-muted"><i class="bi bi-calendar-range me-1"></i><?= htmlspecialchars($__fmtFechaCol($rIni)) ?> &rarr; <?= htmlspecialchars($__fmtFechaCol($rFin)) ?></div>
                                               <?php if ($canEditProgramaActual): ?>
                                               <div class="d-flex flex-wrap gap-1 mt-1 pt-act-acciones">
                                                   <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1 btn-edit-actividad"
@@ -414,16 +732,20 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
                                               </div>
                                               <?php endif; ?>
                                           </td>
-                                          <td rowspan="2" class="text-end"><?= htmlspecialchars((string)($a['cantidad'] ?? 0)) ?></td>
-                                          <td rowspan="2" class="small">
-                                              <span class="badge <?= $badge ?>"><?= htmlspecialchars(str_replace('_',' ', $estado)) ?></span><br>
-                                              <span class="text-muted text-capitalize">
-                                                <?= htmlspecialchars($medAct) ?>
+                                          <td rowspan="2" class="text-end small fw-semibold"><?= htmlspecialchars((string)($a['cantidad'] ?? 0)) ?></td>
+                                          <td rowspan="2" class="small" style="padding: 4px 6px;">
+                                              <span class="pt-estado-badge pt-estado-<?= htmlspecialchars($estado) ?>">
+                                                  <i class="bi <?= htmlspecialchars($estadoIcono[$estado] ?? 'bi-circle') ?>"></i>
+                                                  <?= htmlspecialchars($estadoLabel) ?>
                                               </span>
+                                              <div class="pt-med-label">
+                                                  <i class="bi <?= htmlspecialchars($medIcono[$medAct] ?? 'bi-bar-chart') ?>"></i>
+                                                  <?= $medLabel ?>
+                                              </div>
                                           </td>
                                           <td rowspan="2"><?= htmlspecialchars($a['tipo'] ?? '') ?></td>
-                                          <td rowspan="2"><?= htmlspecialchars($a['responsable'] ?? '') ?></td>
-                                          <td class="text-center fw-semibold small">P</td>
+                                          <td rowspan="2" class="small"><?= htmlspecialchars($a['responsable'] ?? '') ?></td>
+                                          <td class="text-center"><span class="pt-pe-label pt-pe-p">P</span></td>
                                           <?php foreach ($columnas as $i => $f): ?>
                                               <?php
                                                 $inRange = ($rIni === '' || $rFin === '') ? true : ($f >= $rIni && $f <= $rFin);
@@ -444,17 +766,27 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
                                                 </td>
                                               <?php endif; ?>
                                           <?php endforeach; ?>
-                                          <td rowspan="2" class="text-center fw-semibold">
-                                              <?= htmlspecialchars((string)$avancePct) ?>%<br>
+                                          <td rowspan="2" class="text-center" style="padding: 5px 8px; min-width: 90px;">
+                                              <div class="pt-avance-dual">
+                                                  <?php if ($pctPtoDate !== null): ?>
+                                                  <div class="pt-avance-track" title="Programado hasta hoy: <?= $pctPtoDate ?>%">
+                                                      <div class="pt-avance-fill pt-avance-fill-p" style="width:<?= min(100,$pctPtoDate) ?>%;"></div>
+                                                  </div>
+                                                  <?php endif; ?>
+                                                  <div class="pt-avance-track" title="Ejecutado: <?= $avancePct ?>%">
+                                                      <div class="pt-avance-fill <?= $avanceFillClass ?>" style="width:<?= min(100,$avancePct) ?>%;"></div>
+                                                  </div>
+                                              </div>
+                                              <div class="fw-semibold small mt-1"><?= htmlspecialchars((string)$avancePct) ?>%</div>
                                               <?php if ($medAct === 'cantidad'): ?>
-                                                <span class="small text-muted"><?= htmlspecialchars((string)round((float)($ra['sumE'] ?? 0), 1)) ?> / <?= htmlspecialchars((string)round((float)($a['cantidad'] ?? 0), 1)) ?></span>
+                                                <div class="small text-muted" style="font-size:.65rem;"><?= htmlspecialchars((string)round((float)($ra['sumE'] ?? 0), 1)) ?> / <?= htmlspecialchars((string)round((float)($a['cantidad'] ?? 0), 1)) ?></div>
                                               <?php else: ?>
-                                                <span class="small text-muted"><?= (int)($ra['diasHechos'] ?? 0) ?> / <?= (int)($ra['diasActivos'] ?? 0) ?> días</span>
+                                                <div class="small text-muted" style="font-size:.65rem;"><?= (int)($ra['diasHechos'] ?? 0) ?> / <?= (int)($ra['diasActivos'] ?? 0) ?> días</div>
                                               <?php endif; ?>
                                           </td>
                                       </tr>
-                                      <tr class="<?= $stateClass ?>">
-                                          <td class="text-center fw-semibold small">E</td>
+                                      <tr class="<?= $stateClass ?> pt-row-e">
+                                          <td class="text-center"><span class="pt-pe-label <?= $ePillClass ?>">E</span></td>
                                           <?php foreach ($columnas as $i => $f): ?>
                                               <?php
                                                 $inRange = ($rIni === '' || $rFin === '') ? true : ($f >= $rIni && $f <= $rFin);
@@ -585,75 +917,6 @@ tr.pt-state-excedido td.pt-sticky-2 { background: linear-gradient(to right, rgba
     </div>
   </div>
 
-  <?php if ($programaActual): ?>
-  <div class="tab-pane fade" id="tabGantt" role="tabpanel">
-    <div class="card">
-      <div class="card-header card-header-accent d-flex align-items-center justify-content-between">
-        <span><i class="bi bi-bar-chart-steps me-1"></i> Vista Gantt</span>
-        <span class="small text-muted"><?= htmlspecialchars($programaActual['nombre'] ?? '') ?></span>
-      </div>
-      <div class="card-body">
-        <?php
-          $rangeIni = (string)($programaActual['fecha_inicio'] ?? '');
-          $rangeFin = (string)($programaActual['fecha_fin'] ?? '');
-          $rangeIniDt = $rangeIni !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $rangeIni) : null;
-          $rangeFinDt = $rangeFin !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $rangeFin) : null;
-          $totalDias = ($rangeIniDt && $rangeFinDt) ? max(1, ($rangeFinDt->getTimestamp() - $rangeIniDt->getTimestamp()) / 86400 + 1) : 1;
-        ?>
-        <?php if ($rangeIniDt && $rangeFinDt): ?>
-        <div class="small text-muted mb-2">
-          <i class="bi bi-calendar3 me-1"></i>
-          <?= htmlspecialchars($__fmtFechaCol($rangeIni)) ?> &mdash; <?= htmlspecialchars($__fmtFechaCol($rangeFin)) ?>
-        </div>
-        <?php foreach ($actividades as $a):
-          $aid = (string)($a['id'] ?? '');
-          $aIni = (string)($a['fecha_inicio'] ?? '');
-          $aFin = (string)($a['fecha_fin'] ?? '');
-          $aIniDt = $aIni !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $aIni) : null;
-          $aFinDt = $aFin !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $aFin) : null;
-          if (!$aIniDt || !$aFinDt) continue;
-          $offsetDays = max(0, ($aIniDt->getTimestamp() - $rangeIniDt->getTimestamp()) / 86400);
-          $lenDays = max(1, ($aFinDt->getTimestamp() - $aIniDt->getTimestamp()) / 86400 + 1);
-          $offsetPct = ($offsetDays / $totalDias) * 100;
-          $lenPct = ($lenDays / $totalDias) * 100;
-          $ra = $resumenActividades[$aid] ?? ['avance' => 0, 'estado' => 'sin_iniciar'];
-          $avancePct = (float)($ra['avance'] ?? 0);
-          $progressPct = $lenPct * ($avancePct / 100);
-          // Today line
-          $todayDt = \DateTimeImmutable::createFromFormat('Y-m-d', (string)$today);
-          $todayPct = null;
-          if ($todayDt && $todayDt >= $rangeIniDt && $todayDt <= $rangeFinDt) {
-              $todayDays = ($todayDt->getTimestamp() - $rangeIniDt->getTimestamp()) / 86400;
-              $todayPct = ($todayDays / $totalDias) * 100;
-          }
-        ?>
-        <div class="pt-gantt-row">
-          <div style="width: 240px; min-width: 240px;" class="small text-truncate">
-            <span class="fw-semibold me-1"><?= (int)($a['numero'] ?? 0) ?>.</span>
-            <?= htmlspecialchars($a['actividad'] ?? '') ?>
-          </div>
-          <div class="pt-gantt-track">
-            <div class="pt-gantt-bar" style="left: <?= number_format($offsetPct,2,'.','') ?>%; width: <?= number_format($lenPct,2,'.','') ?>%;"></div>
-            <div class="pt-gantt-progress" style="left: <?= number_format($offsetPct,2,'.','') ?>%; width: <?= number_format($progressPct,2,'.','') ?>%;"></div>
-            <?php if ($todayPct !== null): ?>
-              <div class="pt-gantt-today" style="left: <?= number_format($todayPct,2,'.','') ?>%;"></div>
-            <?php endif; ?>
-          </div>
-          <div class="small text-muted" style="width: 140px; min-width: 140px; text-align: right;">
-            <?= htmlspecialchars($__fmtFechaCol($aIni)) ?> &rarr; <?= htmlspecialchars($__fmtFechaCol($aFin)) ?>
-          </div>
-          <div class="small fw-semibold" style="width: 56px; min-width: 56px; text-align: right;">
-            <?= htmlspecialchars((string)$avancePct) ?>%
-          </div>
-        </div>
-        <?php endforeach; ?>
-        <?php else: ?>
-          <div class="alert alert-light border small mb-0">No hay actividades para mostrar.</div>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
-  <?php endif; ?>
 </div>
 
 <?php /* KPIs + Matriz + Avance por persona se muestran solo en pestaña Programas */ ?>

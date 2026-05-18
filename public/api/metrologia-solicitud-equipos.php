@@ -12,12 +12,15 @@ $user = $auth->requireAuth();
 header('Content-Type: application/json; charset=utf-8');
 
 $metPerm = $container['MetrologiaPermissionService'];
-if (!$metPerm->canAccess($user)) {
+$script = basename($_SERVER['PHP_SELF'] ?? 'metrologia-solicitud-equipos.php');
+if (!$metPerm->canAccessRoute($user, $script)) {
     http_response_code(403);
     echo json_encode(['error' => 'Sin permisos']);
     exit;
 }
 
+$zonaSvc = $container['MetrologiaZonaService'];
+$folioNorm = $container['MetrologiaFolioNormalizer'];
 $bitacoraRepo = $container['repositories']['met_bitacora_equipos'];
 
 $q            = strtoupper(trim((string)($_GET['q'] ?? '')));
@@ -33,21 +36,20 @@ $all = $bitacoraRepo->findAll();
 $results = [];
 
 foreach ($all as $e) {
-    $zona = strtolower((string)($e['zona'] ?? $e['zona_id'] ?? ''));
+    $zonaRaw = (string)($e['zona'] ?? $e['zona_id'] ?? '');
     $serie = strtoupper((string)($e['no_serie'] ?? ''));
 
-    // Filtro por zona (prefijo)
-    if ($zonaPrefijo !== '' && strpos($zona, $zonaPrefijo) === false) {
+    if ($zonaPrefijo !== '' && !$zonaSvc->matchesPrefijo($zonaRaw, $zonaPrefijo)) {
         continue;
     }
 
-    // Filtro por búsqueda
     if ($q !== '') {
         $folio = strtoupper((string)($e['folio'] ?? ''));
         $desc  = strtoupper((string)($e['descripcion'] ?? ''));
+        $folioHit = stripos($folio, $q) !== false || $folioNorm->folioMatches($folio, $q);
         if (
             strpos($serie, $q) === false &&
-            strpos($folio, $q) === false &&
+            !$folioHit &&
             strpos($desc, $q) === false
         ) {
             continue;

@@ -20,6 +20,34 @@ $deptRepo = $container['repositories']['department'];
 $offices = $officeRepo->findAll();
 $departments = $deptRepo->findAll();
 $isSuper = UserAdminGuard::isSuperAdmin($user);
+$metCatalogos = $container['metrologia_catalogos'] ?? [];
+$metZonas = $metCatalogos['zonas'] ?? [];
+$metAreas = $metCatalogos['areas'] ?? [];
+
+$applyZonaUserFields = static function (array &$row, array $post) use ($metZonas): void {
+    $esZona = !empty($post['es_usuario_zona']);
+    $row['es_usuario_zona'] = $esZona;
+    if (!$esZona) {
+        $row['zona_id'] = '';
+        $row['zona_prefijo'] = '';
+        $row['zona_nombre'] = '';
+        $row['area_id'] = '';
+        return;
+    }
+    $row['oficina_id'] = 'of-zona';
+    $zonaId = trim((string)($post['zona_id'] ?? ''));
+    $row['zona_id'] = $zonaId;
+    $row['area_id'] = trim((string)($post['area_id'] ?? 'ar-medicion'));
+    $row['zona_prefijo'] = '';
+    $row['zona_nombre'] = '';
+    foreach ($metZonas as $z) {
+        if (($z['id'] ?? '') === $zonaId) {
+            $row['zona_prefijo'] = strtolower(trim((string)($z['prefijo'] ?? '')));
+            $row['zona_nombre'] = (string)($z['nombre'] ?? '');
+            break;
+        }
+    }
+};
 
 $config = $container['config'] ?? [];
 $cfgAd = $config['ad_validation'] ?? [];
@@ -70,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'alcance_asignacion' => isset($_POST['alcance']) && is_array($_POST['alcance']) ? array_values($_POST['alcance']) : ['nivel_3'],
                     'activo' => !isset($_POST['activo']) || !empty($_POST['activo']),
                 ];
+                $applyZonaUserFields($new, $_POST);
             } else {
                 $oid = trim((string)($user['oficina_id'] ?? ''));
                 $new = [
@@ -125,6 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $target['asignable_por_jefes_oficina'] = !empty($_POST['asignable_por_jefes_oficina']);
                 $target['es_super_admin'] = !empty($_POST['es_super_admin']);
                 $target['alcance_asignacion'] = isset($_POST['alcance']) && is_array($_POST['alcance']) ? array_values($_POST['alcance']) : ($target['alcance_asignacion'] ?? []);
+                $applyZonaUserFields($target, $_POST);
             } else {
                 $target['puede_asignar'] = !empty($_POST['puede_asignar']);
                 $target['puede_evaluar'] = !empty($_POST['puede_evaluar']);
@@ -198,6 +228,8 @@ if (!$isSuper) {
 $pageTitle = 'Administración de usuarios — SIGTAE';
 $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Admin', 'url' => '#'], ['label' => 'Usuarios']];
 $currentUser = $user;
+$metZonasForView = $metZonas;
+$metAreasForView = $metAreas;
 ob_start();
 include dirname(__DIR__) . '/views/admin-usuarios.php';
 $content = ob_get_clean();

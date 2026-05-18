@@ -17,6 +17,8 @@ foreach ($departments as $d) {
 }
 $showLocalPasswordFields = $showLocalPasswordFields ?? true;
 $adLoginEnabled = $adLoginEnabled ?? false;
+$metZonas = $metZonasForView ?? [];
+$metAreas = $metAreasForView ?? [];
 ?>
 <?php sigtae_page_header('Usuarios', $isSuper ? 'Administración completa (super admin)' : 'Solo supervisores de su oficina'); ?>
 <?php if ($error): ?><div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i><?= htmlspecialchars($error) ?></div><?php endif; ?>
@@ -114,6 +116,7 @@ $adLoginEnabled = $adLoginEnabled ?? false;
                     <label><input type="checkbox" name="alcance[]" value="nivel_3" checked> nivel_3</label>
                 </div>
             </div>
+            <?php include __DIR__ . '/partials/admin-usuario-zona-fields.php'; ?>
             <?php else: ?>
             <div class="col-md-4">
                 <label class="form-label">Cargo</label>
@@ -226,6 +229,7 @@ $adLoginEnabled = $adLoginEnabled ?? false;
                     <label><input type="checkbox" name="alcance[]" value="nivel_3" <?= in_array('nivel_3', $alc, true) ? 'checked' : '' ?>> nivel_3</label>
                 </div>
             </div>
+            <?php include __DIR__ . '/partials/admin-usuario-zona-fields.php'; ?>
             <?php else: ?>
             <div class="col-12">
                 <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="puede_asignar" id="ea2" <?= !empty($editUser['puede_asignar']) ? 'checked' : '' ?>><label class="form-check-label" for="ea2">Puede asignar</label></div>
@@ -323,9 +327,23 @@ $adLoginEnabled = $adLoginEnabled ?? false;
         });
     }
 
+    function bindZonaUserPanels() {
+        document.querySelectorAll('.js-zona-user-toggle').forEach(function(cb) {
+            if (cb.dataset.zonaBound) return;
+            cb.dataset.zonaBound = '1';
+            var root = cb.closest('form');
+            var panel = root ? root.querySelector('.js-zona-user-panel') : null;
+            var sync = function() { if (panel) panel.style.display = cb.checked ? '' : 'none'; };
+            cb.addEventListener('change', sync);
+            sync();
+        });
+    }
+
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
     else bind();
     window.addEventListener('sigtae:pageLoaded', bind);
+    bindZonaUserPanels();
+    window.addEventListener('sigtae:pageLoaded', bindZonaUserPanels);
 
     // Fallback directo por onclick (para depurar cuando el binding no corre)
     window.sigtaeLookupRpeCreate = function() {
@@ -362,6 +380,7 @@ $adLoginEnabled = $adLoginEnabled ?? false;
                     <th>Nombre</th>
                     <th>Cargo</th>
                     <th>Oficina</th>
+                    <th>Zona</th>
                     <th>Nivel</th>
                     <th>Activo</th>
                     <th></th>
@@ -376,6 +395,7 @@ $adLoginEnabled = $adLoginEnabled ?? false;
                         <td><?= htmlspecialchars($u['nombre'] ?? '') ?></td>
                         <td><?= htmlspecialchars($u['cargo'] ?? '') ?></td>
                         <td><?= $of ? htmlspecialchars($of['nombre']) : '—' ?></td>
+                        <td><?= !empty($u['es_usuario_zona']) ? htmlspecialchars($u['zona_nombre'] ?? $u['zona_id'] ?? '—') : '—' ?></td>
                         <td><?= (int)($u['nivel_jerarquico'] ?? '-') ?></td>
                         <td><?= !empty($u['activo']) ? 'Sí' : 'No' ?></td>
                         <td class="text-nowrap">

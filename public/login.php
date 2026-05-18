@@ -6,7 +6,8 @@ $auth = sigtae_auth_service($container, $basePath);
 $auth->startSession();
 $user = $auth->currentUser();
 if ($user) {
-    header('Location: ' . $basePath . '/dashboard.php');
+    $home = $container['MetrologiaPermissionService']->defaultHomePath($user);
+    header('Location: ' . $basePath . $home);
     exit;
 }
 $error = '';
@@ -18,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = $auth->login($rpe, $password);
         if ($result['ok']) {
-            header('Location: ' . $basePath . '/dashboard.php');
+            $home = $container['MetrologiaPermissionService']->defaultHomePath($result['user'] ?? null);
+            header('Location: ' . $basePath . $home);
             exit;
         }
         $error = $result['message'];

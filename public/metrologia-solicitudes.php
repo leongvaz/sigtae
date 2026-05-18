@@ -6,7 +6,7 @@ $auth = sigtae_auth_service($container, $basePath);
 $user = $auth->requireAuth();
 
 $metPerm = $container['MetrologiaPermissionService'];
-if (!$metPerm->canAccess($user)) {
+if (!$metPerm->canAccessRoute($user, basename($_SERVER['PHP_SELF'] ?? 'metrologia-solicitudes.php'))) {
     http_response_code(403);
     $pageTitle = 'Acceso denegado';
     $breadcrumb = [['label' => 'Inicio', 'url' => '/dashboard.php'], ['label' => 'Metrología']];

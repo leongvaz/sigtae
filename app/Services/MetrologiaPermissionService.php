@@ -30,6 +30,39 @@ class MetrologiaPermissionService
         return !empty($user['es_usuario_zona']);
     }
 
+    /**
+     * Acceso a una pantalla/API concreta del módulo Metrología.
+     * Usuarios de zona: solo solicitudes y búsqueda de equipos para solicitud.
+     */
+    public function canAccessRoute(?array $user, string $script): bool
+    {
+        if (!$this->canAccess($user)) return false;
+        if (!$user) return false;
+
+        $script = strtolower(basename($script));
+
+        if (!empty($user['es_super_admin'])) return true;
+        if (($user['oficina_id'] ?? '') === 'of-metro') return true;
+
+        if (!empty($user['es_usuario_zona'])) {
+            $allowed = [
+                'metrologia-solicitudes.php',
+                'metrologia-solicitud-equipos.php',
+            ];
+            return in_array($script, $allowed, true);
+        }
+
+        return false;
+    }
+
+    public function defaultHomePath(?array $user): string
+    {
+        if ($this->isZonaUser($user) && empty($user['es_super_admin'])) {
+            return '/metrologia-solicitudes.php';
+        }
+        return '/dashboard.php';
+    }
+
     public function canManage(?array $user): bool
     {
         if (!$user) return false;
