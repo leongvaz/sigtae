@@ -1,0 +1,384 @@
+{
+    "docs": [
+        {
+            "id": "54cc339dc7de1e6601639233e576f1e0",
+            "nodeItemId": "5.2",
+            "originalName": "4.3_ORGANIZACION_f___j___k_.png",
+            "storedName": "54cc339dc7de1e6601639233e576f1e0.png",
+            "mimeType": "image\/png",
+            "size": 180066,
+            "createdAt": "2026-03-31T17:29:28+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización f), j), k)"
+        },
+        {
+            "id": "1738e197c12dd10c772dde1f6f88941c",
+            "nodeItemId": "5.1",
+            "originalName": "4.2_CONSTITUCION_Y_UBICACION.png",
+            "storedName": "1738e197c12dd10c772dde1f6f88941c.png",
+            "mimeType": "image\/png",
+            "size": 63265,
+            "createdAt": "2026-03-31T17:30:52+00:00",
+            "comment": "O-4413-L04 : 4.2 Constitución y ubicación"
+        },
+        {
+            "id": "2a41713f5c71e93c0504bda0e4bc90fa",
+            "nodeItemId": "5.1",
+            "originalName": "4.2_CONSTITUCION_Y_UBICACION_2.png",
+            "storedName": "2a41713f5c71e93c0504bda0e4bc90fa.png",
+            "mimeType": "image\/png",
+            "size": 84912,
+            "createdAt": "2026-03-31T17:31:03+00:00",
+            "comment": "O-4413-L04 : 4.2 Constitución y ubicación"
+        },
+        {
+            "id": "2fef6a1eb84c056024848c745738fee3",
+            "nodeItemId": "5.2",
+            "originalName": "4.3_ORGANIZACION_f___j___k__2.png",
+            "storedName": "2fef6a1eb84c056024848c745738fee3.png",
+            "mimeType": "image\/png",
+            "size": 67821,
+            "createdAt": "2026-03-31T17:31:22+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización f), j), k)"
+        },
+        {
+            "id": "18397872a0a40e2315c3b755c9482b37",
+            "nodeItemId": "5.3",
+            "originalName": "Tabla_CMC_E-131-2025.pdf",
+            "storedName": "18397872a0a40e2315c3b755c9482b37.pdf",
+            "mimeType": "application\/pdf",
+            "size": 162106,
+            "createdAt": "2026-04-06T23:21:20+00:00",
+            "comment": "Tabla CMC E-131"
+        },
+        {
+            "id": "3e046e31de9badbd6f87296b9d8f5603",
+            "nodeItemId": "5.5.1",
+            "originalName": "5.5.pdf",
+            "storedName": "3e046e31de9badbd6f87296b9d8f5603.pdf",
+            "mimeType": "application\/pdf",
+            "size": 358954,
+            "createdAt": "2026-04-07T00:47:42+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización f), g)"
+        },
+        {
+            "id": "af2224ec8b7863b80ecb52d4deb58a9a",
+            "nodeItemId": "5.3",
+            "originalName": "4._DESCRIPCION_DE_ACTIVIDADES.png",
+            "storedName": "af2224ec8b7863b80ecb52d4deb58a9a.png",
+            "mimeType": "image\/png",
+            "size": 54499,
+            "createdAt": "2026-04-07T20:14:14+00:00",
+            "comment": "O-4413-L04 : 4. Descripción de actividades"
+        },
+        {
+            "id": "db831efed83b9fe3efdb1bc8abbb7bb8",
+            "nodeItemId": "5.3",
+            "originalName": "PUNTO_13.png",
+            "storedName": "db831efed83b9fe3efdb1bc8abbb7bb8.png",
+            "mimeType": "image\/png",
+            "size": 35027,
+            "createdAt": "2026-04-07T20:15:35+00:00",
+            "comment": "O-4413-L04-R01 Contrato para los Servicios de Calibración a Clientes Internos y Externos - 13"
+        },
+        {
+            "id": "bbb7986e42b82571d908acb907927090",
+            "nodeItemId": "5.3",
+            "originalName": "4.20_DECLARACION_DE_ALCANCE_EN_GENERACION_Y_MEDICION.png",
+            "storedName": "bbb7986e42b82571d908acb907927090.png",
+            "mimeType": "image\/png",
+            "size": 233335,
+            "createdAt": "2026-04-07T20:15:47+00:00",
+            "comment": "O-4413-L04 : 4.20 Declaración de Alcance de Generación y Medición"
+        },
+        {
+            "id": "b1254aaccc55b6121e150c0b94d952e4",
+            "nodeItemId": "5.4",
+            "originalName": "4.20_DECLARACION_DE_ALCANCE_EN_GENERACION_Y_MEDICION.png",
+            "storedName": "b1254aaccc55b6121e150c0b94d952e4.png",
+            "mimeType": "image\/png",
+            "size": 233335,
+            "createdAt": "2026-04-07T20:17:40+00:00",
+            "comment": "O-4413-L04 : 4.20 Declaración de Alcance de Generación y Medición"
+        },
+        {
+            "id": "a86313bc4790e76d9ffd49839936b3a8",
+            "nodeItemId": "5.4",
+            "originalName": "Tabla_CMC_E-131-2025.pdf",
+            "storedName": "a86313bc4790e76d9ffd49839936b3a8.pdf",
+            "mimeType": "application\/pdf",
+            "size": 162106,
+            "createdAt": "2026-04-07T20:17:55+00:00",
+            "comment": "Tabla CMC E-131"
+        },
+        {
+            "id": "e2939176e2f4974b7370629ed497199f",
+            "nodeItemId": "5.4",
+            "originalName": "4._DESCRIPCION_DE_ACTIVIDADES.png",
+            "storedName": "e2939176e2f4974b7370629ed497199f.png",
+            "mimeType": "image\/png",
+            "size": 54499,
+            "createdAt": "2026-04-07T20:18:57+00:00",
+            "comment": "O-4413-L04 : 4. Descripción de actividades"
+        },
+        {
+            "id": "5ae2f4cd850b3b83633d611938ec693f",
+            "nodeItemId": "5.4",
+            "originalName": "PUNTO_13.png",
+            "storedName": "5ae2f4cd850b3b83633d611938ec693f.png",
+            "mimeType": "image\/png",
+            "size": 35027,
+            "createdAt": "2026-04-07T20:19:29+00:00",
+            "comment": "O-4413-L04-R01 Contrato para los Servicios de Calibración a Clientes Internos y Externos - 13"
+        },
+        {
+            "id": "fd16c0436d684e0559a10ecb17973165",
+            "nodeItemId": "5.5.3",
+            "originalName": "4.4.3_PROCEDIMIENTOS_Y_ESTRUCTURA.png",
+            "storedName": "fd16c0436d684e0559a10ecb17973165.png",
+            "mimeType": "image\/png",
+            "size": 33975,
+            "createdAt": "2026-04-07T20:42:14+00:00",
+            "comment": "O-4413-L04 : 4.4.3 Procedimientos y Estructura"
+        },
+        {
+            "id": "ba3739244516275308bc14171d910ad5",
+            "nodeItemId": "5.5.3",
+            "originalName": "5.5_c.pdf",
+            "storedName": "ba3739244516275308bc14171d910ad5.pdf",
+            "mimeType": "application\/pdf",
+            "size": 333266,
+            "createdAt": "2026-04-07T20:43:44+00:00",
+            "comment": "F-4413-L02 : 3. Descripción del Proceso 4) Métodos de Operación"
+        },
+        {
+            "id": "f34c0e1af9ae61bb54d6e5754ea8aba2",
+            "nodeItemId": "5.5.2",
+            "originalName": "5.5_b.pdf",
+            "storedName": "f34c0e1af9ae61bb54d6e5754ea8aba2.pdf",
+            "mimeType": "application\/pdf",
+            "size": 388133,
+            "createdAt": "2026-04-07T20:44:07+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización f), g), h), i), j)"
+        },
+        {
+            "id": "f0be07b59f1a09a567ac49f353d91682",
+            "nodeItemId": "5.5.2",
+            "originalName": "Carta_de_Autorizaci__n_de_Actividades__Septiembre_2025_.pdf",
+            "storedName": "f0be07b59f1a09a567ac49f353d91682.pdf",
+            "mimeType": "application\/pdf",
+            "size": 372466,
+            "createdAt": "2026-04-07T20:44:32+00:00",
+            "comment": "Cartas de autorización de actividades"
+        },
+        {
+            "id": "fa6f8820ec0153fab6d710a5ea1dcabd",
+            "nodeItemId": "5.5.2",
+            "originalName": "Perfiles_de_puesto.docx",
+            "storedName": "fa6f8820ec0153fab6d710a5ea1dcabd.docx",
+            "mimeType": "application\/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "size": 240732,
+            "createdAt": "2026-04-07T20:52:28+00:00",
+            "comment": "Perfiles de puesto"
+        },
+        {
+            "id": "70f0d60f4e76108eb718a9819b37864d",
+            "nodeItemId": "5.6.1",
+            "originalName": "5.6_a_-_APROBACION_EMISION_Y_CONSULTA_DE_LOS_DOCUMENTOS.png",
+            "storedName": "70f0d60f4e76108eb718a9819b37864d.png",
+            "mimeType": "image\/png",
+            "size": 86434,
+            "createdAt": "2026-04-08T01:23:35+00:00",
+            "comment": "O-4413-L04 : 4.5.2 Aprobación, emisión y consulta de los documentos"
+        },
+        {
+            "id": "8fc534cf575250eca5332ec96cb136df",
+            "nodeItemId": "5.6.1",
+            "originalName": "4.11_MEJORA_DE_LA_EFICACIA.png",
+            "storedName": "8fc534cf575250eca5332ec96cb136df.png",
+            "mimeType": "image\/png",
+            "size": 81155,
+            "createdAt": "2026-04-08T01:24:10+00:00",
+            "comment": "O-4413-L04 : 4.11 Mejora de la eficacia"
+        },
+        {
+            "id": "0b72ed4bc9ddc22888f7099fbf2b9850",
+            "nodeItemId": "5.6.2",
+            "originalName": "4.3_ORGANIZACION_a_.png",
+            "storedName": "0b72ed4bc9ddc22888f7099fbf2b9850.png",
+            "mimeType": "image\/png",
+            "size": 34813,
+            "createdAt": "2026-04-08T01:35:38+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización a)"
+        },
+        {
+            "id": "884e1aa3eb010bea81708696b2d74634",
+            "nodeItemId": "5.6.4",
+            "originalName": "4.3_ORGANIZACION_a_.png",
+            "storedName": "884e1aa3eb010bea81708696b2d74634.png",
+            "mimeType": "image\/png",
+            "size": 34813,
+            "createdAt": "2026-04-08T01:37:47+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización a)"
+        },
+        {
+            "id": "f66d2e28c6bb6c798f3b150e2d66bcf9",
+            "nodeItemId": "6.6.1.1",
+            "originalName": "6.6.1_a_-_SERVICIOS_DE_CALIBRACION_EXTERNA.png",
+            "storedName": "f66d2e28c6bb6c798f3b150e2d66bcf9.png",
+            "mimeType": "image\/png",
+            "size": 136247,
+            "createdAt": "2026-04-08T02:21:41+00:00",
+            "comment": "O-4413-L04 : 4.7.1 Servicios de calibración externa"
+        },
+        {
+            "id": "2f9ff58fa37ac06cd2a9894d80741b3c",
+            "nodeItemId": "6.6.1.2",
+            "originalName": "6.6.1_b_-_ADQUISICION_DE_OTROS_SERVICIOS_Y_SUMISITROS.png",
+            "storedName": "2f9ff58fa37ac06cd2a9894d80741b3c.png",
+            "mimeType": "image\/png",
+            "size": 84582,
+            "createdAt": "2026-04-08T02:22:40+00:00",
+            "comment": "O-4413-L04 : 4.7.2 Adquisición de otros servicios y suministros"
+        },
+        {
+            "id": "cf87aa8d5c5ad8242197ddd1e71d4136",
+            "nodeItemId": "6.6.1.3",
+            "originalName": "6.6.1_a_-_SERVICIOS_DE_CALIBRACION_EXTERNA.png",
+            "storedName": "cf87aa8d5c5ad8242197ddd1e71d4136.png",
+            "mimeType": "image\/png",
+            "size": 136247,
+            "createdAt": "2026-04-08T02:26:42+00:00",
+            "comment": "O-4413-L04 : 4.7.1 Servicios de calibración externa"
+        },
+        {
+            "id": "a934b9f3935af907dcc30b6567778efb",
+            "nodeItemId": "6.6.2.1",
+            "originalName": "6.6.1_b_-_ADQUISICION_DE_OTROS_SERVICIOS_Y_SUMISITROS.png",
+            "storedName": "a934b9f3935af907dcc30b6567778efb.png",
+            "mimeType": "image\/png",
+            "size": 84582,
+            "createdAt": "2026-04-08T02:27:51+00:00",
+            "comment": "O-4413-L04 : 4.7.2 Adquisición de otros servicios y suministros"
+        },
+        {
+            "id": "eec779ba789642afcae5159521eddd13",
+            "nodeItemId": "5.6.3",
+            "originalName": "4.3_ORGANIZACION_a_.png",
+            "storedName": "eec779ba789642afcae5159521eddd13.png",
+            "mimeType": "image\/png",
+            "size": 34813,
+            "createdAt": "2026-04-13T15:45:17+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización a)"
+        },
+        {
+            "id": "089d5f16429de45c8721e970410491a8",
+            "nodeItemId": "5.6.3",
+            "originalName": "5.6_c_-_MODIFICACIONES_AL_SISTEMA_DE_GESTION_DE_CALIDAD.png",
+            "storedName": "089d5f16429de45c8721e970410491a8.png",
+            "mimeType": "image\/png",
+            "size": 105698,
+            "createdAt": "2026-04-13T15:49:13+00:00",
+            "comment": "O-4413-L09 : 4.5 Modificaciones al Sistema de Gestión de Calidad"
+        },
+        {
+            "id": "e7189c069f24978a639879f446db6027",
+            "nodeItemId": "5.6.2",
+            "originalName": "4.5_MODIFICACIONES_AL_SISTEMA_DE_GESTION_DE_CALIDAD.png",
+            "storedName": "e7189c069f24978a639879f446db6027.png",
+            "mimeType": "image\/png",
+            "size": 105698,
+            "createdAt": "2026-04-13T15:53:22+00:00",
+            "comment": "O-4413-L09 : 4.5 Modificaciones al Sistema de Gestión de Calidad"
+        },
+        {
+            "id": "65dad9c6518fbe2e5b32483a59d4c68e",
+            "nodeItemId": "5.6.2",
+            "originalName": "4.2_c_-_REVISION_DE_LA_ADECUACION_DE_LAS_POLITICAS_Y_PROCEDIMIENTOS.png",
+            "storedName": "65dad9c6518fbe2e5b32483a59d4c68e.png",
+            "mimeType": "image\/png",
+            "size": 53685,
+            "createdAt": "2026-04-13T15:58:08+00:00",
+            "comment": "O-4413-L07 : 4.2 c) Revisión de la adecuación de las políticas y procedimientos"
+        },
+        {
+            "id": "59406574bc4042931a025cc154344f56",
+            "nodeItemId": "5.6.4",
+            "originalName": "4.2_c_-_REVISION_DE_LA_ADECUACION_DE_LAS_POLITICAS_Y_PROCEDIMIENTOS.png",
+            "storedName": "59406574bc4042931a025cc154344f56.png",
+            "mimeType": "image\/png",
+            "size": 53685,
+            "createdAt": "2026-04-13T15:59:16+00:00",
+            "comment": "O-4413-L07 : 4.2 c) Revisión de la adecuación de las políticas y procedimientos"
+        },
+        {
+            "id": "9cb91987ceb055ae62f569da4b07d3f0",
+            "nodeItemId": "5.6.5",
+            "originalName": "5._ANALISIS_DE_DATOS.png",
+            "storedName": "9cb91987ceb055ae62f569da4b07d3f0.png",
+            "mimeType": "image\/png",
+            "size": 67722,
+            "createdAt": "2026-04-13T17:51:40+00:00",
+            "comment": "F-4413-L02 : 5. Análisis de datos"
+        },
+        {
+            "id": "61432f21be5ec11aca5376660ae9f17c",
+            "nodeItemId": "5.6.5",
+            "originalName": "F-4413-L02-R-01.pdf",
+            "storedName": "61432f21be5ec11aca5376660ae9f17c.pdf",
+            "mimeType": "application\/pdf",
+            "size": 172955,
+            "createdAt": "2026-04-14T15:35:16+00:00",
+            "comment": "F-4413-L02-R-01 - Cálculo de la Eficacia del Laboratorio de Medición Divisional"
+        },
+        {
+            "id": "5e6c8f147570b8866306483423b5bd26",
+            "nodeItemId": "5.7.1",
+            "originalName": "4.3_ORGANIZACION_k_.png",
+            "storedName": "5e6c8f147570b8866306483423b5bd26.png",
+            "mimeType": "image\/png",
+            "size": 37969,
+            "createdAt": "2026-04-14T19:14:18+00:00",
+            "comment": "O-4413-L04 : 4.3 Organización k)"
+        },
+        {
+            "id": "47cc2a49c37d4b6a06b9f42712306039",
+            "nodeItemId": "6.6.1.3",
+            "originalName": "4.2_COMPRAS_SERVICIOS_Y_SUMINISTROS.png",
+            "storedName": "47cc2a49c37d4b6a06b9f42712306039.png",
+            "mimeType": "image\/png",
+            "size": 64177,
+            "createdAt": "2026-04-15T02:05:41+00:00",
+            "comment": "O-4413-L02 : 4.2 Compras, servicios y suministros"
+        },
+        {
+            "id": "2156a0817404e706c1c5ecf2d6c39003",
+            "nodeItemId": "6.6.2.1",
+            "originalName": "I-4413-L19_4_DESCRIPCION_DE_ACTIVIDADES.png",
+            "storedName": "2156a0817404e706c1c5ecf2d6c39003.png",
+            "mimeType": "image\/png",
+            "size": 271384,
+            "createdAt": "2026-04-15T02:15:14+00:00",
+            "comment": "I-4413-L19 : 4. Descripción de actividades"
+        },
+        {
+            "id": "e29c264beae9c6dcb234c9745f2711bc",
+            "nodeItemId": "6.6.2.1",
+            "originalName": "O-4413-L04-R-06__ESTUDIO_DE_NECESIDADES_.docx",
+            "storedName": "e29c264beae9c6dcb234c9745f2711bc.docx",
+            "mimeType": "application\/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "size": 109137,
+            "createdAt": "2026-04-15T15:54:06+00:00",
+            "comment": "O-4413-L04-R06 : Estudio de necesidades"
+        },
+        {
+            "id": "1665f534ebc985a4964c49f4189b9089",
+            "nodeItemId": "6.6.2.1",
+            "originalName": "F-1020-053_GESTION_DE_RECURSOS_MATERIALES_Y_SERVICIOS_RELACIONADOS.pdf",
+            "storedName": "1665f534ebc985a4964c49f4189b9089.pdf",
+            "mimeType": "application\/pdf",
+            "size": 826618,
+            "createdAt": "2026-04-15T16:09:38+00:00",
+            "comment": "F-1020-053 : Gestión de recursos materiales y servicios relacionados"
+        }
+    ]
+}

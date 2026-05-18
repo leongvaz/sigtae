@@ -24,7 +24,10 @@ class MetrologiaPermissionService
     {
         if (!$user) return false;
         if (!empty($user['es_super_admin'])) return true;
-        return ($user['oficina_id'] ?? '') === 'of-metro';
+        // Usuarios del laboratorio
+        if (($user['oficina_id'] ?? '') === 'of-metro') return true;
+        // Usuarios de zona (solo ven Solicitudes)
+        return !empty($user['es_usuario_zona']);
     }
 
     public function canManage(?array $user): bool
@@ -58,6 +61,20 @@ class MetrologiaPermissionService
             }
         }
         return false;
+    }
+
+    /** Devuelve true si el usuario es de zona (solo puede crear solicitudes, no gestionar). */
+    public function isZonaUser(?array $user): bool
+    {
+        if (!$user) return false;
+        return !empty($user['es_usuario_zona']);
+    }
+
+    /** Prefijo de zona del usuario (ej. "dm21"). Vacío si no es usuario de zona. */
+    public function getZonaPrefijo(?array $user): string
+    {
+        if (!$user) return '';
+        return strtolower(trim((string)($user['zona_prefijo'] ?? '')));
     }
 
     /**

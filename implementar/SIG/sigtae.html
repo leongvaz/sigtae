@@ -1,0 +1,1731 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SIGTAE — Sistema Integral de Gestión de Tareas</title>
+
+  <style>
+    :root{
+      /* ===== Paleta institucional (según papeleta) ===== */
+      --black: #161a1d;          /* Neutral Black C */
+      --gray-700:#3A4252;
+      --gray-500:#667085;
+      --gray-200:#E6E8EC;
+      --gray-100:#F4F6F9;
+
+      --green-700:#1e5b4f;       /* Pantone 626 C */
+      --green-900:#002f2a;       /* Pantone 627 C */
+      --gold-700:#c39326;        /* Pantone 117 C */
+      --gold-600:#a57f2c;        /* Pantone 1255 C */
+      --burgundy:#9b2247;        /* Pantone 7420 C */
+      --cream:#e6d194;           /* Pantone 7402 C */
+      --coolgray:#98989a;        /* Cool Gray 7 C */
+
+      /* Estados */
+      --ok:#1F9D55;
+      --warn:#F2B705;
+      --bad:#D92D20;
+      --violet:#4F46E5;
+
+      --radius:16px;
+      --shadow:0 10px 25px rgba(16,24,40,.08);
+      --shadow2:0 6px 16px rgba(16,24,40,.10);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+
+      /* Marca de agua (logo) al 50% */
+      --wm-url: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1UAAAGoCAYAAACubM8oAAAAAXNSR0IArs4c6QAAIABJREFUeF7svQm8pMV13/c99V5V9+6u5mU8mZCQQEJgQWISLwWwJYy2y0nQp0a0UoY9k3l0i1U0yY3l0p0y...<SNIP>..."); /* <-- ya embebido */
+      /* NOTA: El base64 fue embebido para que funcione en un solo archivo. */
+    }
+
+    /* ===== Reset ===== */
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--black);
+      background:linear-gradient(180deg, #fff 0%, var(--gray-100) 100%);
+      position:relative;
+    }
+
+    /* Marca de agua */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image: var(--wm-url);
+      background-repeat:no-repeat;
+      background-position:center 120px;
+      background-size:min(980px, 92vw);
+      opacity:.50;
+      pointer-events:none;
+      filter:saturate(0.95);
+      z-index:0;
+    }
+
+    /* Contenido por encima */
+    header, main, .modalBack{position:relative; z-index:1;}
+
+    /* ===== Top bar ===== */
+    .topbar{
+      position:sticky; top:0; z-index:20;
+      background:linear-gradient(90deg, var(--green-900), var(--green-700));
+      color:#fff;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,.18);
+      border-bottom: 3px solid rgba(195,147,38,.55); /* dorado */
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width:260px;
+    }
+    .logoMark{
+      width:34px; height:34px;
+      border-radius:12px;
+      background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.20);
+      position:relative;
+      overflow:hidden;
+    }
+    .logoMark:before{
+      content:"";
+      position:absolute; inset:-40%;
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%);
+      transform:rotate(18deg);
+    }
+    .logoMark svg{position:relative}
+    .brandTitle{line-height:1.1}
+    .brandTitle b{display:block; font-size:14px; letter-spacing:.6px}
+    .brandTitle span{display:block; font-size:12px; opacity:.92}
+
+    .nav{
+      display:flex; gap:8px; flex:1;
+      align-items:center;
+    }
+    .tabBtn{
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff;
+      padding:9px 12px;
+      border-radius:999px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.15s ease;
+      display:flex; gap:8px; align-items:center;
+    }
+    .tabBtn:hover{transform:translateY(-1px); background:rgba(255,255,255,.14)}
+    .tabBtn.active{
+      background:#fff;
+      color:var(--green-900);
+      border-color:#fff;
+    }
+
+    .right{
+      display:flex; gap:10px; align-items:center;
+    }
+    .pill{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:12px;
+      opacity:.95;
+      white-space:nowrap;
+    }
+    .btnPrimary{
+      background:#fff;
+      color:var(--green-900);
+      border:0;
+      padding:9px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+      box-shadow:0 8px 18px rgba(255,255,255,.12);
+    }
+    .btnPrimary:hover{transform:translateY(-1px)}
+    .btnGhost{
+      background:transparent;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.24);
+      padding:9px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    /* ===== Layout ===== */
+    .wrap{max-width:1280px; margin:18px auto; padding:0 16px 40px}
+    .row{display:flex; gap:14px; flex-wrap:wrap}
+    .col{flex:1; min-width:300px}
+
+    .card{
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      backdrop-filter: blur(2px);
+    }
+    .cardHeader{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .cardHeader h2{
+      margin:0;
+      font-size:14px;
+      color:var(--gray-700);
+      letter-spacing:.2px;
+    }
+    .muted{color:var(--gray-500); font-size:12px}
+
+    /* KPI grid */
+    .kpiGrid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(180px,1fr));
+      gap:12px;
+    }
+    @media (max-width:1050px){
+      .kpiGrid{grid-template-columns:repeat(2, minmax(180px,1fr));}
+    }
+    @media (max-width:520px){
+      .kpiGrid{grid-template-columns:1fr;}
+      .brand{min-width:auto}
+    }
+    .kpi{
+      border:1px solid var(--gray-200);
+      border-radius:14px;
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:linear-gradient(180deg, #fff, var(--gray-100));
+    }
+    .kpi b{font-size:18px; letter-spacing:.2px}
+    .kpi .lbl{font-size:12px; color:var(--gray-500)}
+
+    /* Badges */
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid var(--gray-200);
+      background:#fff;
+      white-space:nowrap;
+    }
+    .b-ok{color:var(--ok); border-color:rgba(31,157,85,.25); background:rgba(31,157,85,.08)}
+    .b-warn{color:#7A5600; border-color:rgba(242,183,5,.35); background:rgba(242,183,5,.12)}
+    .b-bad{color:var(--bad); border-color:rgba(217,45,32,.30); background:rgba(217,45,32,.10)}
+    .b-violet{color:var(--violet); border-color:rgba(79,70,229,.30); background:rgba(79,70,229,.10)}
+    .b-green{color:var(--green-900); border-color:rgba(30,91,79,.26); background:rgba(30,91,79,.10)}
+    .b-gold{color:var(--gold-600); border-color:rgba(195,147,38,.32); background:rgba(195,147,38,.14)}
+    .b-gray{color:var(--gray-700); border-color:var(--gray-200); background:var(--gray-100)}
+    .dot{width:9px;height:9px;border-radius:999px;background:currentColor;opacity:.9}
+
+    /* Fields */
+    .filters{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:end;
+    }
+    .field{display:flex; flex-direction:column; gap:6px; min-width:200px}
+    label{font-size:12px; color:var(--gray-500); font-weight:800}
+    select, input, textarea{
+      border:1px solid var(--gray-200);
+      border-radius:12px;
+      padding:10px 10px;
+      font-family:var(--font);
+      outline:none;
+      background:#fff;
+    }
+    textarea{min-height:92px; resize:vertical}
+    select:focus, input:focus, textarea:focus{border-color:rgba(30,91,79,.55); box-shadow:0 0 0 4px rgba(30,91,79,.14)}
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap}
+
+    .btn{
+      border:1px solid var(--gray-200);
+      background:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btnGreen{background:var(--green-700); border-color:var(--green-700); color:#fff}
+    .btnGold{background:var(--gold-700); border-color:var(--gold-700); color:#1B1F2A}
+    .btnRed{background:var(--bad); border-color:var(--bad); color:#fff}
+    .btnViolet{background:var(--violet); border-color:var(--violet); color:#fff}
+    .btnGray{background:var(--gray-100); border-color:var(--gray-200); color:var(--black)}
+    .btnSm{padding:8px 10px; border-radius:10px; font-size:12px}
+
+    /* Pages */
+    .page{display:none}
+    .page.active{display:block}
+
+    /* Kanban */
+    .kanban{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(240px, 1fr));
+      gap:12px;
+      align-items:start;
+    }
+    @media (max-width:1150px){
+      .kanban{grid-template-columns:repeat(2, minmax(240px, 1fr));}
+    }
+    @media (max-width:640px){
+      .kanban{grid-template-columns:1fr;}
+    }
+    .colKan{
+      background:linear-gradient(180deg, #fff, var(--gray-100));
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius);
+      padding:10px;
+      box-shadow:var(--shadow);
+      min-height:220px;
+    }
+    .colKan h3{
+      margin:0 0 10px;
+      font-size:13px;
+      display:flex; align-items:center; justify-content:space-between;
+      color:var(--green-900);
+    }
+    .countPill{
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--gray-200);
+      color:var(--gray-700);
+      background:#fff;
+    }
+    .task{
+      border:1px solid var(--gray-200);
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+      box-shadow:var(--shadow2);
+      margin-bottom:10px;
+    }
+    .taskTitle{
+      font-weight:900;
+      font-size:13px;
+      margin:0 0 8px;
+    }
+    .taskMeta{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .taskFoot{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      margin-top:6px;
+    }
+    .small{font-size:12px; color:var(--gray-500)}
+    .linkBtn{
+      border:0;
+      background:transparent;
+      color:var(--green-700);
+      font-weight:900;
+      cursor:pointer;
+      padding:0;
+    }
+    .linkBtn:hover{text-decoration:underline}
+
+    .list{display:flex; flex-direction:column; gap:8px}
+    .item{
+      border:1px solid var(--gray-200);
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+    }
+    .itemTop{display:flex; justify-content:space-between; gap:10px; align-items:center}
+    .itemTop b{font-size:13px}
+    .hr{height:1px;background:var(--gray-200); margin:10px 0}
+
+    /* ===== Modal Canvas con scroll interno ===== */
+    .modalBack{
+      position:fixed; inset:0; background:rgba(15,23,42,.55);
+      display:none; align-items:center; justify-content:center;
+      padding:16px;
+      z-index:50;
+    }
+    .modalBack.show{display:flex}
+    .modal{
+      width:min(1120px, 100%);
+      max-height: 92vh;               /* <--- clave */
+      background:#fff;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.15);
+      box-shadow:0 22px 55px rgba(0,0,0,.35);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;          /* <--- clave */
+    }
+    .modalTop{
+      background:linear-gradient(90deg, var(--green-900), var(--green-700));
+      color:#fff;
+      padding:14px 16px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      border-bottom: 3px solid rgba(195,147,38,.55);
+    }
+    .modalTop h2{margin:0; font-size:16px}
+    .modalTop .sub{font-size:12px; opacity:.92}
+
+    .modalBody{
+      padding:14px 16px;
+      background:linear-gradient(180deg, #fff, var(--gray-100));
+      overflow:auto;                  /* <--- scroll interno */
+    }
+
+    .grid2{display:grid; grid-template-columns:1.25fr .75fr; gap:12px}
+    @media (max-width:980px){ .grid2{grid-template-columns:1fr;} }
+
+    .section{
+      background:#fff; border:1px solid var(--gray-200);
+      border-radius:16px; padding:12px;
+      box-shadow:var(--shadow);
+      margin-bottom:12px;
+    }
+    .section h4{
+      margin:0 0 10px;
+      font-size:13px;
+      color:var(--gray-700);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .section .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:720px){ .section .row2{grid-template-columns:1fr;} }
+
+    .timeline{border-left:2px solid var(--gray-200); padding-left:10px}
+    .tl{margin:10px 0; position:relative}
+    .tl:before{
+      content:""; position:absolute; left:-16px; top:4px;
+      width:10px; height:10px; border-radius:99px;
+      background:var(--green-700);
+      box-shadow:0 0 0 4px rgba(30,91,79,.14);
+    }
+    .tl .t{font-size:12px; color:var(--gray-500)}
+    .tl .d{font-size:13px; font-weight:800}
+
+    table{border-collapse:collapse; width:100%}
+    th, td{border:1px solid var(--gray-200); padding:8px; font-size:12px; text-align:left}
+    th{background:var(--gray-100); font-weight:900; color:var(--gray-700)}
+  </style>
+</head>
+
+<body>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logoMark" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M7 12.5l3 3 7-8" stroke="#22C55E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="6" cy="18" r="2" fill="rgba(255,255,255,.95)"/>
+          <circle cx="18" cy="6" r="2" fill="rgba(255,255,255,.95)"/>
+          <circle cx="18" cy="18" r="2" fill="rgba(255,255,255,.95)"/>
+          <path d="M8 17l8-10" stroke="rgba(255,255,255,.6)" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M8 18h8" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brandTitle">
+        <b>SIGTAE</b>
+        <span>Sistema Integral de Gestión de Tareas — Administración de la Energía</span>
+      </div>
+    </div>
+
+    <nav class="nav" role="navigation" aria-label="Navegación">
+      <button class="tabBtn active" data-tab="dashboard">📊 Dashboard</button>
+      <button class="tabBtn" data-tab="kanban">🗂️ Tablero</button>
+      <button class="tabBtn" data-tab="validacion">🧾 Validación</button>
+      <button class="tabBtn" data-tab="config">⚙️ Configuración</button>
+      <button class="tabBtn" data-tab="reportes">📄 Reportes</button>
+    </nav>
+
+    <div class="right">
+      <div class="pill" id="userPill">Usuario: <b>Iván</b> · Rol: <b>ADMIN</b></div>
+      <button class="btnGhost" id="resetBtn" title="Restablecer datos demo">Restablecer</button>
+      <button class="btnPrimary" id="newTaskBtn">+ Nueva tarea</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="card" style="margin-bottom:14px">
+        <div class="cardHeader">
+          <div>
+            <h2>Filtros</h2>
+            <div class="muted">Aplique filtros para revisar cumplimiento por Proceso/Proyecto/Zona/Divisional/Responsable.</div>
+          </div>
+          <div class="btnRow">
+            <button class="btn btnGray" id="clearFiltersBtn">Limpiar</button>
+            <button class="btn btnGreen" id="applyFiltersBtn">Aplicar</button>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="field">
+            <label for="fProceso">Proceso</label>
+            <input id="fProceso" list="dlProcesos" placeholder="Ej.: SINABEC / PROMETE / Balance..." />
+          </div>
+          <div class="field">
+            <label for="fProyecto">Proyecto</label>
+            <input id="fProyecto" list="dlProyectos" placeholder="Ej.: Regularización SINABEC 2024–2025" />
+          </div>
+          <div class="field">
+            <label for="fZona">Zona</label>
+            <input id="fZona" list="dlZonas" placeholder="Ej.: ZOC / BJU / POL..." />
+          </div>
+          <div class="field">
+            <label for="fDiv">Divisional</label>
+            <input id="fDiv" list="dlDiv" placeholder="Ej.: DVMC" />
+          </div>
+          <div class="field">
+            <label for="fResponsable">Responsable</label>
+            <input id="fResponsable" list="dlResponsables" placeholder="Ej.: IVAN JOSUE SANTIAGO GUDIÑO" />
+          </div>
+          <div class="field">
+            <label for="fPrioridad">Prioridad</label>
+            <select id="fPrioridad"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpiGrid" id="kpiGrid"></div>
+
+      <div class="row" style="margin-top:14px">
+        <div class="col">
+          <div class="card">
+            <div class="cardHeader">
+              <div>
+                <h2>Distribución por Proceso</h2>
+                <div class="muted">Conteo de tareas activas por proceso (con semáforo por vencimiento).</div>
+              </div>
+              <span class="badge b-gold"><span class="dot"></span> Vista ejecutiva</span>
+            </div>
+            <div id="byProcess"></div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card">
+            <div class="cardHeader">
+              <div>
+                <h2>Pendientes críticos</h2>
+                <div class="muted">Vencidas, bloqueadas o por vencer en 3 días.</div>
+              </div>
+              <span class="badge b-bad"><span class="dot"></span> Atención prioritaria</span>
+            </div>
+            <div id="criticalList" class="list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KANBAN -->
+    <section class="page" id="page-kanban">
+      <div class="row" style="margin-bottom:14px">
+        <div class="col">
+          <div class="card">
+            <div class="cardHeader">
+              <div>
+                <h2>Tablero Operativo</h2>
+                <div class="muted">El estado se controla desde el Canvas (cumplimiento con evidencia y validación).</div>
+              </div>
+              <span class="badge b-green"><span class="dot"></span> Kanban</span>
+            </div>
+            <div class="kanban" id="kanban"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALIDACION -->
+    <section class="page" id="page-validacion">
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <h2>Bandeja de Validación</h2>
+            <div class="muted">Tareas “En validación”. Apruebe o devuelva con observaciones (obligatorio).</div>
+          </div>
+          <span class="badge b-violet"><span class="dot"></span> En validación</span>
+        </div>
+        <div id="inValidation" class="list"></div>
+      </div>
+    </section>
+
+    <!-- CONFIGURACIÓN -->
+    <section class="page" id="page-config">
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <h2>Configuración</h2>
+            <div class="muted">Alta de usuarios y datos generales. (Permisos por rol: base para siguiente iteración).</div>
+          </div>
+          <span class="badge b-green"><span class="dot"></span> Administración</span>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <div class="section">
+              <h4>Alta de usuario</h4>
+              <div class="row2">
+                <div class="field"><label>RPE</label><input id="uRpe" placeholder="Ej.: 123456" /></div>
+                <div class="field"><label>Nombre</label><input id="uNombre" placeholder="Nombre completo" /></div>
+                <div class="field"><label>Categoría</label><input id="uCat" placeholder="Ej.: Analista / Ing. / Técnico" /></div>
+                <div class="field"><label>Correo</label><input id="uCorreo" type="email" placeholder="usuario@cfe.mx" /></div>
+                <div class="field"><label>Móvil</label><input id="uMovil" placeholder="10 dígitos" /></div>
+                <div class="field">
+                  <label>Rol</label>
+                  <select id="uRol">
+                    <option>ADMIN</option>
+                    <option>RESPONSABLE</option>
+                    <option>VALIDADOR</option>
+                    <option>LECTOR</option>
+                  </select>
+                </div>
+              </div>
+              <div class="btnRow" style="margin-top:10px">
+                <button class="btn btnGreen" id="addUserBtn">Guardar usuario</button>
+                <button class="btn btnGray" id="clearUserBtn">Limpiar</button>
+              </div>
+              <div class="muted" style="margin-top:10px">
+                Nota: en esta versión local, los usuarios se guardan en el navegador (LocalStorage).
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="section">
+              <h4>Usuarios registrados</h4>
+              <div id="usersTableWrap"></div>
+            </div>
+
+            <div class="section">
+              <h4>Permisos por rol (base)</h4>
+              <div class="muted">
+                <b>ADMIN:</b> todo · <b>RESPONSABLE:</b> edita su tarea y evidencia · <b>VALIDADOR:</b> valida · <b>LECTOR:</b> solo lectura.<br/>
+                (La aplicación de permisos por sesión/usuario se implementa al integrar autenticación.)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTES -->
+    <section class="page" id="page-reportes">
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <h2>Reportes</h2>
+            <div class="muted">Exportación rápida (CSV) y resumen gerencial.</div>
+          </div>
+          <div class="btnRow">
+            <button class="btn btnGreen" id="exportCsvBtn">Exportar CSV</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="section">
+              <h4>Resumen gerencial</h4>
+              <div id="mgrSummary" class="muted"></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="section">
+              <h4>Notas</h4>
+              <div class="muted">
+                Para producción: autenticación (AD/SSO), control de permisos real, repositorio de evidencias,
+                bitácora auditable y respaldo.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Datalists (sugerencias) -->
+  <datalist id="dlProcesos"></datalist>
+  <datalist id="dlProyectos"></datalist>
+  <datalist id="dlZonas"></datalist>
+  <datalist id="dlDiv"></datalist>
+  <datalist id="dlResponsables"></datalist>
+
+  <!-- MODAL: CANVAS -->
+  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="Canvas de tarea">
+    <div class="modal">
+      <div class="modalTop">
+        <div>
+          <h2 id="mTitle">Canvas de Tarea</h2>
+          <div class="sub" id="mSub"></div>
+        </div>
+        <div class="btnRow">
+          <button class="btn btnGray btnSm" id="closeModalBtn">Cerrar</button>
+        </div>
+      </div>
+
+      <div class="modalBody">
+        <div class="grid2">
+          <!-- Left -->
+          <div>
+            <div class="section">
+              <h4>Encabezado</h4>
+              <div class="row2">
+                <div class="field">
+                  <label>Folio</label>
+                  <input id="mFolio" disabled />
+                </div>
+                <div class="field">
+                  <label>Estado</label>
+                  <select id="mEstado"></select>
+                </div>
+
+                <div class="field">
+                  <label>Título</label>
+                  <input id="mTitulo" placeholder="Ej.: Regularización SINABEC ZOC — Abril 2024" />
+                </div>
+                <div class="field">
+                  <label>Fecha compromiso</label>
+                  <input id="mFecha" type="date" />
+                </div>
+
+                <!-- (1) Campos libres -->
+                <div class="field">
+                  <label>Proceso</label>
+                  <input id="mProceso" list="dlProcesos" placeholder="Ej.: SINABEC / PROMETE / Balance..." />
+                </div>
+                <div class="field">
+                  <label>Proyecto(s) (libre, separados por coma)</label>
+                  <input id="mProyectos" list="dlProyectos" placeholder="Ej.: Regularización SINABEC 2024–2025, ..." />
+                </div>
+
+                <div class="field">
+                  <label>Zona</label>
+                  <input id="mZona" list="dlZonas" placeholder="Ej.: ZOC / POL / ..." />
+                </div>
+                <div class="field">
+                  <label>Divisional</label>
+                  <input id="mDiv" list="dlDiv" placeholder="Ej.: DVMC" />
+                </div>
+
+                <div class="field">
+                  <label>Responsable</label>
+                  <input id="mResp" list="dlResponsables" placeholder="Ej.: Aldo Eniff" />
+                </div>
+                <div class="field">
+                  <label>Prioridad</label>
+                  <select id="mPri"></select>
+                </div>
+
+                <!-- (6) Correo -->
+                <div class="field">
+                  <label>Correo del responsable</label>
+                  <input id="mEmail" type="email" placeholder="usuario@cfe.mx" />
+                </div>
+                <div class="field">
+                  <label>% avance</label>
+                  <input id="mAvance" type="number" min="0" max="100" />
+                </div>
+
+                <div class="field">
+                  <label>KPI(s) impactado(s) (separados por coma)</label>
+                  <input id="mKpis" placeholder="Ej.: % Validación SINABEC, Ingreso Requerido (MDP)" />
+                </div>
+
+                <div class="field">
+                  <label>Impacto estimado</label>
+                  <div class="row2">
+                    <input id="mGwh" type="number" step="0.001" placeholder="GWh" />
+                    <input id="mMdp" type="number" step="0.01" placeholder="MDP" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h4>Propósito</h4>
+              <div class="field">
+                <label>Objetivo puntual</label>
+                <textarea id="mObj" placeholder="Qué se logrará con esta tarea."></textarea>
+              </div>
+              <div class="field">
+                <label>Justificación</label>
+                <textarea id="mJust" placeholder="Por qué es necesaria / riesgo que mitiga / alineación a meta."></textarea>
+              </div>
+            </div>
+
+            <div class="section">
+              <h4>Plan de trabajo</h4>
+              <div class="field">
+                <label>Actividades clave (una por renglón)</label>
+                <textarea id="mPlan" placeholder="- Actividad 1&#10;- Actividad 2"></textarea>
+              </div>
+              <div class="field">
+                <label>Dependencias</label>
+                <input id="mDeps" placeholder="Ej.: Acceso a sistema / Coordinación con Zona" />
+              </div>
+              <div class="field">
+                <label>Riesgos/Bloqueos</label>
+                <input id="mRisk" placeholder="Ej.: No acceso / Libranza / Bloqueo ..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Right -->
+          <div>
+            <div class="section">
+              <h4>Semáforo y acciones</h4>
+              <div id="mBadges" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px"></div>
+
+              <div class="btnRow">
+                <button class="btn btnGreen" id="saveBtn">Guardar</button>
+                <button class="btn btnViolet" id="toValidationBtn">Solicitar validación</button>
+              </div>
+              <div class="btnRow" style="margin-top:10px">
+                <button class="btn btnGold" id="sendMailBtn">Enviar por correo</button>
+                <button class="btn btnGold" id="reprogramBtn">Reprogramar</button>
+                <button class="btn btnRed" id="cancelBtn">Cancelar</button>
+              </div>
+
+              <div class="hr"></div>
+              <div class="muted">
+                Regla MVP: para solicitar validación se requiere al menos 1 evidencia (texto o liga).
+              </div>
+            </div>
+
+            <div class="section">
+              <h4>Evidencias</h4>
+              <div class="field">
+                <label>Agregar evidencia (liga o texto)</label>
+                <input id="mEv" placeholder="Ej.: SharePoint/Reporte/Oficio/captura…" />
+              </div>
+              <div class="btnRow">
+                <button class="btn btnGreen btnSm" id="addEvBtn">Agregar</button>
+              </div>
+              <div class="hr"></div>
+              <div id="mEvList" class="list"></div>
+            </div>
+
+            <div class="section">
+              <h4>Validación (dictamen)</h4>
+              <div class="field">
+                <label>Comentarios de validación</label>
+                <textarea id="mValCom" placeholder="Observaciones para aprobar/devolver."></textarea>
+              </div>
+              <div class="btnRow">
+                <button class="btn btnGreen btnSm" id="approveBtn">Aprobar</button>
+                <button class="btn btnGold btnSm" id="returnBtn">Devolver</button>
+              </div>
+            </div>
+
+            <div class="section">
+              <h4>Bitácora</h4>
+              <div id="mTimeline" class="timeline"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/** ===============================
+ *  SIGTAE MVP — Demo local
+ *  Datos en LocalStorage
+ * =============================== */
+
+const LS_KEY = "sigtae_mvp_v2";
+const LS_USERS = "sigtae_users_v1";
+
+const catalog = {
+  procesos: [
+    "Balance de Energía – Alta Tensión",
+    "Balance de Energía – Media y Baja Tensión",
+    "SINABEC – Balance por Circuito",
+    "Análisis de BUS",
+    "PROMETE – Procesamiento MT",
+    "Calidad de la Facturación Horaria",
+    "Seguimiento y Control de Permisionarios",
+    "Usuarios Calificados",
+    "Recuperación del Ingreso Requerido",
+    "Pruebas Internas de Puntos de Intercambio",
+    "Pruebas Externas y de Mercado",
+    "Bitácora Electrónica de Impactos"
+  ],
+  proyectos: [
+    "Regularización SINABEC 2024–2025",
+    "Reducción de Cargas Manuales PROMETE",
+    "Programa Revisión y Conciliación de BUS",
+    "Control de No Accesos Estratégicos",
+    "Recuperación IR Febrero 2026",
+    "Regularización Permisionarios > 1 año"
+  ],
+  kpis: [
+    "% Pérdidas AT",
+    "% Pérdidas MT/BT",
+    "% Validación SINABEC",
+    "% Análisis BUS",
+    "% Uso PROMETE",
+    "% Calidad Facturación Horaria",
+    "Ingreso Requerido (MDP)",
+    "% Pruebas Internas",
+    "% Pruebas Externas"
+  ],
+  zonas: ["ZOC","BJU","POL","TAC","AER","NEZ","CHA"],
+  divisionales: ["DVMC"],
+  prioridades: ["Alta","Media","Baja"],
+  estados: ["Borrador","Asignada","En ejecución","En validación","Cumplida","Devuelta","Reprogramada","Cancelada"],
+  responsables: ["Oscar U. Acevedo","Rodolfo Jaimes","Miguel A. Flores","Alejandro Camacho","Jorge J. García","Arturo Rivera","Aldo Eniff"]
+};
+
+function el(id){ return document.getElementById(id); }
+
+function todayISO(){
+  const d = new Date();
+  const tzOff = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - tzOff*60000);
+  return local.toISOString().slice(0,10);
+}
+function addDaysISO(baseISO, days){
+  const d = new Date(baseISO+"T00:00:00");
+  d.setDate(d.getDate()+days);
+  const tzOff = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - tzOff*60000);
+  return local.toISOString().slice(0,10);
+}
+function uid(){
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+function folio(n){
+  const pad = String(n).padStart(6,"0");
+  return `CTS-2026-${pad}`;
+}
+function esc(s){ return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+function splitCSV(s){
+  return (s||"")
+    .split(",")
+    .map(x=>x.trim())
+    .filter(Boolean);
+}
+
+/** ===== Users (Configuración) ===== */
+function loadUsers(){
+  const raw = localStorage.getItem(LS_USERS);
+  if(raw) return JSON.parse(raw);
+  const seed = [
+    {rpe:"9L7R0", nombre:"IVAN JOSUÉ SANTIAGO GUDIÑO", categoria:"JEFE DE DEPARTAMENTO DIVISIONAL", correo:"ivan.santiago@cfe.mx", movil:"5529080418", rol:"ADMIN"},
+  ];
+  localStorage.setItem(LS_USERS, JSON.stringify(seed));
+  return seed;
+}
+let users = loadUsers();
+function saveUsers(){
+  localStorage.setItem(LS_USERS, JSON.stringify(users));
+}
+function renderUsers(){
+  const wrap = el("usersTableWrap");
+  if(!users.length){
+    wrap.innerHTML = `<div class="muted">Sin usuarios registrados.</div>`;
+    return;
+  }
+  const rows = users.map((u,i)=>`
+    <tr>
+      <td>${esc(u.rpe)}</td>
+      <td>${esc(u.nombre)}</td>
+      <td>${esc(u.categoria)}</td>
+      <td>${esc(u.correo)}</td>
+      <td>${esc(u.movil)}</td>
+      <td><b>${esc(u.rol)}</b></td>
+      <td><button class="btn btnRed btnSm" onclick="delUser(${i})">Eliminar</button></td>
+    </tr>
+  `).join("");
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>RPE</th><th>Nombre</th><th>Categoría</th><th>Correo</th><th>Móvil</th><th>Rol</th><th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+window.delUser = function(i){
+  if(!confirm("¿Eliminar usuario?")) return;
+  users.splice(i,1);
+  saveUsers();
+  renderUsers();
+  refreshDatalists(); // responsables/correos
+};
+
+/** ===== Datalists ===== */
+function fillDatalist(id, arr){
+  const dl = el(id);
+  dl.innerHTML = arr.map(v=>`<option value="${esc(v)}"></option>`).join("");
+}
+function refreshDatalists(){
+  fillDatalist("dlProcesos", catalog.procesos);
+  fillDatalist("dlProyectos", catalog.proyectos);
+  fillDatalist("dlZonas", catalog.zonas);
+  fillDatalist("dlDiv", catalog.divisionales);
+
+  // responsables: mezcla de catálogo + usuarios
+  const fromUsers = users.map(u=>u.nombre).filter(Boolean);
+  const merged = Array.from(new Set([...catalog.responsables, ...fromUsers]));
+  fillDatalist("dlResponsables", merged);
+}
+refreshDatalists();
+
+/** ===== State tasks ===== */
+function loadState(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(raw) return JSON.parse(raw);
+
+  const base = todayISO();
+  const tasks = [
+    {
+      id: uid(), folio: folio(123),
+      titulo: "Regularización SINABEC ZOC — Abril 2024",
+      proceso: "SINABEC – Balance por Circuito",
+      proyectos: ["Regularización SINABEC 2024–2025"],
+      kpis: ["% Validación SINABEC"],
+      zona: "ZOC",
+      divisional: "DVMC",
+      responsable: "Aldo Eniff",
+      email: "",
+      prioridad:"Alta",
+      estado:"En ejecución",
+      fecha_compromiso: addDaysISO(base, 5),
+      avance: 55,
+      gwh: 2.300, mdp: null,
+      objetivo:"Integrar y cerrar validaciones pendientes 2024–2025 para asegurar consistencia de balances por circuito.",
+      justificacion:"Reduce rezagos históricos y mejora confiabilidad del balance por circuito para decisiones operativas.",
+      plan:"- Depurar pendientes por mes\n- Validar cruzado con sistemas\n- Cierre mensual en sistema",
+      dependencias:"Accesos a sistemas / coordinación con Zona",
+      riesgos:"Disponibilidad de información",
+      evidencias: [],
+      timeline: [{t: new Date().toISOString(), d: "Creación de tarea (demo)"}]
+    },
+    {
+      id: uid(), folio: folio(124),
+      titulo: "PROMETE — Reducir cargas manuales (Polanco)",
+      proceso: "PROMETE – Procesamiento MT",
+      proyectos: ["Reducción de Cargas Manuales PROMETE"],
+      kpis: ["% Uso PROMETE"],
+      zona: "POL",
+      divisional: "DVMC",
+      responsable: "Miguel A. Flores",
+      email: "",
+      prioridad:"Media",
+      estado:"Asignada",
+      fecha_compromiso: addDaysISO(base, 3),
+      avance: 10,
+      gwh: null, mdp: null,
+      objetivo:"Disminuir cargas manuales mediante normalización de parámetros previos al cierre.",
+      justificacion:"Reduce defectos de facturación y reprocesos.",
+      plan:"- Identificar top causas\n- Validación técnica\n- Corrección en sistemas",
+      dependencias:"Soporte de Zona",
+      riesgos:"No acceso",
+      evidencias: [],
+      timeline: [{t: new Date().toISOString(), d: "Creación de tarea (demo)"}]
+    },
+    {
+      id: uid(), folio: folio(125),
+      titulo: "Conciliación de BUS — Subestaciones con incongruencias",
+      proceso: "Análisis de BUS",
+      proyectos: ["Programa Revisión y Conciliación de BUS"],
+      kpis: ["% Análisis BUS"],
+      zona: "BJU",
+      divisional: "DVMC",
+      responsable: "Rodolfo Jaimes",
+      email: "",
+      prioridad:"Alta",
+      estado:"En validación",
+      fecha_compromiso: addDaysISO(base, -1),
+      avance: 100,
+      gwh: null, mdp: null,
+      objetivo:"Conciliar valores BUS con validación cruzada.",
+      justificacion:"Mejora consistencia de datos para pérdidas.",
+      plan:"- Cruces\n- Priorizar desviación\n- Cierre de correcciones",
+      dependencias:"Datos completos",
+      riesgos:"",
+      evidencias: ["Reporte de conciliación BUS (liga/demo)"],
+      timeline: [{t: new Date().toISOString(), d: "Creación de tarea (demo)"},{t: new Date().toISOString(), d:"Evidencia cargada"}]
+    }
+  ];
+
+  const state = { seq: 125, tasks };
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  return state;
+}
+let state = loadState();
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+/** ===== Filtering ===== */
+let activeFilters = { proceso:"", proyecto:"", zona:"", divisional:"", responsable:"", prioridad:"" };
+function applyFilters(tasks){
+  const fp = (activeFilters.proceso||"").trim().toLowerCase();
+  const fproy = (activeFilters.proyecto||"").trim().toLowerCase();
+  const fz = (activeFilters.zona||"").trim().toLowerCase();
+  const fd = (activeFilters.divisional||"").trim().toLowerCase();
+  const fr = (activeFilters.responsable||"").trim().toLowerCase();
+
+  return tasks.filter(t=>{
+    if(activeFilters.prioridad && t.prioridad !== activeFilters.prioridad) return false;
+    if(fp && !(t.proceso||"").toLowerCase().includes(fp)) return false;
+    if(fz && !(t.zona||"").toLowerCase().includes(fz)) return false;
+    if(fd && !(t.divisional||"").toLowerCase().includes(fd)) return false;
+    if(fr && !(t.responsable||"").toLowerCase().includes(fr)) return false;
+    if(fproy){
+      const pr = (t.proyectos||[]).join(", ").toLowerCase();
+      if(!pr.includes(fproy)) return false;
+    }
+    return true;
+  });
+}
+
+/** ===== Semáforo ===== */
+function semaforo(t){
+  const today = todayISO();
+  const due = t.fecha_compromiso || today;
+  const diff = (new Date(due) - new Date(today)) / (1000*60*60*24);
+  const hasBlock = (t.riesgos || "").toLowerCase().includes("bloque");
+  if(t.estado === "Cumplida" || t.estado === "Cancelada") return "ok";
+  if(diff < 0) return "bad";
+  if(hasBlock || diff <= 3) return "warn";
+  return "ok";
+}
+function semBadge(s){
+  if(s==="ok") return `<span class="badge b-ok"><span class="dot"></span> Dentro de control</span>`;
+  if(s==="warn") return `<span class="badge b-warn"><span class="dot"></span> En riesgo</span>`;
+  return `<span class="badge b-bad"><span class="dot"></span> Vencida</span>`;
+}
+function statusBadge(t){
+  const s = semaforo(t);
+  const map = {
+    "Asignada":"b-green",
+    "En ejecución":"b-green",
+    "En validación":"b-violet",
+    "Cumplida":"b-ok",
+    "Devuelta":"b-gold",
+    "Reprogramada":"b-gold",
+    "Cancelada":"b-bad",
+    "Borrador":"b-gray"
+  };
+  const cls = map[t.estado] || "b-gray";
+  return `<span class="badge ${cls}"><span class="dot"></span>${esc(t.estado)}</span> ${semBadge(s)}`;
+}
+
+/** ===== UI ===== */
+function optify(select, values, placeholder="(Todos)"){
+  select.innerHTML = "";
+  const o0 = document.createElement("option");
+  o0.value = "";
+  o0.textContent = placeholder;
+  select.appendChild(o0);
+  values.forEach(v=>{
+    const o = document.createElement("option");
+    o.value = v; o.textContent = v;
+    select.appendChild(o);
+  });
+}
+function renderAll(){
+  renderFilters();
+  renderKpis();
+  renderByProcess();
+  renderCritical();
+  renderKanban();
+  renderValidationTray();
+  renderReportSummary();
+  renderUsers();
+  refreshDatalists();
+}
+
+function renderFilters(){
+  // inputs libres: solo prioridad usa select
+  optify(el("fPrioridad"), catalog.prioridades);
+
+  el("fProceso").value = activeFilters.proceso;
+  el("fProyecto").value = activeFilters.proyecto;
+  el("fZona").value = activeFilters.zona;
+  el("fDiv").value = activeFilters.divisional;
+  el("fResponsable").value = activeFilters.responsable;
+  el("fPrioridad").value = activeFilters.prioridad;
+}
+
+function renderKpis(){
+  const tasks = applyFilters(state.tasks);
+  const active = tasks.filter(t=>!["Cumplida","Cancelada"].includes(t.estado));
+  const overdue = tasks.filter(t=>semaforo(t)==="bad" && !["Cumplida","Cancelada"].includes(t.estado));
+  const inVal = tasks.filter(t=>t.estado==="En validación");
+  const done = tasks.filter(t=>t.estado==="Cumplida");
+  const denom = done.length + overdue.length;
+  const compliance = denom ? Math.round((done.length/denom)*100) : 100;
+
+  el("kpiGrid").innerHTML = `
+    <div class="kpi">
+      <div><div class="lbl">Tareas activas</div><b>${active.length}</b></div>
+      <span class="badge b-green"><span class="dot"></span> Operación</span>
+    </div>
+    <div class="kpi">
+      <div><div class="lbl">En validación</div><b>${inVal.length}</b></div>
+      <span class="badge b-violet"><span class="dot"></span> Pendientes</span>
+    </div>
+    <div class="kpi">
+      <div><div class="lbl">Vencidas</div><b>${overdue.length}</b></div>
+      <span class="badge b-bad"><span class="dot"></span> Críticas</span>
+    </div>
+    <div class="kpi">
+      <div><div class="lbl">Cumplimiento (aprox.)</div><b>${compliance}%</b></div>
+      <span class="badge ${compliance>=90?'b-ok':(compliance>=80?'b-warn':'b-bad')}">
+        <span class="dot"></span> Mes
+      </span>
+    </div>
+  `;
+}
+
+function renderByProcess(){
+  const tasks = applyFilters(state.tasks).filter(t=>t.estado!=="Cancelada");
+  const map = new Map();
+  tasks.forEach(t=>{
+    const k = (t.proceso||"(Sin proceso)");
+    if(!map.has(k)) map.set(k, {total:0, bad:0, warn:0});
+    const v = map.get(k);
+    v.total++;
+    const s = semaforo(t);
+    if(!["Cumplida"].includes(t.estado)){
+      if(s==="bad") v.bad++;
+      if(s==="warn") v.warn++;
+    }
+  });
+
+  const rows = [...map.entries()].sort((a,b)=>b[1].total-a[1].total)
+    .map(([proc, v])=>{
+      const cls = v.bad ? "b-bad" : (v.warn ? "b-warn" : "b-ok");
+      return `
+        <div class="item">
+          <div class="itemTop">
+            <div>
+              <b>${esc(proc)}</b><div class="muted">Tareas: ${v.total} · En riesgo: ${v.warn} · Vencidas: ${v.bad}</div>
+            </div>
+            <span class="badge ${cls}"><span class="dot"></span>${v.bad? "Crítico": (v.warn? "En riesgo":"Control")}</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+  el("byProcess").innerHTML = rows || `<div class="muted">Sin información con los filtros actuales.</div>`;
+}
+
+function renderCritical(){
+  const tasks = applyFilters(state.tasks)
+    .filter(t=>!["Cumplida","Cancelada"].includes(t.estado))
+    .filter(t=>{
+      const s = semaforo(t);
+      if(s==="bad") return true;
+      const today = todayISO();
+      const diff = (new Date(t.fecha_compromiso) - new Date(today)) / (1000*60*60*24);
+      return diff <= 3;
+    })
+    .sort((a,b)=> new Date(a.fecha_compromiso) - new Date(b.fecha_compromiso))
+    .slice(0,10);
+
+  el("criticalList").innerHTML = tasks.map(t=>`
+    <div class="item">
+      <div class="itemTop">
+        <div>
+          <b>${esc(t.titulo)}</b>
+          <div class="muted">${esc(t.proceso)} · Zona ${esc(t.zona)} · Div ${esc(t.divisional||"-")} · Resp. ${esc(t.responsable)}</div>
+        </div>
+        ${semBadge(semaforo(t))}
+      </div>
+      <div class="taskFoot">
+        <div class="small">Compromiso: <b>${esc(t.fecha_compromiso)}</b></div>
+        <button class="linkBtn" onclick="openTask('${t.id}')">Abrir</button>
+      </div>
+    </div>
+  `).join("") || `<div class="muted">Sin pendientes críticos con los filtros actuales.</div>`;
+}
+
+function renderKanban(){
+  const tasks = applyFilters(state.tasks);
+  const cols = ["Asignada","En ejecución","En validación","Cumplida"];
+  el("kanban").innerHTML = cols.map(c=>{
+    const list = tasks.filter(t=>t.estado===c);
+    return `
+      <div class="colKan">
+        <h3>${esc(c)} <span class="countPill">${list.length}</span></h3>
+        ${list.map(t=>`
+          <div class="task">
+            <div class="taskTitle">${esc(t.titulo)}</div>
+            <div class="taskMeta">
+              <span class="badge b-gray">${esc(t.proceso||"(Sin proceso)")}</span>
+              ${(t.proyectos?.[0]) ? `<span class="badge b-gold">${esc(t.proyectos[0])}</span>` : ``}
+            </div>
+            <div class="taskMeta">
+              <span class="badge b-gray">Zona ${esc(t.zona||"-")}</span>
+              <span class="badge b-gray">Div ${esc(t.divisional||"-")}</span>
+              <span class="badge b-gray">Resp. ${esc(t.responsable||"-")}</span>
+              <span class="badge ${t.prioridad==="Alta"?"b-bad":(t.prioridad==="Media"?"b-warn":"b-ok")}">
+                <span class="dot"></span>${esc(t.prioridad)}
+              </span>
+            </div>
+            <div class="taskFoot">
+              <div class="small">Compromiso: <b>${esc(t.fecha_compromiso||"-")}</b></div>
+              <button class="linkBtn" onclick="openTask('${t.id}')">Canvas</button>
+            </div>
+          </div>
+        `).join("") || `<div class="muted">Sin tareas.</div>`}
+      </div>
+    `;
+  }).join("");
+}
+
+function renderValidationTray(){
+  const tasks = applyFilters(state.tasks).filter(t=>t.estado==="En validación");
+  el("inValidation").innerHTML = tasks.map(t=>`
+    <div class="item">
+      <div class="itemTop">
+        <div>
+          <b>${esc(t.titulo)}</b>
+          <div class="muted">${esc(t.proceso)} · Zona ${esc(t.zona)} · Div ${esc(t.divisional||"-")} · Resp. ${esc(t.responsable)} · Compromiso ${esc(t.fecha_compromiso)}</div>
+        </div>
+        <span class="badge b-violet"><span class="dot"></span>En validación</span>
+      </div>
+      <div class="hr"></div>
+      <div class="muted"><b>Evidencias:</b> ${t.evidencias?.length ? esc(t.evidencias.join(" | ")) : "Sin evidencia"}</div>
+      <div class="taskFoot" style="margin-top:10px">
+        <div class="small">Avance: <b>${esc(t.avance)}%</b></div>
+        <button class="btn btnGreen btnSm" onclick="openTask('${t.id}')">Revisar en Canvas</button>
+      </div>
+    </div>
+  `).join("") || `<div class="muted">No hay tareas en validación con los filtros actuales.</div>`;
+}
+
+function renderReportSummary(){
+  const tasks = applyFilters(state.tasks);
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.estado==="Cumplida").length;
+  const inVal = tasks.filter(t=>t.estado==="En validación").length;
+  const overdue = tasks.filter(t=>semaforo(t)==="bad" && !["Cumplida","Cancelada"].includes(t.estado)).length;
+  const gwh = tasks.reduce((acc,t)=>acc + (Number(t.gwh)||0),0);
+  const mdp = tasks.reduce((acc,t)=>acc + (Number(t.mdp)||0),0);
+
+  el("mgrSummary").innerHTML = `
+    Total de tareas (según filtros): <b>${total}</b><br/>
+    Cumplidas: <b>${done}</b> · En validación: <b>${inVal}</b> · Vencidas: <b>${overdue}</b><br/>
+    Impacto estimado agregado: <b>${gwh.toFixed(3)} GWh</b> · <b>${mdp.toFixed(2)} MDP</b>
+  `;
+}
+
+/** ===== Tabs navigation ===== */
+document.querySelectorAll(".tabBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    el(`page-${tab}`).classList.add("active");
+  });
+});
+
+/** ===== Filter controls ===== */
+el("applyFiltersBtn").addEventListener("click", ()=>{
+  activeFilters.proceso = el("fProceso").value;
+  activeFilters.proyecto = el("fProyecto").value;
+  activeFilters.zona = el("fZona").value;
+  activeFilters.divisional = el("fDiv").value;
+  activeFilters.responsable = el("fResponsable").value;
+  activeFilters.prioridad = el("fPrioridad").value;
+  renderAll();
+});
+el("clearFiltersBtn").addEventListener("click", ()=>{
+  activeFilters = { proceso:"", proyecto:"", zona:"", divisional:"", responsable:"", prioridad:"" };
+  renderAll();
+});
+
+/** ===== Reset demo ===== */
+el("resetBtn").addEventListener("click", ()=>{
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(LS_USERS);
+  users = loadUsers();
+  state = loadState();
+  renderAll();
+});
+
+/** ===== Export CSV ===== */
+el("exportCsvBtn").addEventListener("click", ()=>{
+  const tasks = applyFilters(state.tasks);
+  const headers = ["folio","titulo","proceso","proyectos","kpis","zona","divisional","responsable","email","prioridad","estado","fecha_compromiso","avance","gwh","mdp"];
+  const rows = tasks.map(t=>[
+    t.folio, t.titulo, t.proceso, (t.proyectos||[]).join("; "), (t.kpis||[]).join("; "),
+    t.zona, t.divisional, t.responsable, t.email||"", t.prioridad, t.estado,
+    t.fecha_compromiso, t.avance, t.gwh ?? "", t.mdp ?? ""
+  ].map(v=> `"${String(v??"").replaceAll('"','""')}"`).join(","));
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `SIGTAE_export_${todayISO()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/** ===== Modal / Canvas ===== */
+const modalBack = el("modalBack");
+let currentTaskId = null;
+
+function openModal(){ modalBack.classList.add("show"); }
+function closeModal(){ modalBack.classList.remove("show"); currentTaskId = null; }
+
+el("closeModalBtn").addEventListener("click", closeModal);
+modalBack.addEventListener("click", (e)=>{ if(e.target===modalBack) closeModal(); });
+
+function fillModalCatalogs(){
+  // estado y prioridad permanecen controlados
+  el("mEstado").innerHTML = catalog.estados.map(v=>`<option>${esc(v)}</option>`).join("");
+  el("mPri").innerHTML = catalog.prioridades.map(v=>`<option>${esc(v)}</option>`).join("");
+}
+fillModalCatalogs();
+
+function pushEvent(t, desc){
+  t.timeline = t.timeline || [];
+  t.timeline.push({t:new Date().toISOString(), d:desc});
+}
+
+window.openTask = function(taskId){
+  const t = state.tasks.find(x=>x.id===taskId);
+  if(!t) return;
+  currentTaskId = taskId;
+
+  el("mTitle").textContent = `Canvas — ${t.folio}`;
+  el("mSub").textContent = `${t.proceso||"(Sin proceso)"} · Zona ${t.zona||"-"} · Div ${t.divisional||"-"} · Responsable: ${t.responsable||"-"}`;
+
+  el("mFolio").value = t.folio;
+  el("mEstado").value = t.estado;
+  el("mTitulo").value = t.titulo;
+  el("mFecha").value = t.fecha_compromiso || todayISO();
+
+  el("mProceso").value = t.proceso || "";
+  el("mProyectos").value = (t.proyectos||[]).join(", ");
+  el("mKpis").value = (t.kpis||[]).join(", ");
+  el("mZona").value = t.zona || "";
+  el("mDiv").value = t.divisional || "";
+
+  el("mResp").value = t.responsable || "";
+  el("mEmail").value = t.email || "";
+
+  el("mPri").value = t.prioridad;
+  el("mAvance").value = t.avance ?? 0;
+  el("mGwh").value = t.gwh ?? "";
+  el("mMdp").value = t.mdp ?? "";
+  el("mObj").value = t.objetivo ?? "";
+  el("mJust").value = t.justificacion ?? "";
+  el("mPlan").value = t.plan ?? "";
+  el("mDeps").value = t.dependencias ?? "";
+  el("mRisk").value = t.riesgos ?? "";
+  el("mValCom").value = "";
+
+  renderModalSide(t);
+  openModal();
+};
+
+function renderModalSide(t){
+  el("mBadges").innerHTML = statusBadge(t);
+
+  const ev = (t.evidencias||[]).map((e,i)=>`
+    <div class="item">
+      <div class="itemTop">
+        <b>Evidencia ${i+1}</b>
+        <span class="badge b-gray">Registrada</span>
+      </div>
+      <div class="muted">${esc(e)}</div>
+    </div>
+  `).join("");
+  el("mEvList").innerHTML = ev || `<div class="muted">Sin evidencias cargadas.</div>`;
+
+  const tl = (t.timeline||[]).slice().reverse().map(x=>`
+    <div class="tl">
+      <div class="d">${esc(x.d)}</div>
+      <div class="t">${new Date(x.t).toLocaleString()}</div>
+    </div>
+  `).join("");
+  el("mTimeline").innerHTML = tl || `<div class="muted">Sin eventos.</div>`;
+}
+
+function updateTaskFromModal(t){
+  const prevEstado = t.estado;
+  t.estado = el("mEstado").value || t.estado;
+
+  t.titulo = el("mTitulo").value.trim() || t.titulo;
+  t.fecha_compromiso = el("mFecha").value || t.fecha_compromiso;
+
+  t.proceso = el("mProceso").value.trim();
+  t.proyectos = splitCSV(el("mProyectos").value);
+  t.kpis = splitCSV(el("mKpis").value);
+
+  t.zona = el("mZona").value.trim();
+  t.divisional = el("mDiv").value.trim();
+
+  t.responsable = el("mResp").value.trim();
+  t.email = el("mEmail").value.trim();
+
+  t.prioridad = el("mPri").value || t.prioridad;
+  t.avance = Math.max(0, Math.min(100, Number(el("mAvance").value||0)));
+
+  t.gwh = el("mGwh").value === "" ? null : Number(el("mGwh").value);
+  t.mdp = el("mMdp").value === "" ? null : Number(el("mMdp").value);
+
+  t.objetivo = el("mObj").value;
+  t.justificacion = el("mJust").value;
+  t.plan = el("mPlan").value;
+  t.dependencias = el("mDeps").value;
+  t.riesgos = el("mRisk").value;
+
+  if(prevEstado !== t.estado){
+    pushEvent(t, `Cambio de estado: ${prevEstado} → ${t.estado}`);
+  } else {
+    pushEvent(t, "Actualización de información de tarea");
+  }
+}
+
+el("saveBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  updateTaskFromModal(t);
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+el("addEvBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  const v = el("mEv").value.trim();
+  if(!v) return alert("Indique la evidencia (liga o texto).");
+  t.evidencias = t.evidencias || [];
+  t.evidencias.push(v);
+  el("mEv").value = "";
+  pushEvent(t, "Evidencia cargada");
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+el("toValidationBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  updateTaskFromModal(t);
+  if(!t.evidencias || t.evidencias.length===0){
+    return alert("Para solicitar validación, cargue al menos 1 evidencia.");
+  }
+  const prev = t.estado;
+  t.estado = "En validación";
+  t.avance = Math.max(t.avance||0, 90);
+  pushEvent(t, `Solicitud de validación (estado: ${prev} → En validación)`);
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+el("approveBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  if(t.estado !== "En validación"){
+    return alert("La tarea debe estar en 'En validación' para aprobar.");
+  }
+  const c = el("mValCom").value.trim();
+  if(!c) return alert("Ingrese comentarios de validación (obligatorio).");
+  const prev = t.estado;
+  t.estado = "Cumplida";
+  t.avance = 100;
+  pushEvent(t, `Validación APROBADA: ${c}`);
+  pushEvent(t, `Cambio de estado: ${prev} → Cumplida`);
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+el("returnBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  if(t.estado !== "En validación"){
+    return alert("La tarea debe estar en 'En validación' para devolver.");
+  }
+  const c = el("mValCom").value.trim();
+  if(!c) return alert("Ingrese motivo de devolución (obligatorio).");
+  const prev = t.estado;
+  t.estado = "Devuelta";
+  pushEvent(t, `Validación DEVUELTA: ${c}`);
+  pushEvent(t, `Cambio de estado: ${prev} → Devuelta`);
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+el("reprogramBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  updateTaskFromModal(t);
+  const newDate = t.fecha_compromiso;
+  if(!newDate) return alert("Seleccione la nueva fecha compromiso.");
+  const prevDate = t.fecha_compromiso;
+  const prev = t.estado;
+  t.estado = "Reprogramada";
+  pushEvent(t, `Reprogramación: ${prevDate} → ${newDate}`);
+  pushEvent(t, `Cambio de estado: ${prev} → Reprogramada`);
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+el("cancelBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  if(!confirm("¿Cancelar la tarea?")) return;
+  const prev = t.estado;
+  t.estado = "Cancelada";
+  pushEvent(t, `Cancelación de tarea (estado: ${prev} → Cancelada)`);
+  saveState();
+  renderModalSide(t);
+  renderAll();
+});
+
+/** (6) Enviar por correo (mailto) */
+el("sendMailBtn").addEventListener("click", ()=>{
+  const t = state.tasks.find(x=>x.id===currentTaskId);
+  if(!t) return;
+  updateTaskFromModal(t);
+  saveState();
+  const to = (t.email||"").trim();
+  if(!to) return alert("Capture el correo del responsable para enviar la tarea.");
+  const subject = encodeURIComponent(`SIGTAE | Tarea asignada: ${t.folio} — ${t.titulo}`);
+  const body = encodeURIComponent(
+`Se asigna/actualiza tarea en SIGTAE:
+
+Folio: ${t.folio}
+Título: ${t.titulo}
+Proceso: ${t.proceso}
+Proyecto(s): ${(t.proyectos||[]).join(", ")}
+KPI(s): ${(t.kpis||[]).join(", ")}
+Zona: ${t.zona}
+Divisional: ${t.divisional}
+Responsable: ${t.responsable}
+Prioridad: ${t.prioridad}
+Estado: ${t.estado}
+Fecha compromiso: ${t.fecha_compromiso}
+Avance: ${t.avance}%
+
+Objetivo:
+${t.objetivo||""}
+
+Justificación:
+${t.justificacion||""}
+
+Plan:
+${t.plan||""}
+
+Evidencias:
+${(t.evidencias||[]).join("\n")}
+
+— SIGTAE`
+  );
+  window.location.href = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+});
+
+/** ===== Nueva tarea ===== */
+el("newTaskBtn").addEventListener("click", ()=>{
+  state.seq += 1;
+  const t = {
+    id: uid(),
+    folio: folio(state.seq),
+    titulo: "Nueva tarea (editar)",
+    proceso: "",
+    proyectos: [],
+    kpis: [],
+    zona: "",
+    divisional: "DVMC",
+    responsable: "",
+    email: "",
+    prioridad: "Media",
+    estado: "Borrador",
+    fecha_compromiso: addDaysISO(todayISO(), 7),
+    avance: 0,
+    gwh: null, mdp: null,
+    objetivo: "",
+    justificacion: "",
+    plan: "",
+    dependencias: "",
+    riesgos: "",
+    evidencias: [],
+    timeline: [{t:new Date().toISOString(), d:"Creación de tarea"}]
+  };
+  state.tasks.unshift(t);
+  saveState();
+  renderAll();
+  openTask(t.id);
+});
+
+/** ===== Configuración (Usuarios) ===== */
+el("addUserBtn").addEventListener("click", ()=>{
+  const u = {
+    rpe: el("uRpe").value.trim(),
+    nombre: el("uNombre").value.trim(),
+    categoria: el("uCat").value.trim(),
+    correo: el("uCorreo").value.trim(),
+    movil: el("uMovil").value.trim(),
+    rol: el("uRol").value
+  };
+  if(!u.nombre) return alert("Capture el nombre del usuario.");
+  users.push(u);
+  saveUsers();
+  renderUsers();
+  refreshDatalists();
+  alert("Usuario guardado.");
+});
+el("clearUserBtn").addEventListener("click", ()=>{
+  el("uRpe").value = "";
+  el("uNombre").value = "";
+  el("uCat").value = "";
+  el("uCorreo").value = "";
+  el("uMovil").value = "";
+  el("uRol").value = "ADMIN";
+});
+
+/** ===== Filtros ===== */
+el("applyFiltersBtn").addEventListener("click", ()=>{
+  activeFilters.proceso = el("fProceso").value;
+  activeFilters.proyecto = el("fProyecto").value;
+  activeFilters.zona = el("fZona").value;
+  activeFilters.divisional = el("fDiv").value;
+  activeFilters.responsable = el("fResponsable").value;
+  activeFilters.prioridad = el("fPrioridad").value;
+  renderAll();
+});
+el("clearFiltersBtn").addEventListener("click", ()=>{
+  activeFilters = { proceso:"", proyecto:"", zona:"", divisional:"", responsable:"", prioridad:"" };
+  renderAll();
+});
+
+/** ===== Tabs ===== */
+document.querySelectorAll(".tabBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    el(`page-${tab}`).classList.add("active");
+  });
+});
+
+/** ===== Init ===== */
+optify(el("fPrioridad"), catalog.prioridades);
+renderAll();
+</script>
+</body>
+</html>

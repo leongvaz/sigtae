@@ -1,0 +1,60 @@
+{
+  "users": [
+    {
+      "user": "G46BG",
+      "nombre": "LEON GONZALEZ VAZQUEZ",
+      "zona": "Laboratorio",
+      "admin": "1",
+      "estado": 1,
+      "proceso": "distribucion"
+    },
+    {
+      "user": "9L7R4",
+      "nombre": "ERICK MANUEL DIAZ ARREDONDO",
+      "zona": "Laboratorio",
+      "admin": "1",
+      "estado": 1,
+      "proceso": "distribucion"
+    },
+    {
+      "user": "G46B8",
+      "nombre": "ALBA NIDYA SOTO DOMINGUEZ",
+      "zona": "Laboratorio",
+      "admin": "1",
+      "estado": 1,
+      "proceso": "distribucion"
+    },
+    {
+      "user": "9L3VX",
+      "nombre": "YAZMIN LOPEZ ALBA",
+      "zona": "Laboratorio",
+      "admin": "0",
+      "estado": 1,
+      "proceso": "distribucion"
+    },
+    {
+      "user": "9L3DR",
+      "nombre": "ANDREA VICTORIA RAMIREZ JUAREZ",
+      "zona": "Laboratorio",
+      "admin": "0",
+      "estado": 1,
+      "proceso": "distribucion"
+    },
+    {
+      "user": "9L30Y",
+      "nombre": "FRANCISCO JAVIER MORENO IBARRA",
+      "zona": "Laboratorio",
+      "admin": "0",
+      "estado": 1,
+      "proceso": "distribucion"
+    },
+    {
+      "user": "9NKN6",
+      "nombre": "JORGE REBOLLEDO SOTO",
+      "zona": "Laboratorio",
+      "admin": "0",
+      "estado": 1,
+      "proceso": "distribucion"
+    }
+  ]
+}

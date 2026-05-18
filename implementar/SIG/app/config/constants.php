@@ -1,0 +1,72 @@
+<?php
+/**
+ * Constantes de negocio: niveles jerárquicos, estados, permisos
+ */
+return [
+    // Niveles jerárquicos (1 = más alto)
+    'niveles' => [
+        'jefe_departamento' => 1,
+        'jefe_oficina'      => 2,
+        'supervisor'        => 3,
+    ],
+
+    // Estados de tarea (se calculan automáticamente según reglas; cancelada es manual)
+    'estados_tarea' => [
+        'asignada',      // Recién creada
+        'en_proceso',    // Dentro del plazo, sin evidencia
+        'incumplimiento',// Venció y no hay evidencia
+        'vencida',       // Evidencia después del vencimiento
+        'atendida',      // Evidencia dentro del tiempo
+        'cancelada',     // Baja lógica con motivo
+    ],
+
+    // IDs de oficinas (catálogo en storage/json/offices.json)
+    'oficina_metrologia_id' => 'of-metro',
+    'oficina_preparacion_medidores_id' => 'of-lab',
+
+    // Modalidad al asignar (diaria = límite hoy; programada = fecha límite elegida)
+    'modalidades_asignacion' => [
+        'diaria',
+        'programada',
+    ],
+
+    // Dictamen de evaluación (valores históricos como requiere_correccion pueden existir en JSON antiguos)
+    'dictamen' => [
+        'satisfactoria',
+        'satisfactoria_fuera_tiempo',
+        'insatisfactoria',
+        'no_presentada',
+        'requiere_correccion', // legado
+    ],
+
+    // Prioridades y peso para desempeño ponderado (opcional)
+    'prioridad_peso' => [
+        'alta'   => 3,
+        'media'  => 2,
+        'baja'   => 1,
+    ],
+
+    // Tipos de tarea (catálogo)
+    'categorias_tarea' => [
+        'operativa',
+        'administrativo',
+        'aplicativo',
+    ],
+
+    // Tipos de evento para historial
+    'tipos_evento' => [
+        'tarea_creada',
+        'tarea_editada',
+        'cambio_fecha_limite',
+        'cambio_responsable',
+        'cambio_estado',
+        'evidencia_subida',
+        'evidencia_eliminada',
+        'comentario_agregado',
+        'evaluacion_registrada',
+        'evaluacion_insatisfactoria',
+        'delegacion_aplicada',
+        'tarea_cancelada',
+        'tarea_reasignada',
+    ],
+];

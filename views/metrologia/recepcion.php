@@ -84,15 +84,21 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
                                 <div class="row g-2">
                                     <div class="col-md-4">
                                         <label class="form-label small fw-semibold mb-1">RPE *</label>
-                                        <input type="text" name="entrega_rpe" class="form-control form-control-sm" required placeholder="Ej. 9L7R4">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="entrega_rpe" id="entregaRpeInput" class="form-control form-control-sm" required
+                                                   maxlength="8" pattern="[A-Za-z0-9]{1,8}" placeholder="Ej. 9L7R4" autocomplete="off"
+                                                   style="text-transform: uppercase;">
+                                            <button class="btn btn-outline-secondary" type="button" id="btnLookupEntregaRpe">Buscar RPE</button>
+                                        </div>
+                                        <div class="form-text" id="entregaRpeLookupMsg"></div>
                                     </div>
                                     <div class="col-md-8">
                                         <label class="form-label small fw-semibold mb-1">Nombre *</label>
-                                        <input type="text" name="entrega_nombre" class="form-control form-control-sm" required placeholder="Nombre completo">
+                                        <input type="text" name="entrega_nombre" id="entregaNombreInput" class="form-control form-control-sm" required placeholder="Nombre completo">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-semibold mb-1">Zona *</label>
-                                        <select class="form-select form-select-sm" name="entrega_zona" required>
+                                        <select class="form-select form-select-sm" name="entrega_zona" id="entregaZonaSelect" required>
                                             <option value="">Seleccione...</option>
                                             <?php foreach ($zonasEntrega as $z): ?>
                                                 <option value="<?= htmlspecialchars($z) ?>"><?= htmlspecialchars($z) ?></option>
@@ -101,7 +107,7 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-semibold mb-1">Área *</label>
-                                        <input type="text" name="entrega_area" class="form-control form-control-sm" required placeholder="Ej. Medición, ISC, etc.">
+                                        <input type="text" name="entrega_area" id="entregaAreaInput" class="form-control form-control-sm" required placeholder="Ej. Medición, ISC, etc.">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label small fw-semibold mb-1">Firma</label>
@@ -314,6 +320,111 @@ sigtae_page_header('Recepción de equipos', 'RECEPCIÓN DE EQUIPOS POR PARTE DEL
 
             btnAdd.addEventListener('click', () => addRow({}));
             btnRemove.addEventListener('click', () => removeRow());
+
+            // Búsqueda RPE — ENTREGA (Zona/Área)
+            const zonasEntregaList = <?= json_encode(array_values($zonasEntrega), JSON_UNESCAPED_UNICODE) ?>;
+            (function initEntregaRpeLookup() {
+                const rpeIn = document.getElementById('entregaRpeInput');
+                const btnLookup = document.getElementById('btnLookupEntregaRpe');
+                const msgEl = document.getElementById('entregaRpeLookupMsg');
+                const nombreIn = document.getElementById('entregaNombreInput');
+                const zonaSel = document.getElementById('entregaZonaSelect');
+                const areaIn = document.getElementById('entregaAreaInput');
+                if (!rpeIn || !btnLookup) return;
+
+                function normZona(s) {
+                    return String(s || '').toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[^a-z0-9]/g, '');
+                }
+                function setLookupMsg(text, kind) {
+                    if (!msgEl) return;
+                    msgEl.textContent = text || '';
+                    msgEl.className = 'form-text' + (kind === 'ok' ? ' text-success' : (kind === 'err' ? ' text-danger' : ''));
+                }
+                function applyZonaFromApi(apiZona) {
+                    if (!apiZona || !zonaSel) return false;
+                    const t = normZona(apiZona);
+                    if (!t) return false;
+                    for (const opt of zonaSel.options) {
+                        if (!opt.value) continue;
+                        const v = normZona(opt.value);
+                        if (v === t || t.includes(v) || v.includes(t)) {
+                            zonaSel.value = opt.value;
+                            return true;
+                        }
+                    }
+                    for (const z of zonasEntregaList) {
+                        const v = normZona(z);
+                        if (v === t || t.includes(v) || v.includes(t)) {
+                            for (const opt of zonaSel.options) {
+                                if (normZona(opt.value) === v) {
+                                    zonaSel.value = opt.value;
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+                async function lookupEntregaRpe() {
+                    const q = String(rpeIn.value || '').trim().toUpperCase();
+                    rpeIn.value = q;
+                    if (!q) {
+                        setLookupMsg('Indica un RPE para buscar.', 'err');
+                        return;
+                    }
+                    btnLookup.disabled = true;
+                    setLookupMsg('Buscando…', '');
+                    try {
+                        const apiUrl = new URL('api/metrologia-equipos.php', window.location.href);
+                        apiUrl.searchParams.set('action', 'lookup_rpe');
+                        apiUrl.searchParams.set('rpe', q);
+                        const urls = [apiUrl.href];
+                        if (base) {
+                            const legacy = new URL(base.replace(/\/$/, '') + '/api/metrologia-equipos.php', window.location.origin);
+                            legacy.searchParams.set('action', 'lookup_rpe');
+                            legacy.searchParams.set('rpe', q);
+                            urls.push(legacy.href);
+                        }
+                        let data = null;
+                        let lastErr = 'No se pudo cargar el RPE.';
+                        for (const url of urls) {
+                            try {
+                                const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+                                const parsed = await res.json().catch(() => null);
+                                if (res.ok && parsed && parsed.ok !== false) {
+                                    data = parsed;
+                                    break;
+                                }
+                                if (parsed && parsed.message) lastErr = parsed.message;
+                            } catch (_) {}
+                        }
+                        if (!data || !data.item) throw new Error(lastErr);
+                        const item = data.item;
+                        if (item.nombre && nombreIn) nombreIn.value = item.nombre;
+                        if (item.area && areaIn) areaIn.value = item.area;
+                        if (item.zona) {
+                            if (!applyZonaFromApi(item.zona)) {
+                                setLookupMsg('Datos cargados. Zona del servicio: «' + item.zona + '» — selecciónela manualmente si aplica.', 'ok');
+                                return;
+                            }
+                        }
+                        setLookupMsg('Datos cargados desde el servicio.', 'ok');
+                    } catch (e) {
+                        setLookupMsg('No se pudo cargar: ' + (e && e.message ? e.message : 'error'), 'err');
+                    } finally {
+                        btnLookup.disabled = false;
+                    }
+                }
+                btnLookup.addEventListener('click', (e) => { e.preventDefault(); lookupEntregaRpe(); });
+                rpeIn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        lookupEntregaRpe();
+                    }
+                });
+            })();
 
             // Inicial: 1 fila
             addRow({});

@@ -1371,6 +1371,7 @@ function sigtaeNavTreeHasActive(array $node, string $currentScript): bool {
                     pjaxPath.includes('metrologia-sig.php') ||
                     pjaxPath.includes('metrologia-bitacora.php') ||
                     pjaxPath.includes('metrologia-recepcion.php') ||
+                    pjaxPath.includes('metrologia-solicitudes.php') ||
                     pjaxPath.includes('prep-transformadores-instrumento.php') ||
                     pjaxPath.includes('ami-cambio-sigami.php') ||
                     pjaxPath.includes('ami-consultar-sigami.php')

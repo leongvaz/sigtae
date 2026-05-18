@@ -75,7 +75,7 @@ Flujo en `AuthService` + `AdDirectoryValidationService`:
 
 1. El usuario ingresa RPE y contraseña en `login.php`.
 2. Si `ad_validation.enabled = true` (en `app/config/app.php`), se llama a la API corporativa (`api.dvmc.cfemex.com/ad/validacion`).
-3. Si la API AD no responde y `auth_local_password_fallback = true`, se valida contra el `password_hash` almacenado en `storage/json/users.json` (útil en desarrollo).
+3. Si `auth_local_password_fallback = true`, ante fallo de AD (sin respuesta **o** credenciales rechazadas por el directorio) se intenta validar contra el `password_hash` en `storage/json/users.json` (útil para desarrollo y usuarios de prueba que no existen en AD).
 4. La sesión se guarda con nombre `sigtae_session` y control de inactividad.
 
 ---

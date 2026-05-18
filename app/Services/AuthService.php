@@ -42,6 +42,11 @@ class AuthService
                 return $this->establishSession($user);
             }
             if ($vr['outcome'] === 'invalid') {
+                // AD rechaza la cuenta (p. ej. usuarios de prueba solo en JSON). Si el fallback está activo,
+                // intentar password_hash local antes de dar por fallido el inicio de sesión.
+                if ($this->authLocalPasswordFallback) {
+                    return $this->loginWithLocalPassword($rpe, $password);
+                }
                 return ['ok' => false, 'message' => 'Credenciales incorrectas.'];
             }
             if ($this->authLocalPasswordFallback) {

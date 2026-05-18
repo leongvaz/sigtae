@@ -104,14 +104,17 @@ sigtae_page_header('Dashboard', 'Resumen operativo y cumplimiento del departamen
                                                 <td>
                                                     <?php
                                                     $pct = (float)($row['porcentaje'] ?? 0);
+                                                    $w = min(100, max(0, $pct));
                                                     $bar = $pct >= 80 ? 'bg-success' : ($pct >= 50 ? 'bg-warning text-dark' : 'bg-danger');
                                                     ?>
-                                                    <div class="progress" style="height: 20px;">
-                                                        <div class="progress-bar <?= $bar ?>" role="progressbar"
-                                                             style="width: <?= min(100, max(0, $pct)) ?>%"
-                                                             aria-valuenow="<?= htmlspecialchars((string)$pct) ?>" aria-valuemin="0" aria-valuemax="100">
-                                                            <?= htmlspecialchars((string)$pct) ?>%
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="progress flex-grow-1 sigtae-dash-perf-progress" style="height: 18px;">
+                                                            <?php if ($w > 0): ?>
+                                                                <div class="progress-bar <?= $bar ?>" role="presentation"
+                                                                     style="width: <?= $w ?>%; min-width: 0;"></div>
+                                                            <?php endif; ?>
                                                         </div>
+                                                        <span class="small fw-semibold text-nowrap text-muted" style="min-width: 2.75rem;"><?= round($pct) ?>%</span>
                                                     </div>
                                                 </td>
                                                 <td class="text-end small"><?= (int)($row['evaluadas'] ?? 0) ?> / <?= (int)($row['total'] ?? 0) ?> eval.</td>

@@ -1,6 +1,8 @@
 <?php
 // API JSON para catálogo maestro de equipos (sugerencias y CRUD).
 
+use App\Services\RpeDirectoryLookupService;
+
 $base = dirname(__DIR__, 2);
 $container = require $base . '/app/bootstrap.php';
 $basePath = $container['base_path'] ?? '';
@@ -26,6 +28,28 @@ if ($action === 'suggest') {
     $limit = (int)($_GET['limit'] ?? 12);
     $limit = max(1, min(50, $limit));
     echo json_encode(['ok' => true, 'items' => $repo->findSuggestions($field, $q, $limit)], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'lookup_rpe') {
+    if (!$metPerm->canManage($user)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'message' => 'No autorizado.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $rpe = strtoupper(trim((string)($_GET['rpe'] ?? '')));
+    $lookup = new RpeDirectoryLookupService();
+    $result = $lookup->lookup($rpe);
+    if (empty($result['ok'])) {
+        $status = (int)($result['http_status'] ?? 400);
+        http_response_code($status > 0 ? $status : 400);
+        echo json_encode([
+            'ok' => false,
+            'message' => (string)($result['message'] ?? 'Error en la consulta.'),
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    echo json_encode(['ok' => true, 'item' => $result['item'] ?? []], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

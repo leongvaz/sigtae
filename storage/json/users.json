@@ -269,6 +269,7 @@
         "updated_at": "2026-01-01T00:00:00-06:00"
     },
     {
+        "id": "usr-3dbbd27e",
         "rpe": "9L3DR",
         "nombre": "ANDREA VICTORIA RAMIREZ JUAREZ",
         "email": "andrea.ramirez@cfe.mx",
@@ -291,5 +292,31 @@
         "id": "usr-3dbbd27e",
         "created_at": "2026-05-07T09:14:13-06:00",
         "updated_at": "2026-05-07T09:16:12-06:00"
+    },
+    {
+        "id": "usr-zona1-test",
+        "rpe": "ZONA1",
+        "nombre": "Usuario Zona Zócalo (Prueba)",
+        "email": "zona1@cfe.mx",
+        "password_hash": "$2y$10$.wyP7qOqeGBtUDwPnaTB3e2OmLSQJppgG6fS5LH1BYpf/V/y.4GYq",
+        "nivel_jerarquico": 4,
+        "cargo": "Usuario de Zona",
+        "oficina_id": "of-zona",
+        "departamento_id": "",
+        "supervisor_id": null,
+        "puede_asignar": false,
+        "puede_evaluar": false,
+        "puede_delegar": false,
+        "puede_asignar_pares": false,
+        "es_super_admin": false,
+        "zona_id": "zn-21",
+        "zona_nombre": "21 / ZOCALO",
+        "zona_prefijo": "dm21",
+        "area_id": "ar-medicion",
+        "es_usuario_zona": true,
+        "alcance_asignacion": [],
+        "activo": true,
+        "created_at": "2026-05-15T00:00:00-06:00",
+        "updated_at": "2026-05-15T00:00:00-06:00"
     }
 ]

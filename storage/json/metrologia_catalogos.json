@@ -1,12 +1,18 @@
 {
+{
   "zonas": [
-    { "id": "zn-01", "nombre": "Zona 01", "activa": true },
-    { "id": "zn-02", "nombre": "Zona 02", "activa": true },
-    { "id": "zn-03", "nombre": "Zona 03", "activa": true }
+    { "id": "zn-21", "nombre": "21 / ZOCALO",      "prefijo": "dm21", "activa": true },
+    { "id": "zn-22", "nombre": "22 / BENITO JUAREZ","prefijo": "dm22", "activa": true },
+    { "id": "zn-23", "nombre": "23 / POLANCO",      "prefijo": "dm23", "activa": true },
+    { "id": "zn-24", "nombre": "24 / TACUBA",       "prefijo": "dm24", "activa": true },
+    { "id": "zn-25", "nombre": "25 / AEROPUERTO",   "prefijo": "dm25", "activa": true },
+    { "id": "zn-26", "nombre": "26 / NEZA",         "prefijo": "dm26", "activa": true },
+    { "id": "zn-27", "nombre": "27 / CHAPINGO",     "prefijo": "dm27", "activa": true }
   ],
   "areas": [
-    { "id": "ar-medidores", "nombre": "Medidores", "activa": true },
-    { "id": "ar-lab", "nombre": "Laboratorio", "activa": true }
+    { "id": "ar-medicion",  "nombre": "MEDICIÓN", "activa": true },
+    { "id": "ar-medidores", "nombre": "MEDIDORES", "activa": true },
+    { "id": "ar-lab",       "nombre": "LABORATORIO", "activa": true }
   ],
   "oficinas": [
     { "id": "of-metro", "nombre": "Metrología", "activa": true }

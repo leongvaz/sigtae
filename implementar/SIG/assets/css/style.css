@@ -1,0 +1,8 @@
+#dashboard-cards .card-body { text-align: center; }
+#dashboard-cards .card-title { text-align: center; }
+.card-section-num { font-size: 1.75rem; font-weight: 700; color: #0d6efd; line-height: 1.2; }
+#dropzone.dragover { background-color: #e7f1ff !important; }
+#dashboard-cards .card { cursor: pointer; transition: box-shadow .2s; }
+#dashboard-cards .card:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.1); }
+#dashboard-cards .card.disabled { cursor: default; opacity: .9; }
+#preview-content iframe, #preview-content img { max-width: 100%; }
